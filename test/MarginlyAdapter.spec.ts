@@ -47,6 +47,23 @@ describe('Marginly', () => {
       );
     });
 
+    it('add marginly pool should failt when pool already added', async () => {
+      const { vault, configManager, owner, marginlyPools } = await loadFixture(deployTestSystem);
+      await configManager.connect(owner).addMarginlyPool(vault, marginlyPools[0]);
+      await expect(configManager.connect(owner).addMarginlyPool(vault, marginlyPools[0])).to.be.revertedWithCustomError(
+        configManager,
+        'PoolAlreadyAdded'
+      );
+    });
+
+    it('remove marginly pool should fail when pool not connected to vault', async () => {
+      const { vault, configManager, owner, marginlyPools } = await loadFixture(deployTestSystem);
+      await expect(configManager.connect(owner).removeMarginlyPool(vault, 0)).to.be.revertedWithCustomError(
+        configManager,
+        'UnknownPool'
+      );
+    });
+
     it('remove marginly pool at zero index', async () => {
       const { vault, configManager, owner, marginlyPools } = await loadFixture(deployTestSystemWithConfiguredVault);
 
@@ -198,6 +215,25 @@ describe('Marginly', () => {
       await vault.connect(user1).seed(ProtocolType.Marginly, seedData0);
     });
 
+    it('harvest should fail when pool not found', async () => {
+      const { vault, owner, usdc, user1, user2, configManager, marginlyAdapter, aaveAdapter, marginlyPools } =
+        await loadFixture(deployTestSystemWithConfiguredVault);
+
+      const depositAmount = parseUnits('100', 18);
+      await usdc.connect(user2).approve(vault, depositAmount);
+      await vault.connect(user2).deposit(depositAmount, user2);
+
+      const seedAmount0 = parseUnits('10', 18);
+      const seedData0 = ethers.AbiCoder.defaultAbiCoder().encode(
+        ['address', 'uint256'],
+        [await user2.address, seedAmount0]
+      );
+      await expect(vault.connect(user1).harvest(ProtocolType.Marginly, seedData0)).to.be.revertedWithCustomError(
+        marginlyAdapter,
+        'UnknownPool'
+      );
+    });
+
     it('update total lent', async () => {
       const { vault, owner, usdc, user1, user2, configManager, marginlyAdapter, aaveAdapter, marginlyPools } =
         await loadFixture(deployTestSystemWithConfiguredVault);
@@ -235,6 +271,48 @@ describe('Marginly', () => {
       await vault.connect(user1).seed(ProtocolType.Marginly, seedData4);
 
       await vault.connect(user1).updateTotalLent();
+    });
+
+    it('getLent amount, underlying asset as quoteToken in marginly pool', async () => {
+      const { vault, owner, usdc, user1, user2, configManager, marginlyAdapter, aaveAdapter, marginlyPools } =
+        await loadFixture(deployTestSystemWithConfiguredVault);
+
+      const depositAmount = parseUnits('100', 18);
+      await usdc.connect(user2).approve(vault, depositAmount);
+      await vault.connect(user2).deposit(depositAmount, user2);
+
+      const seedAmount0 = parseUnits('10', 18);
+      const marginlyPoolAddress = await marginlyPools[0].getAddress();
+      const seedData0 = ethers.AbiCoder.defaultAbiCoder().encode(
+        ['address', 'uint256'],
+        [marginlyPoolAddress, seedAmount0]
+      );
+      await vault.connect(user1).updateTotalLent();
+
+      await vault.connect(user1).seed(ProtocolType.Marginly, seedData0);
+      const lentAmount = await marginlyAdapter.getLentAmount(vault);
+      expect(lentAmount).to.be.eq(seedAmount0);
+    });
+
+    it('getLent amount, underlying asset as baseToken in marginly pool', async () => {
+      const { vault, owner, usdc, user1, user2, configManager, marginlyAdapter, aaveAdapter, marginlyPools } =
+        await loadFixture(deployTestSystemWithConfiguredVault);
+
+      const depositAmount = parseUnits('100', 18);
+      await usdc.connect(user2).approve(vault, depositAmount);
+      await vault.connect(user2).deposit(depositAmount, user2);
+
+      const seedAmount0 = parseUnits('10', 18);
+      const marginlyPoolAddress = await marginlyPools[1].getAddress();
+      const seedData0 = ethers.AbiCoder.defaultAbiCoder().encode(
+        ['address', 'uint256'],
+        [marginlyPoolAddress, seedAmount0]
+      );
+      await vault.connect(user1).updateTotalLent();
+
+      await vault.connect(user1).seed(ProtocolType.Marginly, seedData0);
+      const lentAmount = await marginlyAdapter.getLentAmount(vault);
+      expect(lentAmount).to.be.eq(seedAmount0);
     });
   });
 });

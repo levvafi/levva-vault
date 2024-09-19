@@ -224,7 +224,7 @@ export async function deployTestSystem(): Promise<TestSystem> {
 
   const marginlyPools = [
     await deployMockMarginlyPool(testDai, testUsdc),
-    await deployMockMarginlyPool(testUsdc, testWeth),
+    await deployMockMarginlyPool(testUsdc, testWeth), // pool when usdc is base token
     await deployMockMarginlyPool(testGmx, testUsdc),
     await deployMockMarginlyPool(testArb, testUsdc),
     await deployMockMarginlyPool(testWeth, testUsdc),

@@ -10,3 +10,4 @@ artifacts
 cache-zk
 artifacts-zk
 coverage.json
+coverage

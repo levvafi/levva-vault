@@ -67,9 +67,10 @@ contract MockEtherfiWithdrawRequestNFT is ERC721Enumerable {
     return _withdrawRequests[requestId].isValid;
   }
 
-  function setWithdrawalStatus(uint256 requestId, bool isFinalized_, bool isClaimed_) public {
+  function setWithdrawalStatus(uint256 requestId, bool isFinalized_, bool isClaimed_, bool isValid) public {
     _isFinalizeds[requestId] = isFinalized_;
     _isClaimeds[requestId] = isClaimed_;
+    _withdrawRequests[requestId].isValid = isValid;
   }
 
   function setLiquidityPool(address pool, address /*eETH_*/) public {

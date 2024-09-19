@@ -29,11 +29,6 @@ contract EtherfiAdapter is ILendingAdapter, ConfigManagerStorage {
     ClaimWithdraw // 1
   }
 
-  function _getLentAmount(
-    ILiquidityPool liquidityPool,
-    EtherfiAdapterConfigStorage configManager
-  ) private view returns (uint256) {}
-
   /// @notice Stake ETH into EtherFi Liquidity Pool
   /// @return Actual amount of ETH staked
   function supply(bytes calldata data) external override returns (uint256) {

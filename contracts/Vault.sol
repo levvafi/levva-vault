@@ -137,6 +137,10 @@ contract Vault is
     return withdrawn;
   }
 
+  /// @notice Retrieves the amount of assets lent to a specific protocol
+  /// @dev This function calls the corresponding lending adapter to get the lent amount
+  /// @param protocol The type of lending protocol to query
+  /// @return The amount of assets lent to the specified protocol
   function getLentAmount(ProtocolType protocol) external view returns (uint256) {
     address adapterImpl = _getLendingAdapterSafe(protocol);
     return ILendingAdapter(adapterImpl).getLentAmount(address(this));
