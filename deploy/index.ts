@@ -11,6 +11,8 @@ import {
   MarginlyAdapter,
   EtherfiAdapter__factory,
   EtherfiAdapter,
+  VaultViewer,
+  VaultViewer__factory,
 } from '../typechain-types';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { createDefaultBaseState, DeployState, StateFile, StateStore } from './state-store';
@@ -63,6 +65,7 @@ export async function deployVault(
   const configManager = await deployConfigManager(signer, config, hre, stateStore, deploymentStore);
   const adapters = await deployAdapters(signer, config, hre, stateStore, deploymentStore, configManager);
   await deployVaults(signer, config, hre, stateStore, deploymentStore, configManager, adapters);
+  await deployVaultViewer(signer, config, hre, stateStore, deploymentStore, configManager);
 
   console.log(`State file: \n${stateStore.stringify()}`);
   console.log(`Deployment file: \n${deploymentStore.stringify()}`);
@@ -397,6 +400,46 @@ async function deployVaults(
       }
     }
   }
+}
+
+async function deployVaultViewer(
+  signer: Signer,
+  config: DeployConfig,
+  hre: HardhatRuntimeEnvironment,
+  stateStore: StateStore,
+  deploymentStore: DeploymentStore,
+  configManager: ConfigManager
+): Promise<VaultViewer> {
+  console.log(`Deploy VaultViewer.`);
+
+  const contractId = 'vaultViewer';
+  const txOverrides = await getTxOverrides(hre);
+
+  const state = stateStore.getById(contractId);
+  let vaultViewerAddress: string;
+  let vaultViewer: VaultViewer;
+  if (state !== undefined) {
+    console.log(`AaveAdapter already deployed. Skip.`);
+    vaultViewerAddress = state.address;
+    vaultViewer = VaultViewer__factory.connect(vaultViewerAddress, signer);
+  } else {
+    vaultViewer = (await new VaultViewer__factory().connect(signer).deploy(txOverrides)) as unknown as VaultViewer;
+    await vaultViewer.waitForDeployment();
+    vaultViewerAddress = await vaultViewer.getAddress();
+
+    const txHash = vaultViewer.deploymentTransaction()?.hash;
+
+    stateStore.setById(contractId, <DeployState>{ address: vaultViewerAddress, txHash });
+    deploymentStore.setById(contractId, <DeploymentState>{ address: vaultViewerAddress });
+
+    await verifyContract(hre, vaultViewerAddress, []);
+
+    console.log(`VaultViewer deployed: ${vaultViewerAddress}, txHash: ${txHash}`);
+  }
+
+  console.log(`\n`);
+
+  return vaultViewer;
 }
 
 async function verifyContract(hre: HardhatRuntimeEnvironment, address: string, constructorArguments: any[]) {

@@ -1,16 +1,19 @@
 {
   "configManager": {
-    "address": "0x27f519d608cC33533801bDDfD7635B6cD12878A6",
-    "implementation": "0x929B77bBEe22A07321352E1D5aaC4Ee50907387B"
+    "address": "0x9d733DCdD69a72FAA5Fa87611d384605D2cfedF4",
+    "implementation": "0xba49928dd332B69062864c09EA1936CFF12e714E"
   },
   "marginlyAdapter": {
-    "address": "0x503bfb362Eacd23Ea596a2D8595c09DEA3Edf7e5"
+    "address": "0xb01B532ff0072E9EdC756abdBc5bd2A696764046"
   },
   "aaveAdapter": {
-    "address": "0x429558A95501D82035d8592b07280c3312acBe4A"
+    "address": "0x75F97a89dF7822d10Aeb3e27c53312b7f2331b82"
   },
   "vault-usdc": {
-    "address": "0xA44D2904B31A078acFE6225b49df9ae31A0D169B",
-    "implementation": "0xda6a0FEeeB667f06C3D4b9C4e6c8e07A8a2983F4"
+    "address": "0xB058177A3dB501b926eDf40440d146981E2BA9fe",
+    "implementation": "0x850e3b809Ad573Dbec896398d1A38C273a9dcFc6"
+  },
+  "vaultViewer": {
+    "address": "0x014679842882e328ae2d78475b755d12D74FFbe9"
   }
 }
