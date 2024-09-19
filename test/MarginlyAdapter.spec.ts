@@ -8,7 +8,9 @@ describe('Marginly', () => {
   describe('Config manager', async () => {
     it('add marginly pool', async () => {
       const { vault, configManager, owner, marginlyPools } = await loadFixture(deployTestSystem);
-      await configManager.connect(owner).addMarginlyPool(vault, marginlyPools[0]);
+      await expect(configManager.connect(owner).addMarginlyPool(vault, marginlyPools[0]))
+        .to.emit(configManager, 'MarginlyPoolAdded')
+        .withArgs(vault, marginlyPools[0]);
     });
 
     it('add marginly pool should fail when unknown pool', async () => {
@@ -57,7 +59,9 @@ describe('Marginly', () => {
       expect(await configManager.getPoolByIndex(vault, 6)).to.be.eq(marginlyPools[6]);
       expect(await configManager.getCountOfPools(vault)).to.be.eq(7);
 
-      await configManager.removeMarginlyPool(vault, 0);
+      await expect(configManager.removeMarginlyPool(vault, 0))
+        .to.emit(configManager, 'MarginlyPoolRemoved')
+        .withArgs(vault, marginlyPools[0]);
 
       expect(await configManager.getPoolByIndex(vault, 0)).to.be.eq(marginlyPools[6]);
       expect(await configManager.getPoolByIndex(vault, 1)).to.be.eq(marginlyPools[1]);

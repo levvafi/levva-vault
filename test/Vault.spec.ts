@@ -20,18 +20,14 @@ describe('Vault', () => {
       await vault.updateTotalLent();
       const mintAmount = await vault.previewDeposit(depositAmount);
       await usdc.connect(user1).approve(vault, depositAmount);
-      await vault.connect(user1).deposit(depositAmount, user1);
+      await expect(vault.connect(user1).deposit(depositAmount, user1))
+        .to.emit(vault, 'Deposit')
+        .withArgs(user1.address, user1.address, depositAmount, mintAmount);
 
       expect(await usdc.balanceOf(user1)).to.be.eq(userBalanceBefore - depositAmount);
       expect(await usdc.balanceOf(vault)).to.be.eq(vaultBalanceBefore + depositAmount);
       expect(await vault.balanceOf(user1)).to.be.eq(lpUserBalanceBefore + mintAmount);
       expect(await vault.getFreeAmount()).to.be.eq(freeAmountBefore + depositAmount);
-
-      const [depositEvent] = await vault.queryFilter(vault.filters.Deposit, -1);
-      expect(depositEvent.args[0]).to.be.eq(user1.address); //sender
-      expect(depositEvent.args[1]).to.be.eq(user1.address); //owner
-      expect(depositEvent.args[2]).to.be.eq(depositAmount); //assets
-      expect(depositEvent.args[3]).to.be.eq(mintAmount); //shares
     });
 
     it('deposit and send lp to another account', async () => {
@@ -46,18 +42,14 @@ describe('Vault', () => {
       await vault.updateTotalLent();
       const mintAmount = await vault.previewDeposit(depositAmount);
       await usdc.connect(user1).approve(vault, depositAmount);
-      await vault.connect(user1).deposit(depositAmount, user2);
+      await expect(vault.connect(user1).deposit(depositAmount, user2))
+        .to.emit(vault, 'Deposit')
+        .withArgs(user1.address, user2.address, depositAmount, mintAmount);
 
       expect(await usdc.balanceOf(user1)).to.be.eq(userBalanceBefore - depositAmount);
       expect(await usdc.balanceOf(vault)).to.be.eq(vaultBalanceBefore + depositAmount);
       expect(await vault.balanceOf(user2)).to.be.eq(lpUserBalanceBefore + mintAmount);
       expect(await vault.getFreeAmount()).to.be.eq(freeAmountBefore + depositAmount);
-
-      const [depositEvent] = await vault.queryFilter(vault.filters.Deposit, -1);
-      expect(depositEvent.args[0]).to.be.eq(user1.address); //sender
-      expect(depositEvent.args[1]).to.be.eq(user2.address); //owner
-      expect(depositEvent.args[2]).to.be.eq(depositAmount); //assets
-      expect(depositEvent.args[3]).to.be.eq(mintAmount); //shares
     });
 
     it('mint', async () => {
@@ -72,18 +64,14 @@ describe('Vault', () => {
       await vault.updateTotalLent();
       const depositAmount = await vault.previewDeposit(mintAmount);
       await usdc.connect(user1).approve(vault, mintAmount);
-      await vault.connect(user1).mint(mintAmount, user1);
+      await expect(vault.connect(user1).mint(mintAmount, user1))
+        .to.emit(vault, 'Deposit')
+        .withArgs(user1.address, user1.address, depositAmount, mintAmount);
 
       expect(await usdc.balanceOf(user1)).to.be.eq(userBalanceBefore - depositAmount);
       expect(await usdc.balanceOf(vault)).to.be.eq(vaultBalanceBefore + depositAmount);
       expect(await vault.balanceOf(user1)).to.be.eq(lpUserBalanceBefore + mintAmount);
       expect(await vault.getFreeAmount()).to.be.eq(freeAmountBefore + depositAmount);
-
-      const [depositEvent] = await vault.queryFilter(vault.filters.Deposit, -1);
-      expect(depositEvent.args[0]).to.be.eq(user1.address); //sender
-      expect(depositEvent.args[1]).to.be.eq(user1.address); //owner
-      expect(depositEvent.args[2]).to.be.eq(depositAmount); //assets
-      expect(depositEvent.args[3]).to.be.eq(mintAmount); //shares
     });
 
     it('mint to another address', async () => {
@@ -98,18 +86,14 @@ describe('Vault', () => {
       await vault.updateTotalLent();
       const depositAmount = await vault.previewDeposit(mintAmount);
       await usdc.connect(user1).approve(vault, depositAmount);
-      await vault.connect(user1).mint(mintAmount, user2);
+      await expect(vault.connect(user1).mint(mintAmount, user2))
+        .to.emit(vault, 'Deposit')
+        .withArgs(user1.address, user2.address, depositAmount, mintAmount);
 
       expect(await usdc.balanceOf(user1)).to.be.eq(userBalanceBefore - depositAmount);
       expect(await usdc.balanceOf(vault)).to.be.eq(vaultBalanceBefore + depositAmount);
       expect(await vault.balanceOf(user2)).to.be.eq(lpUserBalanceBefore + mintAmount);
       expect(await vault.getFreeAmount()).to.be.eq(freeAmountBefore + depositAmount);
-
-      const [depositEvent] = await vault.queryFilter(vault.filters.Deposit, -1);
-      expect(depositEvent.args[0]).to.be.eq(user1.address); //sender
-      expect(depositEvent.args[1]).to.be.eq(user2.address); //owner
-      expect(depositEvent.args[2]).to.be.eq(depositAmount); //assets
-      expect(depositEvent.args[3]).to.be.eq(mintAmount); //shares
     });
 
     it('withdraw', async () => {
@@ -126,19 +110,14 @@ describe('Vault', () => {
       const withdrawAmount = depositAmount;
       await vault.updateTotalLent();
       const redeemAmount = await vault.previewRedeem(withdrawAmount);
-      await vault.connect(user1).withdraw(withdrawAmount, user1, user1);
+      await expect(vault.connect(user1).withdraw(withdrawAmount, user1, user1))
+        .to.emit(vault, 'Withdraw')
+        .withArgs(user1.address, user1.address, user1.address, withdrawAmount, redeemAmount);
 
       expect(await usdc.balanceOf(user1)).to.be.eq(userBalanceBefore + withdrawAmount);
       expect(await usdc.balanceOf(vault)).to.be.eq(vaultBalanceBefore - withdrawAmount);
       expect(await vault.balanceOf(user1)).to.be.eq(lpUserBalanceBefore - redeemAmount);
       expect(await vault.getFreeAmount()).to.be.eq(freeAmountBefore - withdrawAmount);
-
-      const [withdrawEvent] = await vault.queryFilter(vault.filters.Withdraw, -1);
-      expect(withdrawEvent.args[0]).to.be.eq(user1.address); // sender
-      expect(withdrawEvent.args[1]).to.be.eq(user1.address); // receiver
-      expect(withdrawEvent.args[2]).to.be.eq(user1.address); // owner
-      expect(withdrawEvent.args[3]).to.be.eq(withdrawAmount); // assets
-      expect(withdrawEvent.args[4]).to.be.eq(redeemAmount); // shares
     });
 
     it('withdraw to another account', async () => {
@@ -155,19 +134,14 @@ describe('Vault', () => {
       const withdrawAmount = depositAmount;
       await vault.updateTotalLent();
       const redeemAmount = await vault.previewRedeem(withdrawAmount);
-      await vault.connect(user1).withdraw(withdrawAmount, user2, user1);
+      await expect(vault.connect(user1).withdraw(withdrawAmount, user2, user1))
+        .to.emit(vault, 'Withdraw')
+        .withArgs(user1.address, user2.address, user1.address, withdrawAmount, redeemAmount);
 
       expect(await usdc.balanceOf(user2)).to.be.eq(userBalanceBefore + withdrawAmount);
       expect(await usdc.balanceOf(vault)).to.be.eq(vaultBalanceBefore - withdrawAmount);
       expect(await vault.balanceOf(user1)).to.be.eq(lpUserBalanceBefore - redeemAmount);
       expect(await vault.getFreeAmount()).to.be.eq(freeAmountBefore - withdrawAmount);
-
-      const [withdrawEvent] = await vault.queryFilter(vault.filters.Withdraw, -1);
-      expect(withdrawEvent.args[0]).to.be.eq(user1.address); // sender
-      expect(withdrawEvent.args[1]).to.be.eq(user2.address); // receiver
-      expect(withdrawEvent.args[2]).to.be.eq(user1.address); // owner
-      expect(withdrawEvent.args[3]).to.be.eq(withdrawAmount); // assets
-      expect(withdrawEvent.args[4]).to.be.eq(redeemAmount); // shares
     });
 
     it('withdraw, sender, owner and receiver are different', async () => {
@@ -187,19 +161,14 @@ describe('Vault', () => {
       await vault.connect(user1).approve(user3, withdrawAmount);
       expect(await vault.allowance(user1, user3)).to.be.eq(withdrawAmount);
 
-      await vault.connect(user3).withdraw(withdrawAmount, user2, user1);
+      await expect(vault.connect(user3).withdraw(withdrawAmount, user2, user1))
+        .to.emit(vault, 'Withdraw')
+        .withArgs(user3.address, user2.address, user1.address, withdrawAmount, redeemAmount);
 
       expect(await usdc.balanceOf(user2)).to.be.eq(userBalanceBefore + withdrawAmount);
       expect(await usdc.balanceOf(vault)).to.be.eq(vaultBalanceBefore - withdrawAmount);
       expect(await vault.balanceOf(user1)).to.be.eq(lpUserBalanceBefore - redeemAmount);
       expect(await vault.getFreeAmount()).to.be.eq(freeAmountBefore - withdrawAmount);
-
-      const [withdrawEvent] = await vault.queryFilter(vault.filters.Withdraw, -1);
-      expect(withdrawEvent.args[0]).to.be.eq(user3.address); // sender
-      expect(withdrawEvent.args[1]).to.be.eq(user2.address); // receiver
-      expect(withdrawEvent.args[2]).to.be.eq(user1.address); // owner
-      expect(withdrawEvent.args[3]).to.be.eq(withdrawAmount); // assets
-      expect(withdrawEvent.args[4]).to.be.eq(redeemAmount); // shares
     });
 
     it('withdraw should fail when exceeds maxWithdraw', async () => {
@@ -224,19 +193,14 @@ describe('Vault', () => {
       const lpUserBalanceBefore = await vault.balanceOf(user1);
 
       const redeemAmount = depositAmount;
-      await vault.connect(user1).redeem(redeemAmount, user1, user1);
+      await expect(vault.connect(user1).redeem(redeemAmount, user1, user1))
+        .to.emit(vault, 'Withdraw')
+        .withArgs(user1.address, user1.address, user1.address, redeemAmount, redeemAmount);
 
       expect(await usdc.balanceOf(user1)).to.be.eq(userBalanceBefore + redeemAmount);
       expect(await usdc.balanceOf(vault)).to.be.eq(vaultBalanceBefore - redeemAmount);
       expect(await vault.balanceOf(user1)).to.be.eq(lpUserBalanceBefore - redeemAmount);
       expect(await vault.getFreeAmount()).to.be.eq(freeAmountBefore - redeemAmount);
-
-      const [withdrawEvent] = await vault.queryFilter(vault.filters.Withdraw, -1);
-      expect(withdrawEvent.args[0]).to.be.eq(user1.address); // sender
-      expect(withdrawEvent.args[1]).to.be.eq(user1.address); // receiver
-      expect(withdrawEvent.args[2]).to.be.eq(user1.address); // owner
-      expect(withdrawEvent.args[3]).to.be.eq(redeemAmount); // assets
-      expect(withdrawEvent.args[4]).to.be.eq(redeemAmount); // shares
     });
 
     it('redeem to another account', async () => {
@@ -253,19 +217,14 @@ describe('Vault', () => {
       const redeemAmount = depositAmount;
       await vault.updateTotalLent();
       const withdrawAmount = await vault.previewRedeem(redeemAmount);
-      await vault.connect(user1).redeem(redeemAmount, user2, user1);
+      await expect(vault.connect(user1).redeem(redeemAmount, user2, user1))
+        .to.emit(vault, 'Withdraw')
+        .withArgs(user1.address, user2.address, user1.address, withdrawAmount, redeemAmount);
 
       expect(await usdc.balanceOf(user2)).to.be.eq(userBalanceBefore + withdrawAmount);
       expect(await usdc.balanceOf(vault)).to.be.eq(vaultBalanceBefore - withdrawAmount);
       expect(await vault.balanceOf(user1)).to.be.eq(lpUserBalanceBefore - redeemAmount);
       expect(await vault.getFreeAmount()).to.be.eq(freeAmountBefore - withdrawAmount);
-
-      const [withdrawEvent] = await vault.queryFilter(vault.filters.Withdraw, -1);
-      expect(withdrawEvent.args[0]).to.be.eq(user1.address); // sender
-      expect(withdrawEvent.args[1]).to.be.eq(user2.address); // receiver
-      expect(withdrawEvent.args[2]).to.be.eq(user1.address); // owner
-      expect(withdrawEvent.args[3]).to.be.eq(withdrawAmount); // assets
-      expect(withdrawEvent.args[4]).to.be.eq(redeemAmount); // shares
     });
 
     it('redeem, sender owner and receiver are different', async () => {
@@ -285,19 +244,14 @@ describe('Vault', () => {
       await vault.connect(user1).approve(user3, redeemAmount);
       expect(await vault.allowance(user1, user3)).to.be.eq(redeemAmount);
 
-      await vault.connect(user3).withdraw(redeemAmount, user2, user1);
+      await expect(vault.connect(user3).withdraw(redeemAmount, user2, user1))
+        .to.emit(vault, 'Withdraw')
+        .withArgs(user3.address, user2.address, user1.address, withdrawAmount, redeemAmount);
 
       expect(await usdc.balanceOf(user2)).to.be.eq(userBalanceBefore + withdrawAmount);
       expect(await usdc.balanceOf(vault)).to.be.eq(vaultBalanceBefore - withdrawAmount);
       expect(await vault.balanceOf(user1)).to.be.eq(lpUserBalanceBefore - redeemAmount);
       expect(await vault.getFreeAmount()).to.be.eq(freeAmountBefore - withdrawAmount);
-
-      const [withdrawEvent] = await vault.queryFilter(vault.filters.Withdraw, -1);
-      expect(withdrawEvent.args[0]).to.be.eq(user3.address); // sender
-      expect(withdrawEvent.args[1]).to.be.eq(user2.address); // receiver
-      expect(withdrawEvent.args[2]).to.be.eq(user1.address); // owner
-      expect(withdrawEvent.args[3]).to.be.eq(withdrawAmount); // assets
-      expect(withdrawEvent.args[4]).to.be.eq(redeemAmount); // shares
     });
 
     it('redeem should fail when exceeds maxRedeem', async () => {
@@ -434,6 +388,14 @@ describe('Vault', () => {
       expect(await vault.getLendingAdapter(1)).to.be.eq(await aaveAdapter.getAddress());
     });
 
+    it('add adapter should emit event', async () => {
+      const { vault, owner, marginlyAdapter, aaveAdapter } = await loadFixture(deployTestSystem);
+
+      await expect(vault.connect(owner).addLendingAdapter(0, marginlyAdapter))
+        .to.emit(vault, 'AddLendingAdapter')
+        .withArgs(0, marginlyAdapter);
+    });
+
     it('add adapter should fail when sender is not an owner', async () => {
       const { vault, user1, marginlyAdapter, aaveAdapter } = await loadFixture(deployTestSystem);
       await expect(vault.connect(user1).addLendingAdapter(0, marginlyAdapter)).to.be.revertedWithCustomError(
@@ -467,6 +429,7 @@ describe('Vault', () => {
       const depositAmount = parseUnits('100', 18);
       await usdc.connect(user2).approve(vault, depositAmount);
       await vault.connect(user2).deposit(depositAmount, user2);
+      const oldBlockTimestamp = (await user1.provider.getBlock('latest'))!.timestamp;
 
       const supplyAmount = parseUnits('100', 18);
 
@@ -474,9 +437,21 @@ describe('Vault', () => {
         ['address', 'uint256'],
         [await marginlyPools[0].getAddress(), supplyAmount]
       );
-      await vault.connect(user1).seed(ProtocolType.Marginly, data);
+      await expect(vault.connect(user1).seed(ProtocolType.Marginly, data))
+        .to.emit(vault, 'Seed')
+        .withArgs(ProtocolType.Marginly, supplyAmount, data);
 
-      await vault.connect(user1).updateTotalLent();
+      const tx = vault.connect(user1).updateTotalLent();
+
+      await expect(tx)
+        .to.emit(vault, 'UpdateTotalLent')
+        .withArgs(
+          supplyAmount,
+          (await user1.provider.getBlock((await tx).blockNumber!))!.timestamp,
+          0,
+          oldBlockTimestamp
+        );
+
       expect(await vault.getTotalLent()).to.be.eq(supplyAmount);
       expect(await vault.getFreeAmount()).to.be.eq(0);
     });
@@ -521,7 +496,9 @@ describe('Vault', () => {
         ['address', 'uint256'],
         [await marginlyPools[0].getAddress(), harvestAmount]
       );
-      await vault.connect(user1).harvest(ProtocolType.Marginly, harvestData);
+      await expect(vault.connect(user1).harvest(ProtocolType.Marginly, harvestData))
+        .to.emit(vault, 'Harvest')
+        .withArgs(ProtocolType.Marginly, harvestAmount, harvestData);
 
       expect(await vault.getTotalLent()).to.be.eq(0);
       expect(await vault.getFreeAmount()).to.be.eq(depositAmount);
