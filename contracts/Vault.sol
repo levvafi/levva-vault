@@ -41,7 +41,8 @@ contract Vault is
   /// @notice Updates the total amount of assets lent out by the vault
   /// @dev This function iterates through all lending adapters and sums up their lent amounts
   /// @dev The total lent amount is then cached along with the current timestamp
-  function _updateTotalLent() internal override {
+  /// @return The total lent amount
+  function _updateTotalLent() internal override returns (uint256) {
     uint256 oldTotalLent = _getTotalLent();
     uint256 oldTimestamp = _getTotalLentUpdatedAt();
 
@@ -66,6 +67,8 @@ contract Vault is
     _setTotalLent(totalLent, block.timestamp);
 
     emit UpdateTotalLent(totalLent, block.timestamp, oldTotalLent, oldTimestamp);
+
+    return totalLent;
   }
 
   function initialize(
@@ -95,8 +98,8 @@ contract Vault is
   /// @notice Updates the total amount lent across all lending protocols
   /// @dev This function calls the internal _updateTotalLent() function to recalculate and update the cached total lent value
   /// @dev Can be called by any external address to refresh the total lent amount
-  function updateTotalLent() external {
-    _updateTotalLent();
+  function updateTotalLent() external returns (uint256) {
+    return _updateTotalLent();
   }
 
   /// @notice Executes a protocol action for a given protocol type

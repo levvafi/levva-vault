@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity 0.8.26;
+pragma solidity ^0.8.20;
 
 import {LendingAdaptersStorage} from '../base/LendingAdaptersStorage.sol';
 import {IERC4626} from '@openzeppelin/contracts/interfaces/IERC4626.sol';
@@ -29,7 +29,7 @@ interface IVault is IERC4626 {
 
   function getLentAmount(ProtocolType protocol) external view returns (uint256);
 
-  function updateTotalLent() external;
+  function updateTotalLent() external returns (uint256);
 
   function executeProtocolAction(ProtocolActionArg[] calldata protocolActionArgs) external returns (bytes[] memory);
 

@@ -68,7 +68,7 @@ abstract contract AbstractVault is Initializable, ERC4626Upgradeable {
   }
 
   /// @dev Updates total lent values
-  function _updateTotalLent() internal virtual;
+  function _updateTotalLent() internal virtual returns (uint256);
 
   //// ERC4626 methods
 
