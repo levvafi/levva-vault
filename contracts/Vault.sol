@@ -14,6 +14,7 @@ import {ProtocolType} from './libraries/ProtocolType.sol';
 import {Errors} from './libraries/Errors.sol';
 import {IVault} from './interfaces/IVault.sol';
 import {ERC721Holder} from '@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol';
+
 /// @title Vault
 /// @notice A upgradeable ERC4626 vault with lending adapter and config manager functionality
 /// @dev This contract inherits from UUPSUpgradeable, Ownable2StepUpgradeable, ERC4626Vault, LendingAdaptersStorage, and ConfigManagerStorage
@@ -98,43 +99,30 @@ contract Vault is
     _updateTotalLent();
   }
 
-  /// @notice Supplies a specified amount of the underlying asset to a lending protocol
-  /// @dev The function reduces the free amount of the vault and increases the lent amount in the protocol
-  /// @param protocol The type of lending protocol to supply to
-  /// @param data Additional data required by the specific lending protocol
-  /// @return The actual amount lent to the protocol (may differ from input amount due to protocol-specific factors)
-  function seed(ProtocolType protocol, bytes calldata data) external returns (uint256) {
+  /// @notice Executes a protocol action for a given protocol type
+  /// @dev This function iterates through the provided protocol action arguments, calls the corresponding lending adapter,
+  /// @dev and emits an event with the protocol type, arguments, and returned data
+  /// @param actionArgs An array of ProtocolActionArg structs containing the protocol type and arguments
+  /// @return returnData An array of bytes containing the returned data from each protocol action
+  function executeProtocolAction(ProtocolActionArg[] calldata actionArgs) external returns (bytes[] memory returnData) {
     _enforceSenderIsVaultManager();
 
-    address adapterImpl = _getLendingAdapterSafe(protocol);
-    bytes memory returnedData = Address.functionDelegateCall(
-      adapterImpl,
-      abi.encodeWithSelector(ILendingAdapter.supply.selector, data)
-    );
-    uint256 supplied = abi.decode(returnedData, (uint256));
+    uint256 length = actionArgs.length;
+    uint256 i;
+    returnData = new bytes[](length);
+    for (; i < length; ) {
+      ProtocolActionArg memory actionArg = actionArgs[i];
 
-    emit Seed(protocol, supplied, data);
+      address adapterImpl = _getLendingAdapterSafe(actionArg.protocol);
+      bytes memory result = Address.functionDelegateCall(adapterImpl, actionArg.data);
+      returnData[i] = result;
 
-    return supplied;
-  }
-  /// @notice Withdraws a specified amount of the underlying asset from a lending protocol
-  /// @dev The function increases the free amount of the vault and decreases the lent amount in the protocol
-  /// @param protocol The type of lending protocol to withdraw from
-  /// @param data Additional data required by the specific lending protocol
-  /// @return The actual amount withdrawn from the protocol (may differ from input amount due to protocol-specific factors)
-  function harvest(ProtocolType protocol, bytes calldata data) external returns (uint256) {
-    _enforceSenderIsVaultManager();
+      emit ProtocolActionExecuted(actionArg.protocol, actionArg.data, result);
 
-    address adapterImpl = _getLendingAdapterSafe(protocol);
-    bytes memory returnedData = Address.functionDelegateCall(
-      adapterImpl,
-      abi.encodeWithSelector(ILendingAdapter.withdraw.selector, data)
-    );
-    uint256 withdrawn = abi.decode(returnedData, (uint256));
-
-    emit Harvest(protocol, withdrawn, data);
-
-    return withdrawn;
+      unchecked {
+        ++i;
+      }
+    }
   }
 
   /// @notice Retrieves the amount of assets lent to a specific protocol

@@ -23,16 +23,13 @@ import {IVault} from '../../interfaces/IVault.sol';
 contract EtherfiAdapter is ILendingAdapter, ConfigManagerStorage {
   using SafeERC20 for IERC20;
 
-  /// @notice Enum representing different withdrawal types
-  enum WithdrawType {
-    RequestUnstake, // 0
-    ClaimWithdraw // 1
-  }
+  event EtherfiRequestWithdraw(uint256 requestId, uint256 amount);
 
-  /// @notice Stake ETH into EtherFi Liquidity Pool
+  event EtherfiClaimWithdraw(uint256 requestId, uint256 amount);
+
+  /// @notice Deposit ETH into EtherFi Liquidity Pool
   /// @return Actual amount of ETH staked
-  function supply(bytes calldata data) external override returns (uint256) {
-    uint256 amount = abi.decode(data, (uint256));
+  function deposit(uint256 amount) external returns (uint256) {
     EtherfiAdapterConfigStorage configStorage = EtherfiAdapterConfigStorage(_getConfigManager());
     // unwrap WETH to ETH
     IWETH9(configStorage.getWeth9()).withdraw(amount);
@@ -42,22 +39,9 @@ contract EtherfiAdapter is ILendingAdapter, ConfigManagerStorage {
     return amount;
   }
 
-  /// @notice Withdraw ETH from EtherFi protocol
-  /// @param data Encoded withdraw type
-  /// @return Actual amount of ETH received
-  function withdraw(bytes calldata data) external override returns (uint256) {
-    (WithdrawType withdrawType, uint256 amount) = abi.decode(data, (WithdrawType, uint256));
-
-    if (withdrawType == WithdrawType.RequestUnstake) {
-      return _requestUnstake(amount);
-    } else {
-      return _claimWithdraw();
-    }
-  }
-
   /// @notice Request unstaking eETH
   /// @param amount Amount of ETH to unstake
-  function _requestUnstake(uint256 amount) private returns (uint256) {
+  function requestWithdraw(uint256 amount) external returns (uint256) {
     EtherfiAdapterConfigStorage configStorage = EtherfiAdapterConfigStorage(_getConfigManager());
     IWeETH weeth = IWeETH(configStorage.getWeETH());
     IERC20 eETH = IERC20(weeth.eETH());
@@ -66,12 +50,14 @@ contract EtherfiAdapter is ILendingAdapter, ConfigManagerStorage {
     uint256 requestId = liquidityPool.requestWithdraw(address(this), amount);
     configStorage.enqueueUnstakeRequest(requestId, amount);
 
+    emit EtherfiRequestWithdraw(requestId, amount);
+
     return 0;
   }
 
   /// @notice Claim withdrawn ETH from unstaking request
   /// @return Amount of ETH claimed
-  function _claimWithdraw() private returns (uint256) {
+  function claimWithdraw() external returns (uint256) {
     EtherfiAdapterConfigStorage configStorage = EtherfiAdapterConfigStorage(_getConfigManager());
     IWeETH weeth = IWeETH(configStorage.getWeETH());
     ILiquidityPool liquidityPool = ILiquidityPool(weeth.liquidityPool());
@@ -93,6 +79,9 @@ contract EtherfiAdapter is ILendingAdapter, ConfigManagerStorage {
     withdrawn = address(this).balance - withdrawn;
     // wrap eth to weth
     IWETH9(configStorage.getWeth9()).deposit{value: withdrawn}();
+
+    emit EtherfiClaimWithdraw(requestId, withdrawn);
+
     return withdrawn;
   }
 

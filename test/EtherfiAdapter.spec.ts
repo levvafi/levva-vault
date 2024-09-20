@@ -1,13 +1,19 @@
-import { Addressable, ethers, formatUnits, parseEther, parseUnits, ZeroAddress } from 'ethers';
-import { expect, use } from 'chai';
+import { parseEther } from 'ethers';
+import { expect } from 'chai';
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
-import { deployTestSystem, deployTestSystemWithConfiguredWethVault } from './shared/fixtures';
-import { EtherfiWithdrawType, logVaultState, ProtocolType } from './shared/utils';
+import { deployTestSystemWithConfiguredWethVault } from './shared/fixtures';
+import {
+  encodeEtherfiClaimWithdraw,
+  encodeEtherfiDeposit,
+  encodeEtherfiRequestWithdraw,
+  encodeResult,
+  ProtocolType,
+} from './shared/utils';
 
 describe('Etherfi', () => {
   describe('Config', async () => {
     it('enqueue withdraw request', async () => {
-      const { vault, user1, user2, weth, configManager } = await loadFixture(deployTestSystemWithConfiguredWethVault);
+      const { user1, configManager } = await loadFixture(deployTestSystemWithConfiguredWethVault);
 
       await configManager.addVault(user1, true);
 
@@ -20,7 +26,7 @@ describe('Etherfi', () => {
     });
 
     it('enqueue withdraw request should fail when not authorized', async () => {
-      const { vault, user1, user2, weth, configManager } = await loadFixture(deployTestSystemWithConfiguredWethVault);
+      const { user2, configManager } = await loadFixture(deployTestSystemWithConfiguredWethVault);
 
       const requestId = 1;
       const withdrawAmount = parseEther('2');
@@ -30,7 +36,7 @@ describe('Etherfi', () => {
     });
 
     it('dequeue withdraw request', async () => {
-      const { vault, user1, user2, weth, configManager } = await loadFixture(deployTestSystemWithConfiguredWethVault);
+      const { user1, configManager } = await loadFixture(deployTestSystemWithConfiguredWethVault);
 
       await configManager.addVault(user1, true);
 
@@ -47,7 +53,7 @@ describe('Etherfi', () => {
     });
 
     it('dequeue withdraw request should fail when not authorized', async () => {
-      const { vault, user1, user2, weth, configManager } = await loadFixture(deployTestSystemWithConfiguredWethVault);
+      const { user1, user2, configManager } = await loadFixture(deployTestSystemWithConfiguredWethVault);
 
       await configManager.addVault(user1, true);
 
@@ -95,7 +101,7 @@ describe('Etherfi', () => {
   });
 
   describe('Etherfi adapter', async () => {
-    it('seed', async () => {
+    it('deposit', async () => {
       const { vault, user1, user2, weth } = await loadFixture(deployTestSystemWithConfiguredWethVault);
 
       const depositAmount = parseEther('10');
@@ -103,14 +109,19 @@ describe('Etherfi', () => {
       await weth.connect(user2).approve(vault, depositAmount);
       await vault.connect(user2).deposit(depositAmount, user2);
 
-      const seedAmount = parseEther('3');
-      const seedData = ethers.AbiCoder.defaultAbiCoder().encode(['uint256'], [seedAmount]);
-      await vault.connect(user1).seed(ProtocolType.Etherfi, seedData);
+      const etherfiDepositAmount = parseEther('3');
+      const eherfiDepositAction = {
+        protocol: ProtocolType.Etherfi,
+        data: encodeEtherfiDeposit(etherfiDepositAmount),
+      };
+      await vault.connect(user1).executeProtocolAction([eherfiDepositAction]);
       await vault.connect(user1).updateTotalLent();
     });
 
-    it('harvest', async () => {
-      const { vault, user1, user2, weth, etherFi } = await loadFixture(deployTestSystemWithConfiguredWethVault);
+    it('withdraw', async () => {
+      const { vault, user1, user2, weth, etherFi, etherfiAdapter } = await loadFixture(
+        deployTestSystemWithConfiguredWethVault
+      );
 
       const depositAmount = parseEther('10');
       await weth.connect(user2).deposit({ value: depositAmount });
@@ -118,33 +129,48 @@ describe('Etherfi', () => {
       await vault.connect(user2).deposit(depositAmount, user2);
       await vault.connect(user1).updateTotalLent();
 
-      const seedAmount = parseEther('3');
-      const seedData = ethers.AbiCoder.defaultAbiCoder().encode(['uint256'], [seedAmount]);
-      await vault.connect(user1).seed(ProtocolType.Etherfi, seedData);
+      const etherfiDepositAmount = parseEther('3');
+      const eherfiDepositAction = {
+        protocol: ProtocolType.Etherfi,
+        data: encodeEtherfiDeposit(etherfiDepositAmount),
+      };
+      await vault.connect(user1).executeProtocolAction([eherfiDepositAction]);
 
       // request withdraw
-      const harvestAmount = parseEther('2');
-      const harvestData = ethers.AbiCoder.defaultAbiCoder().encode(
-        ['uint8', 'uint256'],
-        [EtherfiWithdrawType.RequestWithdraw, harvestAmount]
+      const requestWithdrawAmount = parseEther('2');
+      const eherfiWithdrawAction = {
+        protocol: ProtocolType.Etherfi,
+        data: encodeEtherfiRequestWithdraw(requestWithdrawAmount),
+      };
+      await vault.connect(user1).executeProtocolAction([eherfiWithdrawAction]);
+
+      const [requestWithdrawEvent] = await vault.queryFilter(
+        etherfiAdapter.filters['EtherfiRequestWithdraw(uint256,uint256)'],
+        -1
       );
-      await vault.connect(user1).harvest(ProtocolType.Etherfi, harvestData);
+      expect(requestWithdrawEvent.args[0]).to.eq(1);
+      expect(requestWithdrawEvent.args[1]).to.eq(requestWithdrawAmount);
 
       // etherfi finalize requests
       await etherFi.withdrawRequestNFT.setWithdrawalStatus(1, true, false, true);
 
       // claim withdraw
-      const claimData = ethers.AbiCoder.defaultAbiCoder().encode(
-        ['uint8', 'uint256'],
-        [EtherfiWithdrawType.ClaimWithdraw, 1]
+      const eherfiClaimWtihdrawAction = {
+        protocol: ProtocolType.Etherfi,
+        data: encodeEtherfiClaimWithdraw(),
+      };
+      await vault.connect(user1).executeProtocolAction([eherfiClaimWtihdrawAction]);
+
+      const [claimWithdrawEvent] = await vault.queryFilter(
+        etherfiAdapter.filters['EtherfiClaimWithdraw(uint256,uint256)'],
+        -1
       );
-      await vault.connect(user1).harvest(ProtocolType.Etherfi, claimData);
+      expect(claimWithdrawEvent.args[0]).to.eq(1);
+      expect(claimWithdrawEvent.args[1]).to.eq(requestWithdrawAmount);
     });
 
-    it('harvest should fail when request not finalized', async () => {
-      const { vault, user1, user2, weth, etherFi, etherfiAdapter } = await loadFixture(
-        deployTestSystemWithConfiguredWethVault
-      );
+    it('claimWithdraw should fail when request not finalized', async () => {
+      const { vault, user1, user2, weth, etherfiAdapter } = await loadFixture(deployTestSystemWithConfiguredWethVault);
 
       const depositAmount = parseEther('10');
       await weth.connect(user2).deposit({ value: depositAmount });
@@ -152,31 +178,32 @@ describe('Etherfi', () => {
       await vault.connect(user2).deposit(depositAmount, user2);
       await vault.connect(user1).updateTotalLent();
 
-      const seedAmount = parseEther('3');
-      const seedData = ethers.AbiCoder.defaultAbiCoder().encode(['uint256'], [seedAmount]);
-      await vault.connect(user1).seed(ProtocolType.Etherfi, seedData);
+      const eherfiDepositAction = {
+        protocol: ProtocolType.Etherfi,
+        data: encodeEtherfiDeposit(parseEther('3')),
+      };
+      await vault.connect(user1).executeProtocolAction([eherfiDepositAction]);
 
       // request withdraw
-      const harvestAmount = parseEther('2');
-      const harvestData = ethers.AbiCoder.defaultAbiCoder().encode(
-        ['uint8', 'uint256'],
-        [EtherfiWithdrawType.RequestWithdraw, harvestAmount]
-      );
-      await vault.connect(user1).harvest(ProtocolType.Etherfi, harvestData);
+      const requestWithdrawAmount = parseEther('2');
+      const eherfiWithdrawAction = {
+        protocol: ProtocolType.Etherfi,
+        data: encodeEtherfiRequestWithdraw(requestWithdrawAmount),
+      };
+      await vault.connect(user1).executeProtocolAction([eherfiWithdrawAction]);
 
       // claim withdraw
-      const claimData = ethers.AbiCoder.defaultAbiCoder().encode(
-        ['uint8', 'uint256'],
-        [EtherfiWithdrawType.ClaimWithdraw, 1]
-      );
+      const eherfiClaimWtihdrawAction = {
+        protocol: ProtocolType.Etherfi,
+        data: encodeEtherfiClaimWithdraw(),
+      };
 
-      await expect(vault.connect(user1).harvest(ProtocolType.Etherfi, claimData)).to.be.revertedWithCustomError(
-        etherfiAdapter,
-        'InvalidWithdrawRequest'
-      );
+      await expect(
+        vault.connect(user1).executeProtocolAction([eherfiClaimWtihdrawAction])
+      ).to.be.revertedWithCustomError(etherfiAdapter, 'InvalidWithdrawRequest');
     });
 
-    it('harvest should fail when request not finalized', async () => {
+    it('claimWithdraw should fail when request not finalized', async () => {
       const { vault, user1, user2, weth, etherFi, etherfiAdapter } = await loadFixture(
         deployTestSystemWithConfiguredWethVault
       );
@@ -187,36 +214,35 @@ describe('Etherfi', () => {
       await vault.connect(user2).deposit(depositAmount, user2);
       await vault.connect(user1).updateTotalLent();
 
-      const seedAmount = parseEther('3');
-      const seedData = ethers.AbiCoder.defaultAbiCoder().encode(['uint256'], [seedAmount]);
-      await vault.connect(user1).seed(ProtocolType.Etherfi, seedData);
+      const eherfiDepositAction = {
+        protocol: ProtocolType.Etherfi,
+        data: encodeEtherfiDeposit(parseEther('3')),
+      };
+      await vault.connect(user1).executeProtocolAction([eherfiDepositAction]);
 
       // request withdraw
-      const harvestAmount = parseEther('2');
-      const harvestData = ethers.AbiCoder.defaultAbiCoder().encode(
-        ['uint8', 'uint256'],
-        [EtherfiWithdrawType.RequestWithdraw, harvestAmount]
-      );
-      await vault.connect(user1).harvest(ProtocolType.Etherfi, harvestData);
+      const requestWithdrawAmount = parseEther('2');
+      const eherfiWithdrawAction = {
+        protocol: ProtocolType.Etherfi,
+        data: encodeEtherfiRequestWithdraw(requestWithdrawAmount),
+      };
+      await vault.connect(user1).executeProtocolAction([eherfiWithdrawAction]);
 
       await etherFi.withdrawRequestNFT.setWithdrawalStatus(1, true, false, false);
 
       // claim withdraw
-      const claimData = ethers.AbiCoder.defaultAbiCoder().encode(
-        ['uint8', 'uint256'],
-        [EtherfiWithdrawType.ClaimWithdraw, 1]
-      );
+      const eherfiClaimWtihdrawAction = {
+        protocol: ProtocolType.Etherfi,
+        data: encodeEtherfiClaimWithdraw(),
+      };
 
-      await expect(vault.connect(user1).harvest(ProtocolType.Etherfi, claimData)).to.be.revertedWithCustomError(
-        etherfiAdapter,
-        'InvalidWithdrawRequest'
-      );
+      await expect(
+        vault.connect(user1).executeProtocolAction([eherfiClaimWtihdrawAction])
+      ).to.be.revertedWithCustomError(etherfiAdapter, 'InvalidWithdrawRequest');
     });
 
-    it('harvest should fail when requestId not found', async () => {
-      const { vault, user1, user2, weth, etherFi, etherfiAdapter } = await loadFixture(
-        deployTestSystemWithConfiguredWethVault
-      );
+    it('claim withdraw should fail when requestId not found', async () => {
+      const { vault, user1, user2, weth, etherfiAdapter } = await loadFixture(deployTestSystemWithConfiguredWethVault);
 
       const depositAmount = parseEther('10');
       await weth.connect(user2).deposit({ value: depositAmount });
@@ -224,39 +250,21 @@ describe('Etherfi', () => {
       await vault.connect(user2).deposit(depositAmount, user2);
       await vault.connect(user1).updateTotalLent();
 
-      const seedAmount = parseEther('3');
-      const seedData = ethers.AbiCoder.defaultAbiCoder().encode(['uint256'], [seedAmount]);
-      await vault.connect(user1).seed(ProtocolType.Etherfi, seedData);
+      const eherfiDepositAction = {
+        protocol: ProtocolType.Etherfi,
+        data: encodeEtherfiDeposit(parseEther('3')),
+      };
+      await vault.connect(user1).executeProtocolAction([eherfiDepositAction]);
 
       // claim withdraw
-      const claimData = ethers.AbiCoder.defaultAbiCoder().encode(
-        ['uint8', 'uint256'],
-        [EtherfiWithdrawType.ClaimWithdraw, 1]
-      );
+      const eherfiClaimWtihdrawAction = {
+        protocol: ProtocolType.Etherfi,
+        data: encodeEtherfiClaimWithdraw(),
+      };
 
-      await expect(vault.connect(user1).harvest(ProtocolType.Etherfi, claimData)).to.be.revertedWithCustomError(
-        etherfiAdapter,
-        'NoUnstakeRequest'
-      );
-    });
-
-    it('harvest should fail when withdraw type is invalid', async () => {
-      const { vault, user1, user2, weth } = await loadFixture(deployTestSystemWithConfiguredWethVault);
-
-      const depositAmount = parseEther('10');
-      await weth.connect(user2).deposit({ value: depositAmount });
-      await weth.connect(user2).approve(vault, depositAmount);
-      await vault.connect(user2).deposit(depositAmount, user2);
-      await vault.connect(user1).updateTotalLent();
-
-      const seedAmount = parseEther('3');
-      const seedData = ethers.AbiCoder.defaultAbiCoder().encode(['uint256'], [seedAmount]);
-      await vault.connect(user1).seed(ProtocolType.Etherfi, seedData);
-
-      const invalidWithdrawType = 5;
-      const harvestData = ethers.AbiCoder.defaultAbiCoder().encode(['uint8', 'uint256'], [invalidWithdrawType, 1]);
-
-      await expect(vault.connect(user1).harvest(ProtocolType.Etherfi, harvestData)).to.be.reverted;
+      await expect(
+        vault.connect(user1).executeProtocolAction([eherfiClaimWtihdrawAction])
+      ).to.be.revertedWithCustomError(etherfiAdapter, 'NoUnstakeRequest');
     });
 
     it('updateTotalLent / getTotalLent', async () => {
@@ -267,12 +275,15 @@ describe('Etherfi', () => {
       await weth.connect(user2).approve(vault, depositAmount);
       await vault.connect(user2).deposit(depositAmount, user2);
 
-      const seedAmount = parseEther('3');
-      const seedData = ethers.AbiCoder.defaultAbiCoder().encode(['uint256'], [seedAmount]);
-      await vault.connect(user1).seed(ProtocolType.Etherfi, seedData);
+      const etherfiDepositAmount = parseEther('3');
+      const eherfiDepositAction = {
+        protocol: ProtocolType.Etherfi,
+        data: encodeEtherfiDeposit(etherfiDepositAmount),
+      };
+      await vault.connect(user1).executeProtocolAction([eherfiDepositAction]);
 
       await vault.connect(user1).updateTotalLent();
-      expect(await vault.connect(user1).getTotalLent()).to.equal(seedAmount);
+      expect(await vault.connect(user1).getTotalLent()).to.equal(etherfiDepositAmount);
     });
   });
 });

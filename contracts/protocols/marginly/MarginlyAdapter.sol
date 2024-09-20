@@ -25,9 +25,7 @@ contract MarginlyAdapter is ConfigManagerStorage, ILendingAdapter {
   uint256 constant X96_ONE = 2 ** 96;
 
   /// @notice Deposits an amount into a Marginly pool
-  /// @param data Encoded pool address
-  function supply(bytes calldata data) external override returns (uint256) {
-    (address pool, uint256 amount) = abi.decode(data, (address, uint256));
+  function deposit(address pool, uint256 amount) external returns (uint256) {
     MarginlyAdapterConfigStorage.PoolConfig memory config = MarginlyAdapterConfigStorage(_getConfigManager())
       .getPoolConfig(address(this), pool);
 
@@ -44,9 +42,7 @@ contract MarginlyAdapter is ConfigManagerStorage, ILendingAdapter {
   }
 
   /// @notice Withdraws an exact amount or the maximum possible amount from a Marginly pool
-  /// @param data Encoded pool address
-  function withdraw(bytes calldata data) external override returns (uint256) {
-    (address pool, uint256 amount) = abi.decode(data, (address, uint256));
+  function withdraw(address pool, uint256 amount) external returns (uint256) {
     MarginlyAdapterConfigStorage.PoolConfig memory config = MarginlyAdapterConfigStorage(_getConfigManager())
       .getPoolConfig(address(this), pool);
 
