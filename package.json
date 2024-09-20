@@ -4,11 +4,11 @@
   "license": "GPL-3.0",
   "scripts": {
     "compile": "hardhat compile --config hardhat.common.ts",
-    "test": "hardhat test ./test/*.spec.ts --config hardhat.config.ts",
+    "test": "hardhat test ./test/*.spec.ts --config hardhat.common.ts",
     "test:gas": "UPDATE_SNAPSHOT=1 REPORT_GAS=true hardhat test --config hardhat-fork.config.ts ./test/gas/*.gas.spec.ts",
     "test:int-arb": "REPORT_GAS=true hardhat test --config hardhat-arb-fork.config.ts ./test/int/arb/*.spec.ts",
     "test:int-eth": "REPORT_GAS=true hardhat test --config hardhat-eth-fork.config.ts ./test/int/eth/*.spec.ts",
-    "test:coverage": "UPDATE_SNAPSHOT=1 REPORT_GAS=true hardhat coverage --config hardhat.config.ts --solcoverjs ./.solcover.ts --testfiles './test/*.spec.ts'",
+    "test:coverage": "UPDATE_SNAPSHOT=1 REPORT_GAS=true hardhat coverage --config hardhat.common.ts --solcoverjs ./.solcover.ts --testfiles './test/*.spec.ts'",
     "lint:write": "prettier --write ./contracts ./test ./deploy ./tasks",
     "clean": "hardhat clean",
     "clean:full": "hardhat clean && rm -rf node_modules"
