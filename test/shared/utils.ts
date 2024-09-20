@@ -1,6 +1,12 @@
 import { ethers, BigNumberish, BytesLike, parseEther, formatEther, parseUnits } from 'ethers';
 import * as helpers from '@nomicfoundation/hardhat-network-helpers';
-import { Vault } from '../../typechain-types';
+import {
+  Vault,
+  MarginlyAdapter,
+  MarginlyAdapter__factory,
+  AaveAdapter__factory,
+  EtherfiAdapter__factory,
+} from '../../typechain-types';
 
 export const USER_WARDEN_ADDRESS = 'warden1234';
 
@@ -117,4 +123,36 @@ export async function logVaultState(vault: Vault, descr: string) {
   const assetsPerLpUnit = await vault.convertToAssets(parseUnits('1', 18));
   console.log(` Lp price: ${formatEther(assetsPerLpUnit)} ETH`);
   console.log('\n');
+}
+
+export function encodeMarginlyDeposit(poolAddress: string, amount: bigint) {
+  return MarginlyAdapter__factory.createInterface().encodeFunctionData('deposit', [poolAddress, amount]);
+}
+
+export function encodeMarginlyWithdraw(poolAddress: string, amount: bigint) {
+  return MarginlyAdapter__factory.createInterface().encodeFunctionData('withdraw', [poolAddress, amount]);
+}
+
+export function encodeAaveDeposit(amount: bigint) {
+  return AaveAdapter__factory.createInterface().encodeFunctionData('supply', [amount]);
+}
+
+export function encodeAaveWithdraw(amount: bigint) {
+  return AaveAdapter__factory.createInterface().encodeFunctionData('withdraw', [amount]);
+}
+
+export function encodeEtherfiDeposit(amount: bigint) {
+  return EtherfiAdapter__factory.createInterface().encodeFunctionData('deposit', [amount]);
+}
+
+export function encodeEtherfiRequestWithdraw(amount: bigint) {
+  return EtherfiAdapter__factory.createInterface().encodeFunctionData('requestWithdraw', [amount]);
+}
+
+export function encodeEtherfiClaimWithdraw(): string {
+  return EtherfiAdapter__factory.createInterface().encodeFunctionData('claimWithdraw');
+}
+
+export function encodeResult(result: bigint): string {
+  return ethers.AbiCoder.defaultAbiCoder().encode(['uint256'], [result]);
 }

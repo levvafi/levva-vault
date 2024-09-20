@@ -1,9 +1,15 @@
-import { ethers, formatUnits, parseUnits, ZeroAddress } from 'ethers';
+import { formatUnits, parseUnits, ZeroAddress } from 'ethers';
 import { upgrades } from 'hardhat';
-import { expect, use } from 'chai';
+import { expect } from 'chai';
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 import { deployTestSystem, deployTestSystemWithConfiguredVault } from './shared/fixtures';
-import { EtherfiWithdrawType, ProtocolType } from './shared/utils';
+import {
+  encodeEtherfiDeposit,
+  encodeMarginlyDeposit,
+  encodeMarginlyWithdraw,
+  encodeResult,
+  ProtocolType,
+} from './shared/utils';
 import { Vault__factory } from '../typechain-types';
 
 describe('Vault', () => {
@@ -172,7 +178,7 @@ describe('Vault', () => {
     });
 
     it('withdraw should fail when exceeds maxWithdraw', async () => {
-      const { vault, usdc, user1 } = await loadFixture(deployTestSystem);
+      const { vault, user1 } = await loadFixture(deployTestSystem);
       const withdrawAmount = parseUnits('100', 18);
 
       await expect(vault.connect(user1).withdraw(withdrawAmount, user1, user1)).to.be.revertedWithCustomError(
@@ -255,7 +261,7 @@ describe('Vault', () => {
     });
 
     it('redeem should fail when exceeds maxRedeem', async () => {
-      const { vault, usdc, user1 } = await loadFixture(deployTestSystem);
+      const { vault, user1 } = await loadFixture(deployTestSystem);
       const redeemAmount = parseUnits('100', 18);
 
       await expect(vault.connect(user1).redeem(redeemAmount, user1, user1)).to.be.revertedWithCustomError(
@@ -265,7 +271,7 @@ describe('Vault', () => {
     });
 
     it('lp price should increase after rewards', async () => {
-      const { vault, usdc, user1, user2, user3 } = await loadFixture(deployTestSystem);
+      const { vault, usdc, user1 } = await loadFixture(deployTestSystem);
       const depositAmount = parseUnits('100', 18);
       await usdc.connect(user1).approve(vault, depositAmount);
       await vault.connect(user1).deposit(depositAmount, user1);
@@ -282,9 +288,7 @@ describe('Vault', () => {
     });
 
     it('dry vault after rewards', async () => {
-      const { vault, usdc, user1, user2, user3, connectedMarginlyPools } = await loadFixture(
-        deployTestSystemWithConfiguredVault
-      );
+      const { vault, usdc, user1, connectedMarginlyPools } = await loadFixture(deployTestSystemWithConfiguredVault);
       const depositAmount = parseUnits('100', 18);
       await usdc.connect(user1).approve(vault, depositAmount);
       await vault.connect(user1).deposit(depositAmount, user1);
@@ -316,7 +320,7 @@ describe('Vault', () => {
     });
 
     it('vault with technical position, dry', async () => {
-      const { vault, usdc, user1, user2, user3, connectedMarginlyPools } = await loadFixture(
+      const { vault, usdc, user1, user2, connectedMarginlyPools } = await loadFixture(
         deployTestSystemWithConfiguredVault
       );
 
@@ -360,15 +364,19 @@ describe('Vault', () => {
 
   describe('Vault management', () => {
     it('get config manager', async () => {
-      const { vault, owner, configManager } = await loadFixture(deployTestSystem);
+      const { vault, configManager } = await loadFixture(deployTestSystem);
       expect(await vault.getConfigManager()).to.be.eq(await configManager.getAddress());
     });
 
     it('seed should fail when adapter is not set', async () => {
       const { vault, owner } = await loadFixture(deployTestSystem);
       await vault.connect(owner).addVaultManager(owner, true);
-      const seedData = ethers.AbiCoder.defaultAbiCoder().encode(['uint256'], [1000]);
-      await expect(vault.connect(owner).seed(ProtocolType.Etherfi, seedData)).to.be.revertedWithCustomError(
+
+      const etherfiDepositAction = {
+        protocol: ProtocolType.Etherfi,
+        data: encodeEtherfiDeposit(1000n),
+      };
+      await expect(vault.connect(owner).executeProtocolAction([etherfiDepositAction])).to.be.revertedWithCustomError(
         vault,
         'AdapterIsNotSet'
       );
@@ -389,7 +397,7 @@ describe('Vault', () => {
     });
 
     it('add adapter should emit event', async () => {
-      const { vault, owner, marginlyAdapter, aaveAdapter } = await loadFixture(deployTestSystem);
+      const { vault, owner, marginlyAdapter } = await loadFixture(deployTestSystem);
 
       await expect(vault.connect(owner).addLendingAdapter(0, marginlyAdapter))
         .to.emit(vault, 'AddLendingAdapter')
@@ -397,7 +405,7 @@ describe('Vault', () => {
     });
 
     it('add adapter should fail when sender is not an owner', async () => {
-      const { vault, user1, marginlyAdapter, aaveAdapter } = await loadFixture(deployTestSystem);
+      const { vault, user1, marginlyAdapter } = await loadFixture(deployTestSystem);
       await expect(vault.connect(user1).addLendingAdapter(0, marginlyAdapter)).to.be.revertedWithCustomError(
         vault,
         'OwnableUnauthorizedAccount'
@@ -405,14 +413,14 @@ describe('Vault', () => {
     });
 
     it('add vault manager', async () => {
-      const { vault, owner, user1, marginlyAdapter, aaveAdapter } = await loadFixture(deployTestSystem);
+      const { vault, owner, user1 } = await loadFixture(deployTestSystem);
 
       await vault.connect(owner).addVaultManager(user1.address, true);
       await vault.connect(owner).addVaultManager(user1.address, false);
     });
 
     it('add vault manager should fail when sender is not an owner', async () => {
-      const { vault, owner, user1, marginlyAdapter, aaveAdapter } = await loadFixture(deployTestSystem);
+      const { vault, user1 } = await loadFixture(deployTestSystem);
 
       await expect(vault.connect(user1).addVaultManager(user1.address, true)).to.be.revertedWithCustomError(
         vault,
@@ -423,8 +431,7 @@ describe('Vault', () => {
 
   describe('Vault managers functions', () => {
     it('seed', async () => {
-      const { vault, owner, usdc, user1, user2, configManager, marginlyAdapter, aaveAdapter, marginlyPools } =
-        await loadFixture(deployTestSystemWithConfiguredVault);
+      const { vault, usdc, user1, user2, marginlyPools } = await loadFixture(deployTestSystemWithConfiguredVault);
 
       const depositAmount = parseUnits('100', 18);
       await usdc.connect(user2).approve(vault, depositAmount);
@@ -432,14 +439,13 @@ describe('Vault', () => {
       const oldBlockTimestamp = (await user1.provider.getBlock('latest'))!.timestamp;
 
       const supplyAmount = parseUnits('100', 18);
-
-      const data = ethers.AbiCoder.defaultAbiCoder().encode(
-        ['address', 'uint256'],
-        [await marginlyPools[0].getAddress(), supplyAmount]
-      );
-      await expect(vault.connect(user1).seed(ProtocolType.Marginly, data))
-        .to.emit(vault, 'Seed')
-        .withArgs(ProtocolType.Marginly, supplyAmount, data);
+      const marginlyDepositAction = {
+        protocol: ProtocolType.Marginly,
+        data: encodeMarginlyDeposit(await marginlyPools[0].getAddress(), supplyAmount),
+      };
+      await expect(vault.connect(user1).executeProtocolAction([marginlyDepositAction]))
+        .to.emit(vault, 'ProtocolActionExecuted')
+        .withArgs(ProtocolType.Marginly, marginlyDepositAction.data, encodeResult(supplyAmount));
 
       const tx = vault.connect(user1).updateTotalLent();
 
@@ -456,28 +462,27 @@ describe('Vault', () => {
       expect(await vault.getFreeAmount()).to.be.eq(0);
     });
 
-    it('seed should fail when sender is not a vault manager', async () => {
+    it('executeProtocolAction should fail when sender is not a vault manager', async () => {
       const { vault, usdc, user2, marginlyPools } = await loadFixture(deployTestSystemWithConfiguredVault);
 
       const depositAmount = parseUnits('100', 18);
       await usdc.connect(user2).approve(vault, depositAmount);
       await vault.connect(user2).deposit(depositAmount, user2);
 
-      const supplyAmount = parseUnits('100', 18);
-      const data = ethers.AbiCoder.defaultAbiCoder().encode(
-        ['address', 'uint256'],
-        [await marginlyPools[0].getAddress(), supplyAmount]
-      );
+      const protocolDepositAmount = parseUnits('100', 18);
+      const marginlyDepositAction = {
+        protocol: ProtocolType.Marginly,
+        data: encodeMarginlyDeposit(await marginlyPools[0].getAddress(), protocolDepositAmount),
+      };
 
-      await expect(vault.connect(user2).seed(ProtocolType.Marginly, data)).to.be.revertedWithCustomError(
+      await expect(vault.connect(user2).executeProtocolAction([marginlyDepositAction])).to.be.revertedWithCustomError(
         vault,
         'SenderIsNotVaultManager'
       );
     });
 
-    it('harvest', async () => {
-      const { vault, owner, usdc, user1, user2, configManager, marginlyAdapter, aaveAdapter, marginlyPools } =
-        await loadFixture(deployTestSystemWithConfiguredVault);
+    it('executeProtocolAction, marginly withdraw', async () => {
+      const { vault, usdc, user1, user2, marginlyPools } = await loadFixture(deployTestSystemWithConfiguredVault);
 
       const depositAmount = parseUnits('100', 18);
       await usdc.connect(user2).approve(vault, depositAmount);
@@ -485,47 +490,49 @@ describe('Vault', () => {
 
       const supplyAmount = parseUnits('100', 18);
 
-      const seedData = ethers.AbiCoder.defaultAbiCoder().encode(
-        ['address', 'uint256'],
-        [await marginlyPools[0].getAddress(), supplyAmount]
-      );
-      await vault.connect(user1).seed(ProtocolType.Marginly, seedData);
+      const marginlyDepositAction = {
+        protocol: ProtocolType.Marginly,
+        data: encodeMarginlyDeposit(await marginlyPools[0].getAddress(), supplyAmount),
+      };
+      await vault.connect(user1).executeProtocolAction([marginlyDepositAction]);
 
-      const harvestAmount = parseUnits('100', 18);
-      const harvestData = ethers.AbiCoder.defaultAbiCoder().encode(
-        ['address', 'uint256'],
-        [await marginlyPools[0].getAddress(), harvestAmount]
-      );
-      await expect(vault.connect(user1).harvest(ProtocolType.Marginly, harvestData))
-        .to.emit(vault, 'Harvest')
-        .withArgs(ProtocolType.Marginly, harvestAmount, harvestData);
+      const withdrawAmount = parseUnits('100', 18);
+      const marginlyWithdrawAction = {
+        protocol: ProtocolType.Marginly,
+        data: encodeMarginlyWithdraw(await marginlyPools[0].getAddress(), withdrawAmount),
+      };
+
+      await expect(vault.connect(user1).executeProtocolAction([marginlyWithdrawAction]))
+        .to.emit(vault, 'ProtocolActionExecuted')
+        .withArgs(ProtocolType.Marginly, marginlyWithdrawAction.data, encodeResult(withdrawAmount));
 
       expect(await vault.getTotalLent()).to.be.eq(0);
       expect(await vault.getFreeAmount()).to.be.eq(depositAmount);
     });
 
-    it('harvest should fail when sender is not a vault manager', async () => {
-      const { vault, owner, usdc, user1, user2, configManager, marginlyAdapter, aaveAdapter, marginlyPools } =
-        await loadFixture(deployTestSystemWithConfiguredVault);
+    it('executeProtocolAction should fail when sender is not a vault manager', async () => {
+      const { vault, usdc, user1, user2, marginlyPools } = await loadFixture(deployTestSystemWithConfiguredVault);
 
       const depositAmount = parseUnits('100', 18);
       await usdc.connect(user2).approve(vault, depositAmount);
       await vault.connect(user2).deposit(depositAmount, user2);
 
       const supplyAmount = parseUnits('100', 18);
-      const seedData = ethers.AbiCoder.defaultAbiCoder().encode(
-        ['address', 'uint256'],
-        [await marginlyPools[0].getAddress(), supplyAmount]
-      );
-      await vault.connect(user1).seed(ProtocolType.Marginly, seedData);
+      const marginlyDepositAction = {
+        protocol: ProtocolType.Marginly,
+        data: encodeMarginlyDeposit(await marginlyPools[0].getAddress(), supplyAmount),
+      };
 
-      const harvestAmount = parseUnits('100', 18);
-      const harvestData = ethers.AbiCoder.defaultAbiCoder().encode(
-        ['address', 'uint256'],
-        [await marginlyPools[0].getAddress(), harvestAmount]
-      );
+      await vault.connect(user1).executeProtocolAction([marginlyDepositAction]);
 
-      await expect(vault.connect(user2).harvest(ProtocolType.Marginly, harvestData)).to.be.revertedWithCustomError(
+      const withdrawAmount = parseUnits('100', 18);
+
+      const marginlyWithdrawAction = {
+        protocol: ProtocolType.Marginly,
+        data: encodeMarginlyWithdraw(await marginlyPools[0].getAddress(), withdrawAmount),
+      };
+
+      await expect(vault.connect(user2).executeProtocolAction([marginlyWithdrawAction])).to.be.revertedWithCustomError(
         vault,
         'SenderIsNotVaultManager'
       );
@@ -534,8 +541,7 @@ describe('Vault', () => {
 
   describe('Vault upgrade', async () => {
     it('upgrade should fail when authorized', async () => {
-      const { vault, owner, usdc, user1, user2, configManager, marginlyAdapter, aaveAdapter, marginlyPools } =
-        await loadFixture(deployTestSystemWithConfiguredVault);
+      const { vault, user1 } = await loadFixture(deployTestSystemWithConfiguredVault);
 
       await expect(
         upgrades.upgradeProxy(vault, new Vault__factory().connect(user1), {
@@ -545,8 +551,7 @@ describe('Vault', () => {
     });
 
     it('upgrade by owner', async () => {
-      const { vault, owner, usdc, user1, user2, configManager, marginlyAdapter, aaveAdapter, marginlyPools } =
-        await loadFixture(deployTestSystemWithConfiguredVault);
+      const { vault, owner } = await loadFixture(deployTestSystemWithConfiguredVault);
 
       await upgrades.upgradeProxy(vault, new Vault__factory().connect(owner), {
         unsafeAllow: ['delegatecall'],

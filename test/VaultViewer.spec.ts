@@ -2,7 +2,7 @@ import { ethers, formatUnits, parseUnits } from 'ethers';
 import { expect, use } from 'chai';
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 import { deployTestSystemWithConfiguredVault } from './shared/fixtures';
-import { ProtocolType } from './shared/utils';
+import { encodeMarginlyDeposit, ProtocolType } from './shared/utils';
 import { MintableERC20, MockMarginlyPool, Vault, VaultViewer } from '../typechain-types';
 import { SignerWithAddress } from '@nomicfoundation/hardhat-ethers/signers';
 
@@ -34,13 +34,12 @@ describe('VaultViewer', () => {
     await usdc.connect(user2).approve(vault, depositAmount);
     await vault.connect(user2).deposit(depositAmount, user2);
 
-    const supplyAmount = parseUnits('100', 18);
-
-    const data = ethers.AbiCoder.defaultAbiCoder().encode(
-      ['address', 'uint256'],
-      [await marginlyPools[0].getAddress(), supplyAmount]
-    );
-    await vault.connect(user1).seed(ProtocolType.Marginly, data);
+    const depositMarginlyAmount = parseUnits('100', 18);
+    const marginlyDepositAction = {
+      protocol: ProtocolType.Marginly,
+      data: encodeMarginlyDeposit(await marginlyPools[0].getAddress(), depositMarginlyAmount),
+    };
+    await vault.connect(user1).executeProtocolAction([marginlyDepositAction]);
 
     //simulate profit
     const vaultPosition = await marginlyPools[0].positions(vault);

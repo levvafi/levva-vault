@@ -27,8 +27,7 @@ contract AaveAdapter is ILendingAdapter, ConfigManagerStorage {
 
   /// @notice Supplies a specified amount of assets to the Aave pool
   /// @dev This function approves the Aave pool to spend the underlying asset and then supplies it
-  function supply(bytes calldata data) external returns (uint256) {
-    uint256 amount = abi.decode(data, (uint256));
+  function supply(uint256 amount) external returns (uint256) {
     address aavePool = AaveAdapterConfigStorage(_getConfigManager()).getAavePool();
     address underlyingAsset = IERC4626(address(this)).asset();
     IERC20(underlyingAsset).forceApprove(aavePool, amount);
@@ -40,8 +39,7 @@ contract AaveAdapter is ILendingAdapter, ConfigManagerStorage {
   /// @notice Withdraws a specified amount of assets from the Aave pool
   /// @dev This function interacts with the Aave pool to withdraw the underlying asset
   /// @return withdrawn The actual amount of assets that were withdrawn
-  function withdraw(bytes calldata data) external returns (uint256 withdrawn) {
-    uint256 amount = abi.decode(data, (uint256));
+  function withdraw(uint256 amount) external returns (uint256 withdrawn) {
     address aavePool = AaveAdapterConfigStorage(_getConfigManager()).getAavePool();
     address underlyingAsset = IERC4626(address(this)).asset();
     withdrawn = IPool(aavePool).withdraw(underlyingAsset, amount, address(this));
