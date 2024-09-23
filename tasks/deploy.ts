@@ -43,14 +43,14 @@ task('task:deploy', 'Deploy vaults')
       console.log(`Sent 1 ETH to deployer${signer.address}`);
     }
 
-    const config = await loadDeployConfig(network, signer.provider, dryRun);
+    const config = await loadDeployConfig(network, signer.provider!, dryRun);
 
-    const balanceBefore = await signer.provider.getBalance(signer.address);
+    const balanceBefore = await signer.provider!.getBalance(signer.address);
     console.log(`Balance before: ${hre.ethers.formatEther(balanceBefore)} Eth`);
 
     await deployVault(signer, config, network, dryRun, hre);
 
-    const balanceAfter = await signer.provider.getBalance(signer.address);
+    const balanceAfter = await signer.provider!.getBalance(signer.address);
     console.log(`Balance after: ${hre.ethers.formatEther(balanceAfter)} Eth`);
 
     console.log(`Spent: ${hre.ethers.formatEther(balanceBefore - balanceAfter)} Eth`);

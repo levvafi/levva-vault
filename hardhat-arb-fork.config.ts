@@ -1,6 +1,5 @@
 import '@nomicfoundation/hardhat-toolbox';
-// import 'solidity-docgen';
-import './tasks/deploy';
+import './tasks';
 import * as defaultConfig from './hardhat.common';
 
 const config = {
@@ -10,7 +9,7 @@ const config = {
       forking: {
         enabled: true,
         url: 'https://rpc.ankr.com/arbitrum',
-        blockNumber: 254494200,
+        blockNumber: 256512600,
       },
       initialBaseFeePerGas: 0,
     },

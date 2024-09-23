@@ -1,7 +1,7 @@
 import '@nomicfoundation/hardhat-toolbox';
 import '@openzeppelin/hardhat-upgrades';
 import 'hardhat-contract-sizer';
-import './tasks/deploy';
+import './tasks';
 import * as defaultConfig from './hardhat.common';
 
 const config = {

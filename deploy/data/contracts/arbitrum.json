@@ -11,7 +11,7 @@
   },
   "vault-usdc": {
     "address": "0xB058177A3dB501b926eDf40440d146981E2BA9fe",
-    "implementation": "0x850e3b809Ad573Dbec896398d1A38C273a9dcFc6"
+    "implementation": "0x15fE59452a5ad7824f6b75De49c0F575Ccc37552"
   },
   "vaultViewer": {
     "address": "0x014679842882e328ae2d78475b755d12D74FFbe9"

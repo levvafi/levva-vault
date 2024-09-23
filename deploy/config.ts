@@ -54,6 +54,27 @@ export function isEtherfiAdapter(adapter: AdapterConfig): adapter is AdapterConf
   return adapter.type === 'etherfi';
 }
 
+export interface UpgradeConfig {
+  ethConnection: EthConnectionConfig;
+  vaults: VaultUpgradeArgs[];
+  configurationManager: ConfigurationManagerUpgradeArgs;
+}
+
+export interface VaultUpgradeArgs {
+  id: string;
+  call?: {
+    fn: string;
+    args: any[];
+  };
+}
+
+export interface ConfigurationManagerUpgradeArgs {
+  call?: {
+    fn: string;
+    args: any[];
+  };
+}
+
 export async function loadDeployConfig(network: string, provider: Provider, dryRun: boolean): Promise<DeployConfig> {
   const configDir = path.join(__dirname, `data`, `configs`, network);
 
@@ -69,12 +90,12 @@ export async function loadDeployConfig(network: string, provider: Provider, dryR
   }
   const config: DeployConfig = JSON.parse(fs.readFileSync(configFilename, 'utf-8'));
 
-  await validateConfig(config, provider, dryRun);
+  await validateDeployConfig(config, provider, dryRun);
 
   return config;
 }
 
-async function validateConfig(config: DeployConfig, provider: Provider, dryRun: boolean): Promise<void> {
+async function validateDeployConfig(config: DeployConfig, provider: Provider, dryRun: boolean): Promise<void> {
   const tokens = config.tokens;
   for (const token of tokens) {
     await assertTokenConfig(token, provider);
@@ -99,3 +120,40 @@ async function assertTokenConfig(token: TokenConfig, provider: Provider): Promis
     );
   }
 }
+
+export async function loadUpgradeConfig(network: string, provider: Provider, dryRun: boolean): Promise<UpgradeConfig> {
+  const configDir = path.join(__dirname, `data`, `configs`, network);
+
+  if (!fs.existsSync(configDir)) {
+    throw new Error(`Directory '${configDir}' does not exists`);
+  }
+  if (!fs.statSync(configDir).isDirectory()) {
+    throw new Error(`Specified '${configDir}' is not a directory`);
+  }
+  const configFilename = path.join(configDir, 'upgrade-config.json');
+  if (!fs.existsSync(configFilename)) {
+    throw new Error(`Deploy config is not exist! Filename: ${configFilename}`);
+  }
+  const config: UpgradeConfig = JSON.parse(fs.readFileSync(configFilename, 'utf-8'));
+  await validateUpgadeConfig(config, provider, dryRun);
+
+  return config;
+}
+
+async function validateUpgadeConfig(config: UpgradeConfig, provider: Provider, dryRun: boolean): Promise<void> {
+  const vaultUpgradeArgs = config.vaults;
+  for (const vaultUpgradeArg of vaultUpgradeArgs) {
+    await validateVaultUpgradeArg(vaultUpgradeArg, provider);
+  }
+
+  if (config.configurationManager) {
+    await validateConfigurationManagerUpgradeArg(config.configurationManager, provider);
+  }
+}
+
+async function validateVaultUpgradeArg(upgradeArg: VaultUpgradeArgs, provider: Provider): Promise<void> {}
+
+async function validateConfigurationManagerUpgradeArg(
+  upgradeArg: ConfigurationManagerUpgradeArgs,
+  provider: Provider
+): Promise<void> {}

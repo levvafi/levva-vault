@@ -1,6 +1,5 @@
 import '@nomicfoundation/hardhat-toolbox';
-// import 'solidity-docgen';
-import './tasks/deploy';
+import './tasks';
 import * as defaultConfig from './hardhat.common';
 
 const config = {

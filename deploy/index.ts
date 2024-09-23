@@ -1,5 +1,5 @@
-import { Signer } from 'ethers';
-import { DeployConfig, EthConnectionConfig, VaultConfig } from './config';
+import { Signer, TransactionResponse } from 'ethers';
+import { DeployConfig, EthConnectionConfig, UpgradeConfig, VaultConfig } from './config';
 import {
   Vault__factory,
   Vault,
@@ -33,6 +33,26 @@ type AdapterAddress = {
   adapterImpl: string;
 };
 
+function initStateStore(network: string, dryRun: boolean, logger: SimpleLogger): StateStore {
+  const statesDirName = 'states';
+  const stateFileName = getStateFileName(network, statesDirName);
+  const actualStateFile = path.join(__dirname, `data`, `configs`, network, stateFileName);
+
+  return new StateFile('LevvaVaults', createDefaultBaseState, actualStateFile, !dryRun, logger).createStateStore();
+}
+
+function initDeploymentStore(network: string, dryRun: boolean, logger: SimpleLogger): DeploymentStore {
+  const actualDeploymentFile = path.join(__dirname, `data`, `contracts`, `${network}.json`);
+
+  return new DeploymentFile(
+    'LevvaVaults',
+    createDefaultBaseDeployment,
+    actualDeploymentFile,
+    !dryRun,
+    logger
+  ).createDeploymentStore();
+}
+
 export async function deployVault(
   signer: Signer,
   config: DeployConfig,
@@ -40,27 +60,9 @@ export async function deployVault(
   dryRun: boolean,
   hre: HardhatRuntimeEnvironment
 ) {
-  const statesDirName = 'states';
-  const stateFileName = getStateFileName(network, statesDirName);
-  const actualStateFile = path.join(__dirname, `data`, `configs`, network, stateFileName);
-  const actualDeploymentFile = path.join(__dirname, `data`, `contracts`, `${network}.json`);
-
   const logger = new SimpleLogger((x) => console.error(x));
-  const stateStore = new StateFile(
-    'LevvaVaults',
-    createDefaultBaseState,
-    actualStateFile,
-    !dryRun,
-    logger
-  ).createStateStore();
-
-  const deploymentStore = new DeploymentFile(
-    'LevvaVaults',
-    createDefaultBaseDeployment,
-    actualDeploymentFile,
-    !dryRun,
-    logger
-  ).createDeploymentStore();
+  const stateStore = initStateStore(network, dryRun, logger);
+  const deploymentStore = initDeploymentStore(network, dryRun, logger);
 
   const configManager = await deployConfigManager(signer, config, hre, stateStore, deploymentStore);
   const adapters = await deployAdapters(signer, config, hre, stateStore, deploymentStore, configManager);
@@ -69,6 +71,159 @@ export async function deployVault(
 
   console.log(`State file: \n${stateStore.stringify()}`);
   console.log(`Deployment file: \n${deploymentStore.stringify()}`);
+}
+
+export async function makeUpgrade(
+  signer: Signer,
+  config: UpgradeConfig,
+  network: string,
+  dryRun: boolean,
+  hre: HardhatRuntimeEnvironment
+) {
+  const logger = new SimpleLogger((x) => console.error(x));
+  const stateStore = initStateStore(network, dryRun, logger);
+  const deploymentStore = initDeploymentStore(network, dryRun, logger);
+
+  await upgradeVaults(signer, config, hre, stateStore, deploymentStore);
+  await upgradeConfigManager(signer, config, hre, stateStore, deploymentStore);
+}
+
+async function upgradeVaults(
+  signer: Signer,
+  config: UpgradeConfig,
+  hre: HardhatRuntimeEnvironment,
+  stateStore: StateStore,
+  deploymentStore: DeploymentStore
+) {
+  console.log(`Upgrade Vaults.`);
+
+  for (const upgradeArgs of config.vaults) {
+    const vaultId = getVaultProxyId(upgradeArgs.id);
+    const implId = getVaultImplId(upgradeArgs.id);
+    const deploymentId = getVaultDeploymentId(upgradeArgs.id);
+
+    console.log(`Upgrade vault ${upgradeArgs.id}.`);
+
+    const proxyState = stateStore.getById(vaultId);
+    if (proxyState === undefined) {
+      throw new Error(`Vault ${upgradeArgs.id} not found in state store`);
+    }
+    const implState = stateStore.getById(implId);
+    if (implState === undefined) {
+      throw new Error(`Vault implementation ${implId} not found in state store. Deploy vault first`);
+    }
+
+    const vaultProxyAddress = proxyState.address;
+    const oldImplAddress = implState.address;
+
+    const vaultImpl = await hre.upgrades.deployImplementation(new Vault__factory().connect(signer), {
+      unsafeAllow: ['delegatecall'],
+      redeployImplementation: 'onchange',
+    });
+
+    const vaultImplAddress = await getContractAddress(vaultImpl);
+
+    if (vaultImplAddress != oldImplAddress) {
+      const vaultProxy = await hre.upgrades.upgradeProxy(vaultProxyAddress, new Vault__factory().connect(signer), {
+        unsafeAllow: ['delegatecall'],
+        redeployImplementation: 'onchange',
+      });
+
+      const upgradeTx = vaultProxy.deployTransaction as any as TransactionResponse;
+      await upgradeTx.wait();
+
+      const implementationAddress = await hre.upgrades.erc1967.getImplementationAddress(vaultProxyAddress);
+
+      stateStore.setById(implId, <DeployState>{ address: implementationAddress });
+      deploymentStore.setById(deploymentId, <DeploymentState>{
+        address: vaultProxyAddress,
+        implementation: implementationAddress,
+      });
+
+      console.log(
+        `Vault ${upgradeArgs.id} proxy ${vaultProxyAddress} upgraded to impl: ${implementationAddress} txHash: ${upgradeTx.hash}\n`
+      );
+    } else {
+      console.log(`Upgrade skipped, implementation is not changed`);
+    }
+
+    await verifyContract(hre, vaultImplAddress, []);
+  }
+}
+
+async function upgradeConfigManager(
+  signer: Signer,
+  config: UpgradeConfig,
+  hre: HardhatRuntimeEnvironment,
+  stateStore: StateStore,
+  deploymentStore: DeploymentStore
+) {
+  if (!config.configurationManager) return;
+
+  console.log(`Upgrade ConfigManager.`);
+
+  const configManagerId = 'configManager-proxy';
+  const implId = 'configManager-impl';
+  const deploymentId = 'configManager';
+
+  const proxyState = stateStore.getById(configManagerId);
+  if (proxyState === undefined) {
+    throw new Error(`ConfigManager proxy is not found in state store`);
+  }
+
+  const implState = stateStore.getById(implId);
+  if (implState === undefined) {
+    throw new Error(`ConfigManager implementation is not found in state store`);
+  }
+
+  const oldImplementationAddress = implState.address;
+  const configManagerProxyAddress = proxyState.address;
+
+  const deployImplTx = await hre.upgrades.deployImplementation(new ConfigManager__factory().connect(signer), {
+    unsafeAllow: ['delegatecall'],
+    redeployImplementation: 'onchange',
+  });
+
+  const configManagerImplAddress = await getContractAddress(deployImplTx);
+
+  if (configManagerImplAddress.toLowerCase() !== oldImplementationAddress.toLocaleLowerCase()) {
+    const configManagerProxy = await hre.upgrades.upgradeProxy(
+      configManagerProxyAddress,
+      new ConfigManager__factory().connect(signer),
+      {
+        unsafeAllow: ['delegatecall'],
+        redeployImplementation: 'onchange',
+      }
+    );
+
+    const upgradeTx = configManagerProxy.deployTransaction as any as TransactionResponse;
+    await upgradeTx.wait();
+
+    const implementationAddress = await hre.upgrades.erc1967.getImplementationAddress(configManagerProxyAddress);
+
+    stateStore.setById(implId, <DeployState>{ address: implementationAddress });
+    deploymentStore.setById(deploymentId, <DeploymentState>{
+      address: configManagerProxyAddress,
+      implementation: implementationAddress,
+    });
+
+    console.log(
+      `ConfigManager ${configManagerId} proxy ${configManagerProxyAddress} upgraded to impl: ${implementationAddress} txHash: ${upgradeTx.hash}\n`
+    );
+  } else {
+    console.log(`Upgrade skipped, implementation is not changed`);
+  }
+
+  await verifyContract(hre, configManagerImplAddress, []);
+}
+
+async function getContractAddress(contractCreationTxOrAddress: string | TransactionResponse): Promise<string> {
+  if (contractCreationTxOrAddress instanceof TransactionResponse) {
+    const txReceipt = await contractCreationTxOrAddress.wait();
+    return txReceipt?.contractAddress!;
+  }
+
+  return contractCreationTxOrAddress;
 }
 
 async function getTxOverrides(hre: HardhatRuntimeEnvironment) {
@@ -308,6 +463,18 @@ async function deployEtherfiAdapter(
   return etherfiAdapter;
 }
 
+function getVaultProxyId(id: string): string {
+  return `vault-${id}-proxy`;
+}
+
+function getVaultImplId(id: string): string {
+  return `vault-${id}-impl`;
+}
+
+function getVaultDeploymentId(id: string): string {
+  return `vault-${id}`;
+}
+
 async function deployVaults(
   signer: Signer,
   config: DeployConfig,
@@ -328,9 +495,9 @@ async function deployVaults(
       throw new Error(`Underlying token not found in config by tokenId: ${vaultConfig.tokenId}`);
     }
 
-    const proxyId = `vault-${vaultConfig.id}-proxy`;
-    const implId = `vault-${vaultConfig.id}-impl`;
-    const deploymentId = `vault-${vaultConfig.id}`;
+    const proxyId = getVaultProxyId(vaultConfig.id);
+    const implId = getVaultImplId(vaultConfig.id);
+    const deploymentId = getVaultDeploymentId(vaultConfig.id);
 
     const txOverrides = await getTxOverrides(hre);
 
