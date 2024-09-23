@@ -1,0 +1,13 @@
+{
+    "ethConnection": {
+      "chainId": 42161,
+      "ethOptions": {}
+    },
+
+    "tokensDescription":"Here we should describe all vault upgrade args",
+    "vaults": [
+       {
+        "id": "usdc"
+       }
+    ]
+  }
