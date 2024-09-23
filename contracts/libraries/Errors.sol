@@ -5,6 +5,7 @@ pragma solidity 0.8.26;
 library Errors {
   error ZeroAddress();
   error ZeroAmount();
+  error LessThanMinDeposit();
   error NotEnoughFreeAmount();
   error SenderIsNotVaultManager();
   error UnknownPool();

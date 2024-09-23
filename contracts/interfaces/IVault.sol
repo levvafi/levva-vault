@@ -12,6 +12,8 @@ interface IVault is IERC4626 {
 
   event AddLendingAdapter(ProtocolType protocolType, address adapter);
 
+  event MinDepositSet(uint256 minDeposit);
+
   struct ProtocolActionArg {
     /// @dev Protocol type
     ProtocolType protocol;

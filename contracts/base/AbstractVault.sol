@@ -28,6 +28,7 @@ abstract contract AbstractVault is Initializable, ERC4626Upgradeable {
     ///@dev cached value of total lent, actual value could change every time, to get actual value call _updateTotalLent()
     uint256 _totalLent;
     uint256 _totalLentUpdatedAt;
+    uint256 _minDeposit;
   }
 
   function __AbstractVault_init(
@@ -67,6 +68,15 @@ abstract contract AbstractVault is Initializable, ERC4626Upgradeable {
     $._totalLentUpdatedAt = _timestamp;
   }
 
+  function _getMinDeposit() internal view returns (uint256) {
+    return _getAbstractVaultStorage()._minDeposit;
+  }
+
+  function _setMinDeposit(uint256 minDeposit) internal {
+    AbstractVaultStorage storage $ = _getAbstractVaultStorage();
+    $._minDeposit = minDeposit;
+  }
+
   /// @dev Updates total lent values
   function _updateTotalLent() internal virtual returns (uint256);
 
@@ -90,6 +100,10 @@ abstract contract AbstractVault is Initializable, ERC4626Upgradeable {
 
   /// @inheritdoc IERC4626
   function deposit(uint256 assets, address receiver) public override returns (uint256) {
+    if (assets < _getMinDeposit()) {
+      revert Errors.LessThanMinDeposit();
+    }
+
     _updateTotalLent();
     return super.deposit(assets, receiver);
   }
@@ -97,7 +111,20 @@ abstract contract AbstractVault is Initializable, ERC4626Upgradeable {
   /// @inheritdoc IERC4626
   function mint(uint256 shares, address receiver) public override returns (uint256) {
     _updateTotalLent();
-    return super.mint(shares, receiver);
+
+    uint256 maxShares = maxMint(receiver);
+    if (shares > maxShares) {
+      revert ERC4626ExceededMaxMint(receiver, shares, maxShares);
+    }
+
+    uint256 assets = previewMint(shares);
+    if (assets < _getMinDeposit()) {
+      revert Errors.LessThanMinDeposit();
+    }
+
+    _deposit(_msgSender(), receiver, assets, shares);
+
+    return assets;
   }
 
   /// @inheritdoc IERC4626
