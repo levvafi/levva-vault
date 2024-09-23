@@ -104,34 +104,50 @@ async function upgradeVaults(
 
     console.log(`Upgrade vault ${upgradeArgs.id}.`);
 
-    const state = stateStore.getById(vaultId);
-    if (state === undefined) {
+    const proxyState = stateStore.getById(vaultId);
+    if (proxyState === undefined) {
       throw new Error(`Vault ${upgradeArgs.id} not found in state store`);
     }
+    const implState = stateStore.getById(implId);
+    if (implState === undefined) {
+      throw new Error(`Vault implementation ${implId} not found in state store. Deploy vault first`);
+    }
 
-    const vaultProxyAddress = state.address;
+    const vaultProxyAddress = proxyState.address;
+    const oldImplAddress = implState.address;
 
-    const vaultProxy = await hre.upgrades.upgradeProxy(vaultProxyAddress, new Vault__factory().connect(signer), {
+    const vaultImpl = await hre.upgrades.deployImplementation(new Vault__factory().connect(signer), {
       unsafeAllow: ['delegatecall'],
       redeployImplementation: 'onchange',
     });
 
-    const upgradeTx = vaultProxy.deployTransaction as any as TransactionResponse;
-    await upgradeTx.wait();
+    const vaultImplAddress = await getContractAddress(vaultImpl);
 
-    const implementationAddress = await hre.upgrades.erc1967.getImplementationAddress(vaultProxyAddress);
+    if (vaultImplAddress != oldImplAddress) {
+      const vaultProxy = await hre.upgrades.upgradeProxy(vaultProxyAddress, new Vault__factory().connect(signer), {
+        unsafeAllow: ['delegatecall'],
+        redeployImplementation: 'onchange',
+      });
 
-    stateStore.setById(implId, <DeployState>{ address: implementationAddress });
-    deploymentStore.setById(deploymentId, <DeploymentState>{
-      address: vaultProxyAddress,
-      implementation: implementationAddress,
-    });
+      const upgradeTx = vaultProxy.deployTransaction as any as TransactionResponse;
+      await upgradeTx.wait();
 
-    await verifyContract(hre, implementationAddress, []);
+      const implementationAddress = await hre.upgrades.erc1967.getImplementationAddress(vaultProxyAddress);
 
-    console.log(
-      `Vault ${upgradeArgs.id} proxy ${vaultProxyAddress} upgraded to impl: ${implementationAddress} txHash: ${upgradeTx.hash}\n`
-    );
+      stateStore.setById(implId, <DeployState>{ address: implementationAddress });
+      deploymentStore.setById(deploymentId, <DeploymentState>{
+        address: vaultProxyAddress,
+        implementation: implementationAddress,
+      });
+
+      console.log(
+        `Vault ${upgradeArgs.id} proxy ${vaultProxyAddress} upgraded to impl: ${implementationAddress} txHash: ${upgradeTx.hash}\n`
+      );
+    } else {
+      console.log(`Upgrade skipped, implementation is not changed`);
+    }
+
+    await verifyContract(hre, vaultImplAddress, []);
   }
 }
 
@@ -150,38 +166,64 @@ async function upgradeConfigManager(
   const implId = 'configManager-impl';
   const deploymentId = 'configManager';
 
-  const state = stateStore.getById(configManagerId);
-  if (state === undefined) {
-    throw new Error(`ConfigManager not found in state store`);
+  const proxyState = stateStore.getById(configManagerId);
+  if (proxyState === undefined) {
+    throw new Error(`ConfigManager proxy is not found in state store`);
   }
 
-  //TODO: upgrade config manager proxy
-  const configManagerProxyAddress = state.address;
+  const implState = stateStore.getById(implId);
+  if (implState === undefined) {
+    throw new Error(`ConfigManager implementation is not found in state store`);
+  }
 
-  const configManagerProxy = await hre.upgrades.upgradeProxy(
-    configManagerProxyAddress,
-    new ConfigManager__factory().connect(signer),
-    {
-      unsafeAllow: ['delegatecall'],
-      redeployImplementation: 'onchange',
-    }
-  );
-  await configManagerProxy.waitForDeployment();
-  const txHash = configManagerProxy.deploymentTransaction()?.hash;
+  const oldImplementationAddress = implState.address;
+  const configManagerProxyAddress = proxyState.address;
 
-  const implementationAddress = await hre.upgrades.erc1967.getImplementationAddress(configManagerProxyAddress);
-
-  stateStore.setById(implId, <DeployState>{ address: implementationAddress });
-  deploymentStore.setById(deploymentId, <DeploymentState>{
-    address: configManagerProxyAddress,
-    implementation: implementationAddress,
+  const deployImplTx = await hre.upgrades.deployImplementation(new ConfigManager__factory().connect(signer), {
+    unsafeAllow: ['delegatecall'],
+    redeployImplementation: 'onchange',
   });
 
-  await verifyContract(hre, implementationAddress, []);
+  const configManagerImplAddress = await getContractAddress(deployImplTx);
 
-  console.log(
-    `ConfigManager ${configManagerId} proxy ${configManagerProxyAddress} upgraded to impl: ${implementationAddress} txHash: ${txHash}\n`
-  );
+  if (configManagerImplAddress.toLowerCase() !== oldImplementationAddress.toLocaleLowerCase()) {
+    const configManagerProxy = await hre.upgrades.upgradeProxy(
+      configManagerProxyAddress,
+      new ConfigManager__factory().connect(signer),
+      {
+        unsafeAllow: ['delegatecall'],
+        redeployImplementation: 'onchange',
+      }
+    );
+
+    const upgradeTx = configManagerProxy.deployTransaction as any as TransactionResponse;
+    await upgradeTx.wait();
+
+    const implementationAddress = await hre.upgrades.erc1967.getImplementationAddress(configManagerProxyAddress);
+
+    stateStore.setById(implId, <DeployState>{ address: implementationAddress });
+    deploymentStore.setById(deploymentId, <DeploymentState>{
+      address: configManagerProxyAddress,
+      implementation: implementationAddress,
+    });
+
+    console.log(
+      `ConfigManager ${configManagerId} proxy ${configManagerProxyAddress} upgraded to impl: ${implementationAddress} txHash: ${upgradeTx.hash}\n`
+    );
+  } else {
+    console.log(`Upgrade skipped, implementation is not changed`);
+  }
+
+  await verifyContract(hre, configManagerImplAddress, []);
+}
+
+async function getContractAddress(contractCreationTxOrAddress: string | TransactionResponse): Promise<string> {
+  if (contractCreationTxOrAddress instanceof TransactionResponse) {
+    const txReceipt = await contractCreationTxOrAddress.wait();
+    return txReceipt?.contractAddress!;
+  }
+
+  return contractCreationTxOrAddress;
 }
 
 async function getTxOverrides(hre: HardhatRuntimeEnvironment) {
