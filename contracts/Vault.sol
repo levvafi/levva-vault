@@ -152,6 +152,13 @@ contract Vault is
     return _getConfigManager();
   }
 
+  /// @notice Retrieves the minimum deposit amount required for deposits and minting
+  /// @dev This function allows external contracts to query the minimum deposit amount
+  /// @return The minimum deposit amount
+  function getMinDeposit() external view returns (uint256) {
+    return _getMinDeposit();
+  }
+
   /// @notice Adds or removes a vault manager
   /// @dev This function can only be called by the contract owner
   /// @param manager The address of the manager to add or remove
@@ -167,6 +174,14 @@ contract Vault is
   function addLendingAdapter(ProtocolType protocolType, address adapter) external onlyOwner {
     _addLendingAdapter(protocolType, adapter);
     emit AddLendingAdapter(protocolType, adapter);
+  }
+
+  /// @notice Sets the minimum deposit amount required for deposits and minting
+  /// @dev This function can only be called by the contract owner
+  /// @param minDeposit The new minimum deposit amount
+  function setMinDeposit(uint256 minDeposit) external onlyOwner {
+    _setMinDeposit(minDeposit);
+    emit MinDepositSet(minDeposit);
   }
 
   /// @dev Some protocols could send ETH to the vault

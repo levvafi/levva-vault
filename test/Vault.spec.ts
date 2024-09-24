@@ -1,4 +1,4 @@
-import { formatUnits, parseUnits, ZeroAddress } from 'ethers';
+import { formatUnits, parseEther, parseUnits, ZeroAddress } from 'ethers';
 import { upgrades } from 'hardhat';
 import { expect } from 'chai';
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
@@ -58,6 +58,21 @@ describe('Vault', () => {
       expect(await vault.getFreeAmount()).to.be.eq(freeAmountBefore + depositAmount);
     });
 
+    it('deposit should fail when less than min deposit', async () => {
+      const { vault, owner, usdc, user1, user2 } = await loadFixture(deployTestSystem);
+
+      const minDeposit = parseUnits('2', 18);
+      await vault.connect(owner).setMinDeposit(minDeposit);
+      expect(await vault.getMinDeposit()).to.be.eq(minDeposit);
+
+      const depositAmount = parseUnits('1', 18);
+      await usdc.connect(user1).approve(vault, depositAmount);
+      await expect(vault.connect(user1).deposit(depositAmount, user1)).to.be.revertedWithCustomError(
+        vault,
+        'LessThanMinDeposit'
+      );
+    });
+
     it('mint', async () => {
       const { vault, usdc, user1 } = await loadFixture(deployTestSystem);
 
@@ -78,6 +93,21 @@ describe('Vault', () => {
       expect(await usdc.balanceOf(vault)).to.be.eq(vaultBalanceBefore + depositAmount);
       expect(await vault.balanceOf(user1)).to.be.eq(lpUserBalanceBefore + mintAmount);
       expect(await vault.getFreeAmount()).to.be.eq(freeAmountBefore + depositAmount);
+    });
+
+    it('mint should fail when less than min deposit', async () => {
+      const { vault, owner, usdc, user1, user2 } = await loadFixture(deployTestSystem);
+
+      const minDeposit = parseUnits('2', 18);
+      await vault.connect(owner).setMinDeposit(minDeposit);
+      expect(await vault.getMinDeposit()).to.be.eq(minDeposit);
+
+      const mintAmount = parseUnits('1', 18);
+      await usdc.connect(user1).approve(vault, mintAmount);
+      await expect(vault.connect(user1).mint(mintAmount, user1)).to.be.revertedWithCustomError(
+        vault,
+        'LessThanMinDeposit'
+      );
     });
 
     it('mint to another address', async () => {
@@ -423,6 +453,23 @@ describe('Vault', () => {
       const { vault, user1 } = await loadFixture(deployTestSystem);
 
       await expect(vault.connect(user1).addVaultManager(user1.address, true)).to.be.revertedWithCustomError(
+        vault,
+        'OwnableUnauthorizedAccount'
+      );
+    });
+
+    it('set min deposit', async () => {
+      const { vault, owner, user1 } = await loadFixture(deployTestSystem);
+
+      const minDeposit = parseEther('0.001');
+      await expect(vault.connect(owner).setMinDeposit(minDeposit)).to.emit(vault, 'MinDepositSet').withArgs(minDeposit);
+
+      expect(await vault.getMinDeposit()).to.be.eq(minDeposit);
+    });
+
+    it('set min deposit should fail when sender is not an owner', async () => {
+      const { vault, user1 } = await loadFixture(deployTestSystem);
+      await expect(vault.connect(user1).setMinDeposit(1)).to.be.revertedWithCustomError(
         vault,
         'OwnableUnauthorizedAccount'
       );

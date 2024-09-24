@@ -1,4 +1,4 @@
-import { Signer, TransactionResponse } from 'ethers';
+import { parseEther, parseUnits, Signer, TransactionResponse } from 'ethers';
 import { DeployConfig, EthConnectionConfig, UpgradeConfig, VaultConfig } from './config';
 import {
   Vault__factory,
@@ -13,6 +13,7 @@ import {
   EtherfiAdapter,
   VaultViewer,
   VaultViewer__factory,
+  ERC20__factory,
 } from '../typechain-types';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { createDefaultBaseState, DeployState, StateFile, StateStore } from './state-store';
@@ -565,6 +566,11 @@ async function deployVaults(
 
         console.log(`Set lending adapter ${adapterDescr.adapterImpl} protocolType ${adapterDescr.protocolType}`);
       }
+    }
+
+    const minDepositRaw = parseUnits(vaultConfig.minDeposit, underlyingToken.assertDecimals);
+    if ((await vault.getMinDeposit()) !== minDepositRaw) {
+      await vault.connect(signer).setMinDeposit(minDepositRaw);
     }
   }
 }
