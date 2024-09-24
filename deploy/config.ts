@@ -36,6 +36,7 @@ export interface VaultConfig {
   lpName: string;
   lpSymbol: string;
   marginlyPools: string[];
+  minDeposit: string; // min deposit, human like, e.g. "0.001"
 }
 
 export interface AdapterConfig {

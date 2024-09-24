@@ -47,6 +47,7 @@
                 "0x760B9fE6b1f6c5dD7597A02690ffe3F6a07a3042",
                 "0x230A545aBE3217BA3BdA3EEec2D8582dFD4B73CE"
             ],
+            "minDeposit": "0",
             "description": "usde-usdc, pt-usde-28nov2024-usdc, pt-gusdc-26dec2024-usdc"
         }
     ]
