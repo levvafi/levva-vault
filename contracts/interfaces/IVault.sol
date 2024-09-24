@@ -31,6 +31,8 @@ interface IVault is IERC4626 {
 
   function getLentAmount(ProtocolType protocol) external view returns (uint256);
 
+  function getMinDeposit() external view returns (uint256);
+
   function updateTotalLent() external returns (uint256);
 
   function executeProtocolAction(ProtocolActionArg[] calldata protocolActionArgs) external returns (bytes[] memory);
@@ -38,4 +40,6 @@ interface IVault is IERC4626 {
   function addVaultManager(address manager, bool add) external;
 
   function addLendingAdapter(ProtocolType protocolType, address adapter) external;
+
+  function setMinDeposit(uint256 minDeposit) external;
 }
