@@ -19,4 +19,6 @@ library Errors {
   error InvalidWithdrawType();
   error NoUnstakeRequest();
   error InvalidWithdrawRequest();
+  error NoElementWithIndex(uint128 index);
+  error NoNeedToRequestWithdraw();
 }

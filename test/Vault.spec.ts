@@ -605,4 +605,219 @@ describe('Vault', () => {
       });
     });
   });
+
+  describe('Withdraw queue', async () => {
+    it('request withdraw should fail when enough free amount of underlying asset', async () => {
+      const { vault, owner, user1, user2, usdc, marginlyPools } = await loadFixture(
+        deployTestSystemWithConfiguredVault
+      );
+
+      const depositAmount = parseUnits('100', 18);
+      await usdc.connect(user2).approve(vault, depositAmount);
+      await vault.connect(user2).deposit(depositAmount, user2);
+
+      const sharesToWithdraw = parseUnits('50', 18);
+      await expect(vault.connect(user2).requestWithdraw(sharesToWithdraw)).to.revertedWithCustomError(
+        vault,
+        'NoNeedToRequestWithdraw'
+      );
+    });
+
+    it('request withdraw', async () => {
+      const { vault, owner, user1, user2, usdc, marginlyPools } = await loadFixture(
+        deployTestSystemWithConfiguredVault
+      );
+
+      const depositAmount = parseUnits('100', 18);
+      await usdc.connect(user2).approve(vault, depositAmount);
+      await vault.connect(user2).deposit(depositAmount, user2);
+      const lpTokenAddress = await vault.getAddress();
+
+      const supplyAmount = parseUnits('100', 18);
+      const marginlyDepositAction = {
+        protocol: ProtocolType.Marginly,
+        data: encodeMarginlyDeposit(await marginlyPools[0].getAddress(), supplyAmount),
+      };
+      await vault.connect(user1).executeProtocolAction([marginlyDepositAction]);
+
+      expect(await vault.balanceOf(user2.address)).to.be.eq(depositAmount);
+      expect(await vault.balanceOf(lpTokenAddress)).to.be.eq(0);
+
+      const sharesToWithdraw = parseUnits('50', 18);
+      const requestId = 0;
+      await expect(vault.connect(user2).requestWithdraw(sharesToWithdraw))
+        .to.emit(vault, 'WithdrawRequested')
+        .withArgs(requestId, user2.address, sharesToWithdraw);
+
+      const withdrawRequest = await vault.getWithdrawRequest(requestId);
+      expect(withdrawRequest.owner).to.be.eq(user2.address);
+      expect(withdrawRequest.shares).to.be.eq(sharesToWithdraw);
+
+      // 50 shares locked in vault address
+      expect(await vault.balanceOf(user2.address)).to.be.eq(sharesToWithdraw);
+      expect(await vault.balanceOf(lpTokenAddress)).to.be.eq(sharesToWithdraw);
+
+      // another withdraw request
+      const requestId2 = 1;
+      const sharesToWithdraw2 = parseUnits('10', 18);
+
+      await expect(vault.connect(user2).requestWithdraw(sharesToWithdraw2))
+        .to.emit(vault, 'WithdrawRequested')
+        .withArgs(requestId2, user2.address, sharesToWithdraw2);
+
+      const withdrawRequest2 = await vault.getWithdrawRequest(requestId2);
+      expect(withdrawRequest2.owner).to.be.eq(user2.address);
+      expect(withdrawRequest2.shares).to.be.eq(sharesToWithdraw2);
+
+      expect(await vault.balanceOf(user2.address)).to.be.eq(depositAmount - sharesToWithdraw - sharesToWithdraw2);
+      expect(await vault.balanceOf(lpTokenAddress)).to.be.eq(sharesToWithdraw + sharesToWithdraw2);
+    });
+
+    it('finalize withdraw request should fail when not authorized', async () => {
+      const { vault, user2 } = await loadFixture(deployTestSystemWithConfiguredVault);
+
+      await expect(vault.connect(user2).finalizeWithdrawRequest()).to.revertedWithCustomError(
+        vault,
+        'SenderIsNotVaultManager'
+      );
+    });
+
+    it('finalize withdraw request should fail when not enough free amount', async () => {
+      const { vault, user1, user2, usdc, marginlyPools } = await loadFixture(deployTestSystemWithConfiguredVault);
+
+      const depositAmount = parseUnits('100', 18);
+      await usdc.connect(user2).approve(vault, depositAmount);
+      await vault.connect(user2).deposit(depositAmount, user2);
+      const lpTokenAddress = await vault.getAddress();
+
+      const supplyAmount = parseUnits('100', 18);
+      const marginlyDepositAction = {
+        protocol: ProtocolType.Marginly,
+        data: encodeMarginlyDeposit(await marginlyPools[0].getAddress(), supplyAmount),
+      };
+      await vault.connect(user1).executeProtocolAction([marginlyDepositAction]);
+
+      expect(await vault.balanceOf(user2.address)).to.be.eq(depositAmount);
+      expect(await vault.balanceOf(lpTokenAddress)).to.be.eq(0);
+
+      const sharesToWithdraw = parseUnits('50', 18);
+      await vault.connect(user2).requestWithdraw(sharesToWithdraw);
+
+      const withdrawAmount = parseUnits('10', 18);
+      const marginlyWithdrawAction = {
+        protocol: ProtocolType.Marginly,
+        data: encodeMarginlyWithdraw(await marginlyPools[0].getAddress(), withdrawAmount),
+      };
+      await vault.connect(user1).executeProtocolAction([marginlyWithdrawAction]);
+
+      await expect(vault.connect(user1).finalizeWithdrawRequest()).to.be.revertedWithCustomError(
+        vault,
+        'ERC20InsufficientBalance'
+      );
+    });
+
+    it('finalize withdraw request should fail when no elemnts in queue', async () => {
+      const { vault, user1 } = await loadFixture(deployTestSystemWithConfiguredVault);
+
+      await expect(vault.connect(user1).finalizeWithdrawRequest()).to.revertedWithCustomError(
+        vault,
+        'NoElementWithIndex'
+      );
+    });
+
+    it('finalize withdraw request', async () => {
+      const { vault, user1, user2, usdc, marginlyPools } = await loadFixture(deployTestSystemWithConfiguredVault);
+
+      const depositAmount = parseUnits('100', 18);
+      await usdc.connect(user2).approve(vault, depositAmount);
+      await vault.connect(user2).deposit(depositAmount, user2);
+      const lpTokenAddress = await vault.getAddress();
+
+      const supplyAmount = parseUnits('100', 18);
+      const marginlyDepositAction = {
+        protocol: ProtocolType.Marginly,
+        data: encodeMarginlyDeposit(await marginlyPools[0].getAddress(), supplyAmount),
+      };
+      await vault.connect(user1).executeProtocolAction([marginlyDepositAction]);
+
+      expect(await vault.balanceOf(user2.address)).to.be.eq(depositAmount);
+      expect(await vault.balanceOf(lpTokenAddress)).to.be.eq(0);
+
+      const requestId = 0;
+      const sharesToWithdraw = parseUnits('50', 18);
+      await vault.connect(user2).requestWithdraw(sharesToWithdraw);
+      expect(await vault.balanceOf(vault)).to.eq(sharesToWithdraw);
+
+      const withdrawAmount = parseUnits('50', 18);
+      const marginlyWithdrawAction = {
+        protocol: ProtocolType.Marginly,
+        data: encodeMarginlyWithdraw(await marginlyPools[0].getAddress(), withdrawAmount),
+      };
+      await vault.connect(user1).executeProtocolAction([marginlyWithdrawAction]);
+      const queueStartIndex = await vault.getWithdrawQueueStartIndex();
+      const queueEndIndex = await vault.getWithdrawQueueEndIndex();
+
+      await expect(vault.connect(user1).finalizeWithdrawRequest())
+        .to.emit(vault, 'WithdrawFinalized')
+        .withArgs(requestId, user2.address, sharesToWithdraw, withdrawAmount);
+
+      expect(await vault.balanceOf(vault)).to.eq(0);
+      expect(await vault.getWithdrawQueueStartIndex()).to.eq(queueStartIndex + 1n);
+      expect(await vault.getWithdrawQueueStartIndex()).to.eq(queueEndIndex);
+    });
+
+    it('finalize multiple withdraw requests', async () => {
+      const { vault, user1, user2, user3, usdc, marginlyPools } = await loadFixture(
+        deployTestSystemWithConfiguredVault
+      );
+
+      const depositAmount1 = parseUnits('10', 18);
+      await usdc.connect(user2).approve(vault, depositAmount1);
+      await vault.connect(user2).deposit(depositAmount1, user2);
+
+      const depositAmount2 = parseUnits('15', 18);
+      await usdc.connect(user3).approve(vault, depositAmount2);
+      await vault.connect(user3).deposit(depositAmount2, user3);
+
+      const supplyAmount = parseUnits('23', 18);
+      const marginlyDepositAction = {
+        protocol: ProtocolType.Marginly,
+        data: encodeMarginlyDeposit(await marginlyPools[0].getAddress(), supplyAmount),
+      };
+      await vault.connect(user1).executeProtocolAction([marginlyDepositAction]);
+
+      const requestId1 = 0;
+      const sharesToWithdraw1 = parseUnits('7', 18);
+      await vault.connect(user2).requestWithdraw(sharesToWithdraw1);
+
+      const requestId2 = 1;
+      const sharesToWithdraw2 = parseUnits('9', 18);
+      await vault.connect(user3).requestWithdraw(sharesToWithdraw2);
+
+      const withdrawAmount = parseUnits('16', 18);
+      const marginlyWithdrawAction = {
+        protocol: ProtocolType.Marginly,
+        data: encodeMarginlyWithdraw(await marginlyPools[0].getAddress(), withdrawAmount),
+      };
+      await vault.connect(user1).executeProtocolAction([marginlyWithdrawAction]);
+      expect(await vault.getFreeAmount()).to.eq(parseUnits('18', 18));
+
+      let usdcBalanceBefore = await usdc.balanceOf(user2);
+      await expect(vault.connect(user1).finalizeWithdrawRequest())
+        .to.emit(vault, 'WithdrawFinalized')
+        .withArgs(requestId1, user2.address, sharesToWithdraw1, sharesToWithdraw1);
+      expect(await usdc.balanceOf(user2)).to.eq(usdcBalanceBefore + sharesToWithdraw1);
+
+      usdcBalanceBefore = await usdc.balanceOf(user3);
+      await expect(vault.connect(user1).finalizeWithdrawRequest())
+        .to.emit(vault, 'WithdrawFinalized')
+        .withArgs(requestId2, user3.address, sharesToWithdraw2, sharesToWithdraw2);
+      expect(await usdc.balanceOf(user3)).to.eq(usdcBalanceBefore + sharesToWithdraw2);
+
+      await expect(vault.connect(user1).finalizeWithdrawRequest()).to.revertedWithCustomError(
+        vault,
+        'NoElementWithIndex'
+      );
+    });
+  });
 });
