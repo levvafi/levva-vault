@@ -14,6 +14,7 @@ import {ProtocolType} from './libraries/ProtocolType.sol';
 import {Errors} from './libraries/Errors.sol';
 import {IVault} from './interfaces/IVault.sol';
 import {ERC721Holder} from '@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol';
+import {WithdrawRequestQueue} from './base/WithdrawRequestQueue.sol';
 
 /// @title Vault
 /// @notice A upgradeable ERC4626 vault with lending adapter and config manager functionality
@@ -27,7 +28,8 @@ contract Vault is
   LendingAdaptersStorage,
   ConfigManagerStorage,
   // ERC721Holder is used to allow the vault to receive Etherfi's WithdrawRequestNFT
-  ERC721Holder
+  ERC721Holder,
+  WithdrawRequestQueue
 {
   function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
@@ -182,6 +184,65 @@ contract Vault is
   function setMinDeposit(uint256 minDeposit) external onlyOwner {
     _setMinDeposit(minDeposit);
     emit MinDepositSet(minDeposit);
+  }
+
+  /// @notice Requests for withdraw underlying amount corresponding to shares. Locks shares on address(this)
+  /// @dev This function allows users to request a withdrawal of LP tokens
+  /// @param shares The amount of LP tokens to withdraw
+  function requestWithdraw(uint256 shares) external returns (uint128 requestId) {
+    _updateTotalLent();
+
+    uint256 assets = previewRedeem(shares);
+    if (assets <= _getFreeAmount()) {
+      revert Errors.NoNeedToRequestWithdraw();
+    }
+
+    _transfer(msg.sender, address(this), shares);
+    requestId = _enqueuWithdraw(msg.sender, shares);
+
+    emit WithdrawRequested(requestId, msg.sender, shares);
+    return requestId;
+  }
+
+  /// @notice Finalizes a withdrawal request
+  /// @dev This function can only be called by a vault manager. It processes the first withdrawal request in the queue,
+  /// redeems the LP tokens, and updates the state accordingly.
+  function finalizeWithdrawRequest() external returns (uint256 assets) {
+    _enforceSenderIsVaultManager();
+
+    WithdrawRequest memory request = _getWithdrawRequest(0); // first in queue
+    uint128 requestId = _getWithdrawQueueStartIndex();
+    // all shares from withdraw request must be stored on the address(this)
+    // call redeem from sender = address(this) and
+    // use this.redeem() not redeem() to change msg.sender from vaultManager to address(this)
+    assets = this.redeem(request.shares, request.owner, address(this));
+    _dequeueWithdraw();
+
+    emit WithdrawFinalized(requestId, request.owner, request.shares, assets);
+    return assets;
+  }
+
+  /// @notice Retrieves a specific withdraw request by its ID
+  /// @dev This function allows external callers to view the details of a withdraw request
+  /// @param requestId The unique identifier of the withdraw request to retrieve
+  /// @return The WithdrawRequest struct containing the owner's address and the amount of shares to be withdrawn
+  function getWithdrawRequest(uint128 requestId) external view returns (WithdrawRequest memory) {
+    uint128 index = requestId - _getWithdrawQueueStartIndex();
+    return _getWithdrawRequest(index);
+  }
+
+  /// @notice Retrieves the end index of the withdraw queue
+  /// @dev This function returns the current end index of the withdraw queue, indicating the position where the next withdraw request will be added.
+  /// @return The end index of the withdraw queue as a uint128
+  function getWithdrawQueueEndIndex() external view returns (uint128) {
+    return _getWithdrawQueueEndIndex();
+  }
+
+  /// @notice Retrieves the start index of the withdraw queue
+  /// @dev This function returns the current end index of the withdraw queue, indicating the position where the next withdraw request will be added.
+  /// @return The end index of the withdraw queue as a uint128
+  function getWithdrawQueueStartIndex() external view returns (uint128) {
+    return _getWithdrawQueueStartIndex();
   }
 
   /// @dev Some protocols could send ETH to the vault

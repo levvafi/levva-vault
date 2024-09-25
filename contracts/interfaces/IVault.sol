@@ -14,6 +14,10 @@ interface IVault is IERC4626 {
 
   event MinDepositSet(uint256 minDeposit);
 
+  event WithdrawRequested(uint128 requestId, address owner, uint256 shares);
+
+  event WithdrawFinalized(uint128 requestId, address owner, uint256 shares, uint256 assets);
+
   struct ProtocolActionArg {
     /// @dev Protocol type
     ProtocolType protocol;

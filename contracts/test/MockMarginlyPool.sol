@@ -46,12 +46,16 @@ contract MockMarginlyPool is IMarginlyPool {
       position.discountedQuoteAmount += amount1;
     } else if (call == CallType.WithdrawBase) {
       IERC20(baseToken).transfer(msg.sender, amount1);
-      position._type = PositionType.Uninitialized;
       position.discountedBaseAmount -= amount1;
+      if (position.discountedBaseAmount == 0) {
+        position._type = PositionType.Uninitialized;
+      }
     } else if (call == CallType.WithdrawQuote) {
       IERC20(quoteToken).transfer(msg.sender, amount1);
-      position._type = PositionType.Uninitialized;
       position.discountedQuoteAmount -= amount1;
+      if (position.discountedQuoteAmount == 0) {
+        position._type = PositionType.Uninitialized;
+      }
     } else if (call == CallType.Reinit) {
       //simulate some computations that takes a lot of gas
       // reinit takes 272K gas without MC
