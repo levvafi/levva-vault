@@ -1,4 +1,4 @@
-import { parseEther, parseUnits, Signer, TransactionResponse } from 'ethers';
+import { BytesLike, parseEther, parseUnits, Signer, TransactionResponse } from 'ethers';
 import { DeployConfig, EthConnectionConfig, UpgradeConfig, VaultConfig } from './config';
 import {
   Vault__factory,
@@ -67,11 +67,11 @@ export async function deployVault(
   const stateStore = initStateStore(network, dryRun, logger);
   const deploymentStore = initDeploymentStore(network, dryRun, logger);
 
+  const contractRegistry = await deployContractRegistry(signer, hre, stateStore, deploymentStore);
   const configManager = await deployConfigManager(signer, config, hre, stateStore, deploymentStore);
   const adapters = await deployAdapters(signer, config, hre, stateStore, deploymentStore, configManager);
   await deployVaults(signer, config, hre, stateStore, deploymentStore, configManager, adapters);
   await deployVaultViewer(signer, config, hre, stateStore, deploymentStore, configManager);
-  await deployContractRegistry(signer, hre, stateStore, deploymentStore);
 
   console.log(`State file: \n${stateStore.stringify()}`);
   console.log(`Deployment file: \n${deploymentStore.stringify()}`);
@@ -486,6 +486,7 @@ async function deployVaults(
   stateStore: StateStore,
   deploymentStore: DeploymentStore,
   configManager: ConfigManager,
+  contractRegistry: ContractRegistry,
   adapters: AdapterAddress[]
 ) {
   console.log(`Deploy Vaults.`);
@@ -546,6 +547,11 @@ async function deployVaults(
       });
 
       await verifyContract(hre, implementationAddress, []);
+      await registerInContractRegistry(signer, contractRegistry, {
+        contractAddress: vaultAddress,
+        contractType: ContractType.LevvaVault,
+        data: '0x0',
+      });
 
       console.log(`Vault ${vaultConfig.id} deployed: ${vaultAddress}, txHash: ${txHash}\n`);
     }
@@ -675,6 +681,25 @@ async function verifyContract(hre: HardhatRuntimeEnvironment, address: string, c
       console.log(`Verify contract ${address} failed: ${e}`);
     }
   }
+}
+
+enum ContractType {
+  Nothing = 0,
+  LevvaVault = 2000,
+}
+
+type RegisterContractArgs = { contractType: ContractType; contractAddress: string; data: BytesLike };
+
+async function registerInContractRegistry(
+  signer: Signer,
+  contractRegistry: ContractRegistry,
+  registerArgs: RegisterContractArgs
+) {
+  await contractRegistry
+    .connect(signer)
+    .registerContract(registerArgs.contractType, registerArgs.contractAddress, registerArgs.data);
+
+  console.log(`Contract ${registerArgs.contractAddress} registered in registry`);
 }
 
 //TODO: move to another file
