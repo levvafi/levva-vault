@@ -14,6 +14,8 @@ import {
   VaultViewer,
   VaultViewer__factory,
   ERC20__factory,
+  ContractRegistry,
+  ContractRegistry__factory,
 } from '../typechain-types';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { createDefaultBaseState, DeployState, StateFile, StateStore } from './state-store';
@@ -69,6 +71,7 @@ export async function deployVault(
   const adapters = await deployAdapters(signer, config, hre, stateStore, deploymentStore, configManager);
   await deployVaults(signer, config, hre, stateStore, deploymentStore, configManager, adapters);
   await deployVaultViewer(signer, config, hre, stateStore, deploymentStore, configManager);
+  await deployContractRegistry(signer, hre, stateStore, deploymentStore);
 
   console.log(`State file: \n${stateStore.stringify()}`);
   console.log(`Deployment file: \n${deploymentStore.stringify()}`);
@@ -568,7 +571,10 @@ async function deployVaults(
       }
     }
 
-    const minDepositRaw = parseUnits(vaultConfig.minDeposit, underlyingToken.assertDecimals);
+    const minDepositRaw = parseUnits(
+      vaultConfig.minDeposit,
+      Number.parseInt(underlyingToken.assertDecimals.toString())
+    );
     if ((await vault.getMinDeposit()) !== minDepositRaw) {
       await vault.connect(signer).setMinDeposit(minDepositRaw);
     }
@@ -592,7 +598,7 @@ async function deployVaultViewer(
   let vaultViewerAddress: string;
   let vaultViewer: VaultViewer;
   if (state !== undefined) {
-    console.log(`AaveAdapter already deployed. Skip.`);
+    console.log(`VaultViewer already deployed. Skip.`);
     vaultViewerAddress = state.address;
     vaultViewer = VaultViewer__factory.connect(vaultViewerAddress, signer);
   } else {
@@ -613,6 +619,46 @@ async function deployVaultViewer(
   console.log(`\n`);
 
   return vaultViewer;
+}
+
+async function deployContractRegistry(
+  signer: Signer,
+  hre: HardhatRuntimeEnvironment,
+  stateStore: StateStore,
+  deploymentStore: DeploymentStore
+): Promise<ContractRegistry> {
+  console.log(`Deploy ContractRegistry.`);
+
+  const contractId = 'contractRegistry';
+  const txOverrides = await getTxOverrides(hre);
+
+  const state = stateStore.getById(contractId);
+  let contractAddress: string;
+  let contract: ContractRegistry;
+  if (state !== undefined) {
+    console.log(`ContractRegistry already deployed. Skip.`);
+    contractAddress = state.address;
+    contract = ContractRegistry__factory.connect(contractAddress, signer);
+  } else {
+    contract = (await new ContractRegistry__factory()
+      .connect(signer)
+      .deploy(txOverrides)) as unknown as ContractRegistry;
+    await contract.waitForDeployment();
+    contractAddress = await contract.getAddress();
+
+    const txHash = contract.deploymentTransaction()?.hash;
+
+    stateStore.setById(contractId, <DeployState>{ address: contractAddress, txHash });
+    deploymentStore.setById(contractId, <DeploymentState>{ address: contractAddress });
+
+    await verifyContract(hre, contractAddress, []);
+
+    console.log(`ContractRegistry deployed: ${contractAddress}, txHash: ${txHash}`);
+  }
+
+  console.log(`\n`);
+
+  return contract;
 }
 
 async function verifyContract(hre: HardhatRuntimeEnvironment, address: string, constructorArguments: any[]) {
