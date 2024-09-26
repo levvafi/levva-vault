@@ -33,7 +33,7 @@ export const config = {
     disambiguatePaths: false,
     runOnCompile: true,
     strict: false,
-    only: ['Vault', 'ConfigManager', 'Adapter'],
+    only: ['Vault', 'ConfigManager', 'Adapter', 'ContractRegistry'],
     except: ['Mock', 'Test'],
   },
 };
