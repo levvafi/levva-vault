@@ -20,5 +20,7 @@ jobs:
         run: yarn
       - name: Run unit tests
         run: yarn test
-      # - name: Run integration tests
-      #   run: yarn test:int
+      - name: Run integration tests on Ethereum fork
+        run: yarn test:int-eth
+      - name: Run integration tests on Arbitrum fork
+        run: yarn test:int-arb

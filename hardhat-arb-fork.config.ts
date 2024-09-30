@@ -9,7 +9,7 @@ const config = {
       forking: {
         enabled: true,
         url: 'https://rpc.ankr.com/arbitrum',
-        blockNumber: 257563500,
+        blockNumber: 257906600,
       },
       initialBaseFeePerGas: 0,
     },

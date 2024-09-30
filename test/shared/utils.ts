@@ -1,4 +1,5 @@
-import { ethers, BigNumberish, BytesLike, parseEther, formatEther, parseUnits } from 'ethers';
+import { BigNumberish, BytesLike, parseEther, formatEther, parseUnits } from 'ethers';
+import { ethers } from 'hardhat';
 import * as helpers from '@nomicfoundation/hardhat-network-helpers';
 import {
   Vault,
@@ -95,9 +96,9 @@ function toHexString(value: bigint): string {
   return `0x${hexString}`;
 }
 
-export function shiftTime(seconds: number) {
-  ethers.provider.send('evm_increaseTime', [seconds]);
-  ethers.provider.send('evm_mine', []);
+export async function shiftTime(seconds: number) {
+  await ethers.provider.send('evm_increaseTime', [seconds]);
+  await ethers.provider.send('evm_mine', []);
 }
 
 export enum ProtocolType {

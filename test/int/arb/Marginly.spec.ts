@@ -1,167 +1,272 @@
 import { SignerWithAddress } from '@nomicfoundation/hardhat-ethers/signers';
-import { expect, use } from 'chai';
+import { expect } from 'chai';
 import { ethers, upgrades } from 'hardhat';
-import { IERC20 } from '../../../typechain-types/@openzeppelin/contracts/token/ERC20';
-import { TestMarginlyLending, TestMarginlyLending__factory, IWeth9__factory } from '../../../typechain-types';
-import { ArbAddressData, setTokenBalance, shiftTime } from '../../shared/utils';
-import { formatEther, parseUnits, ZeroAddress } from 'ethers';
-import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
+import { ERC20 } from '../../../typechain-types/@openzeppelin/contracts/token/ERC20';
+import {
+  IWeth9__factory,
+  Vault,
+  IWeth9,
+  ConfigManager,
+  ConfigManager__factory,
+  Vault__factory,
+  MarginlyAdapter__factory,
+  MarginlyAdapter,
+  ERC20__factory,
+  IMarginlyPool,
+  IMarginlyPool__factory,
+  IVault,
+} from '../../../typechain-types';
+import {
+  ArbAddressData,
+  encodeMarginlyDeposit,
+  encodeMarginlyWithdraw,
+  logVaultState,
+  ProtocolType,
+  setTokenBalance,
+  shiftTime,
+} from '../../shared/utils';
+import { formatUnits, parseEther, parseUnits, ZeroAddress } from 'ethers';
 
-type MarginlyLendingTestSystem = {
-  marginly: TestMarginlyLending;
-  weth: IERC20;
-  owner: SignerWithAddress;
-  user1: SignerWithAddress;
-  user2: SignerWithAddress;
-  user3: SignerWithAddress;
-  connectedPools: string[];
-};
+const wethAddress = '0x82af49447d8a07e3bd95bd0d56f35241523fbab1';
+const marginlyPool_PtUsde_USDC_Address = '0x760B9fE6b1f6c5dD7597A02690ffe3F6a07a3042';
+const marginlyPool_PtgUSDC_USDC_Address = '0x230A545aBE3217BA3BdA3EEec2D8582dFD4B73CE';
+const marginlyPool_USDE_USDC_Address = '0x9007A45304Ac6676CEf22ec68c870ae88Af60065';
 
-async function deployMarginlyLending(): Promise<MarginlyLendingTestSystem> {
-  const [owner, user1, user2, user3] = await ethers.getSigners();
-  const weth = IWeth9__factory.connect(ArbAddressData.weth);
+const usdeHolderAddress = '0x99F4176EE457afedFfCB1839c7aB7A030a5e4A92';
+const ptUsdeHolderAddress = '0x4DfD5f7Dd019F2F9Fc4D954FF3aDD3348839845d';
+const ptgUSDCHolderAddress = '0x1754f738710e337012be0CcC10B37a2930a85aFf';
 
-  const marginlyLending = (await upgrades.deployProxy(
-    new TestMarginlyLending__factory().connect(owner),
-    [ArbAddressData.weth],
+let vault: Vault;
+let owner: SignerWithAddress;
+let vaultManager: SignerWithAddress;
+let user: SignerWithAddress;
+let user2: SignerWithAddress;
+let user3: SignerWithAddress;
+let usdeHolder: SignerWithAddress;
+let ptUsdeHolder: SignerWithAddress;
+let ptgUSDCHolder: SignerWithAddress;
+let techPositionUser: SignerWithAddress;
+let weth: IWeth9;
+let usdc: ERC20;
+let configManager: ConfigManager;
+let marginlyPool_PtUsde_USDC: IMarginlyPool;
+let marginlyPool_PtgUSDC_USDC: IMarginlyPool;
+let marginlyPool_USDE_USDC: IMarginlyPool;
+
+async function deployVaultWithMarginlyAdapter() {
+  [owner, vaultManager, user, user2, user3, techPositionUser] = await ethers.getSigners();
+  weth = IWeth9__factory.connect(wethAddress, owner.provider);
+  usdc = ERC20__factory.connect(ArbAddressData.usdc, owner.provider);
+
+  configManager = (await upgrades.deployProxy(
+    new ConfigManager__factory().connect(owner),
+    [
+      wethAddress, // weth address
+      ZeroAddress, // weETH address
+    ],
     {
       initializer: 'initialize',
     }
-  )) as any as TestMarginlyLending;
+  )) as any as ConfigManager;
 
-  const initialWethBalance = parseUnits('10', 18);
-  await weth.connect(owner).deposit({ value: initialWethBalance });
-  await weth.connect(user1).deposit({ value: initialWethBalance });
-  await weth.connect(user2).deposit({ value: initialWethBalance });
-  await weth.connect(user3).deposit({ value: initialWethBalance });
+  vault = (await upgrades.deployProxy(
+    new Vault__factory().connect(owner),
+    [
+      ArbAddressData.usdc, // asset
+      'Levva LP USDC', // lp name
+      'lvvUSDC', // lp symbol
+      await configManager.getAddress(), // configManager address
+    ],
+    {
+      initializer: 'initialize',
+      unsafeAllow: ['delegatecall'],
+    }
+  )) as any as Vault;
 
-  const connectedPools = [
-    ArbAddressData.marginlyOldEthUsdc,
-    ArbAddressData.marginlyOldEthUsdcE,
-    ArbAddressData.marginlyOldGmxEth,
-    ArbAddressData.marginlyOldPendleEth,
-    ArbAddressData.marginlyOldRdntEth,
-    ArbAddressData.marginlyOldWbtcEth,
-    ArbAddressData.marginlyOldWethLink,
-  ];
-  for (const pool of connectedPools) {
-    await marginlyLending.connect(owner).addMarginlyPool(pool);
+  await configManager.connect(owner).addVault(vault, true);
+
+  const marginlyAdapter = (await new MarginlyAdapter__factory().connect(owner).deploy()) as any as MarginlyAdapter;
+
+  await vault.connect(owner).addVaultManager(vaultManager.address, true);
+  await vault.connect(owner).addLendingAdapter(ProtocolType.Marginly, marginlyAdapter);
+  await configManager.connect(owner).addMarginlyPool(vault, marginlyPool_PtUsde_USDC_Address);
+  await configManager.connect(owner).addMarginlyPool(vault, marginlyPool_PtgUSDC_USDC_Address);
+  await configManager.connect(owner).addMarginlyPool(vault, marginlyPool_USDE_USDC_Address);
+
+  const initialAmount = parseUnits('100000', 6);
+  await setUsdcBalance(user.address, initialAmount);
+  await setUsdcBalance(user2.address, initialAmount);
+  await setUsdcBalance(user3.address, initialAmount);
+  await setUsdcBalance(techPositionUser.address, initialAmount);
+
+  // fund holders with 1 eth
+  for (const holder of [usdeHolderAddress, ptUsdeHolderAddress, ptgUSDCHolderAddress]) {
+    await owner.sendTransaction({
+      to: holder,
+      value: parseEther('1'),
+    });
   }
 
-  expect(await marginlyLending.getCountOfPools()).to.be.eq(7);
+  usdeHolder = await ethers.getImpersonatedSigner(usdeHolderAddress);
+  ptUsdeHolder = await ethers.getImpersonatedSigner(ptUsdeHolderAddress);
+  ptgUSDCHolder = await ethers.getImpersonatedSigner(ptgUSDCHolderAddress);
 
-  return {
-    marginly: marginlyLending,
-    weth,
-    connectedPools,
-    owner,
-    user1,
-    user2,
-    user3,
-  };
+  marginlyPool_PtUsde_USDC = IMarginlyPool__factory.connect(marginlyPool_PtUsde_USDC_Address, owner.provider);
+  marginlyPool_PtgUSDC_USDC = IMarginlyPool__factory.connect(marginlyPool_PtgUSDC_USDC_Address, owner.provider);
+  marginlyPool_USDE_USDC = IMarginlyPool__factory.connect(marginlyPool_USDE_USDC_Address, owner.provider);
 }
 
 async function setUsdcBalance(account: string, amount: bigint) {
-  setTokenBalance(ArbAddressData.usdc, account, amount);
+  await setTokenBalance(ArbAddressData.usdc, account, amount);
+  //console.log(`Account balance is ${await usdc.balanceOf(account)}`);
+  expect(await usdc.balanceOf(account)).to.gte(amount);
+}
+
+beforeEach(async () => {
+  await deployVaultWithMarginlyAdapter();
+
+  //initialize vault with 2000 usdc from 3 users
+  const depositAmount = parseUnits('2000', 6);
+  for (const usr of [user, user2, user3]) {
+    await usdc.connect(usr).approve(vault, depositAmount);
+    await vault.connect(usr).deposit(depositAmount, usr);
+  }
+
+  // make special technical position
+  const technicalPositionAmount = parseUnits('5', 6);
+  await usdc.connect(techPositionUser).approve(vault, technicalPositionAmount);
+  await vault.connect(techPositionUser).deposit(technicalPositionAmount, techPositionUser);
+});
+
+async function marginlyLong(signer: SignerWithAddress, marginlyPool: IMarginlyPool, deposit: bigint, long: bigint) {
+  const depositBaseCallType = 0;
+  const limitPriceX96 = ((await marginlyPool.getBasePrice()).inner * 125n) / 100n;
+  const swapCallData = await marginlyPool.defaultSwapCallData();
+
+  const baseToken = ERC20__factory.connect(await marginlyPool.baseToken(), signer.provider);
+  await baseToken.connect(signer).approve(marginlyPool, deposit);
+  await marginlyPool
+    .connect(signer)
+    .execute(depositBaseCallType, deposit, long, limitPriceX96, false, ZeroAddress, swapCallData);
+}
+
+async function marginlyReinit(signer: SignerWithAddress, marginlyPool: IMarginlyPool) {
+  const swapCallData = await marginlyPool.defaultSwapCallData();
+  await marginlyPool.connect(signer).execute(7, 0, 0, 0, false, ZeroAddress, swapCallData);
 }
 
 describe('Marignly', () => {
-  it('deposit to 6 pools, wait and withdraw', async () => {
-    const { marginly, weth, owner, user1 } = await loadFixture(deployMarginlyLending);
+  it('deposit and withdraw from marginly', async () => {
+    console.log(`Vault totalSupply is ${formatUnits(await vault.totalSupply(), 6)}`);
+    console.log(`Vault free amount is ${formatUnits(await vault.getFreeAmount(), 6)}`);
+    console.log(`Lp price is ${formatUnits(await vault.convertToAssets(parseUnits('1', 6)), 6)} USDC`);
 
-    await weth.connect(owner).transfer(await marginly.getAddress(), parseUnits('6', 18));
+    const depositAmount1 = parseUnits('2000', 6);
+    const depositAction1: IVault.ProtocolActionArgStruct = {
+      protocol: ProtocolType.Marginly,
+      data: encodeMarginlyDeposit(marginlyPool_PtUsde_USDC_Address, depositAmount1),
+    };
 
-    const balanceBefore = await weth.connect(owner).balanceOf(await marginly.getAddress());
+    await vault.connect(vaultManager).executeProtocolAction([depositAction1]);
+    console.log(`Vault free amount is ${formatUnits(await vault.getFreeAmount(), 6)}`);
 
-    const depositAmount = parseUnits('1', 18);
-    await marginly.connect(owner).deposit(ArbAddressData.marginlyOldEthUsdc, depositAmount);
-    await marginly.connect(owner).deposit(ArbAddressData.marginlyOldEthUsdcE, depositAmount);
-    await marginly.connect(owner).deposit(ArbAddressData.marginlyOldGmxEth, depositAmount);
-    await marginly.connect(owner).deposit(ArbAddressData.marginlyOldPendleEth, depositAmount);
-    await marginly.connect(owner).deposit(ArbAddressData.marginlyOldRdntEth, depositAmount);
-    await marginly.connect(owner).deposit(ArbAddressData.marginlyOldWbtcEth, depositAmount);
+    const quoteToken = ERC20__factory.connect(await marginlyPool_PtUsde_USDC.quoteToken(), ptUsdeHolder.provider);
+    const baseToken = ERC20__factory.connect(await marginlyPool_PtUsde_USDC.baseToken(), ptUsdeHolder.provider);
 
-    shiftTime(360 * 24 * 60 * 60);
-
-    await marginly.updateTotalLent();
-    console.log(formatEther(await marginly.updateTotalLent.staticCall()));
-
-    const withdrawAmount = parseUnits('2', 18);
-    await marginly.connect(owner).withdraw(ArbAddressData.marginlyOldEthUsdc, withdrawAmount);
-    await marginly.connect(owner).withdraw(ArbAddressData.marginlyOldEthUsdcE, withdrawAmount);
-    await marginly.connect(owner).withdraw(ArbAddressData.marginlyOldGmxEth, withdrawAmount);
-    await marginly.connect(owner).withdraw(ArbAddressData.marginlyOldPendleEth, withdrawAmount);
-    await marginly.connect(owner).withdraw(ArbAddressData.marginlyOldRdntEth, withdrawAmount);
-    await marginly.connect(owner).withdraw(ArbAddressData.marginlyOldWbtcEth, withdrawAmount);
-
-    const balanceAfter = await weth.connect(owner).balanceOf(await marginly.getAddress());
-
-    console.log(`Balance before ${formatEther(balanceBefore)} ETH`);
-    console.log(`Balance after ${formatEther(balanceAfter)} ETH`);
-  });
-
-  it('deposit into uknown pool should fail', async () => {
-    const { marginly, weth, owner, user1 } = await loadFixture(deployMarginlyLending);
-    await weth.connect(owner).transfer(await marginly.getAddress(), parseUnits('5', 18));
-  });
-
-  it('remove marginly pool', async () => {
-    const { marginly, weth, owner, user1, connectedPools } = await loadFixture(deployMarginlyLending);
-
-    //remove at 0 index, first element changed
-    let poolToRemove = await marginly.getPoolByIndex(0);
-    await marginly.removeMarginlyPool(0);
-    expect(await marginly.getCountOfPools()).to.be.eq(6);
-    expect(await marginly.getPoolByIndex(0)).to.be.eq(connectedPools[6]);
-    expect((await marginly.getPoolConfig(poolToRemove)).initialized).to.be.false;
-
-    // remove at last index, first element not changed
-    poolToRemove = await marginly.getPoolByIndex(5);
-    await marginly.removeMarginlyPool(5);
-    expect(await marginly.getCountOfPools()).to.be.eq(5);
-    expect(await marginly.getPoolByIndex(0)).to.be.eq(connectedPools[6]);
-    expect((await marginly.getPoolConfig(poolToRemove)).initialized).to.be.false;
-  });
-
-  it('remove pool should fail when vault has positions', async () => {
-    const { marginly, weth, owner, user1, connectedPools } = await loadFixture(deployMarginlyLending);
-
-    await weth.connect(owner).transfer(await marginly.getAddress(), parseUnits('5', 18));
-
-    const depositAmount = parseUnits('1', 18);
-    await marginly.connect(owner).deposit(ArbAddressData.marginlyOldEthUsdc, depositAmount);
-
-    await expect(marginly.removeMarginlyPool(0)).to.be.revertedWithCustomError(
-      marginly,
-      'MarginlyHasLendPositionInPool'
+    console.log(`\nMarginly quote balance is ${formatUnits(await quoteToken.balanceOf(marginlyPool_PtUsde_USDC), 6)}`);
+    console.log(
+      `Marginly base token balance is ${formatUnits(await baseToken.balanceOf(marginlyPool_PtUsde_USDC), 18)}`
     );
-  });
+    console.log(`\nLong with high leverage: deposit 100, long 1850`);
 
-  it('add marginly pool', async () => {
-    const { marginly, weth, owner, user1 } = await loadFixture(deployMarginlyLending);
-    const poolToAdd = await marginly.getPoolByIndex(0);
-    await marginly.removeMarginlyPool(0);
-    expect(await marginly.getCountOfPools()).to.be.eq(6);
+    await marginlyLong(ptUsdeHolder, marginlyPool_PtUsde_USDC, parseUnits('100', 18), parseUnits('1850', 18));
+    await vault.connect(vaultManager).updateTotalLent();
 
-    await marginly.addMarginlyPool(poolToAdd);
-    expect(await marginly.getCountOfPools()).to.be.eq(7);
-    expect(await marginly.getPoolByIndex(6)).to.be.eq(poolToAdd);
-  });
-
-  it('add marginly pool should fail when wrong asset', async () => {
-    const { marginly, weth, owner, user1 } = await loadFixture(deployMarginlyLending);
-    await marginly.removeMarginlyPool(0);
-
-    const poolToAdd = ArbAddressData.marginlyOldArbUsdc;
-    await expect(marginly.addMarginlyPool(poolToAdd)).to.be.revertedWithCustomError(marginly, 'MarginlyWronPool');
-  });
-
-  it('add marginly pool should fail when pool limit reached', async () => {
-    const { marginly, weth, owner, user1 } = await loadFixture(deployMarginlyLending);
-    const poolToAdd = ArbAddressData.marginlyPtUsde29AugUsdcPool;
-    await expect(marginly.addMarginlyPool(poolToAdd)).to.be.revertedWithCustomError(
-      marginly,
-      'MarginlyLendingPoolsLimitReached'
+    console.log(`\nMarginly quote balance is ${formatUnits(await quoteToken.balanceOf(marginlyPool_PtUsde_USDC), 6)}`);
+    console.log(
+      `Marginly base token balance is ${formatUnits(await baseToken.balanceOf(marginlyPool_PtUsde_USDC), 18)}`
     );
+
+    console.log(`Vault free amount is ${formatUnits(await vault.getFreeAmount(), 6)}`);
+    console.log(`Vault totalLent is ${formatUnits(await vault.getTotalLent(), 6)}`);
+
+    console.log(`\nWait 1 month to make margin call`);
+    await shiftTime(30 * 24 * 60 * 60);
+
+    await vault.connect(vaultManager).updateTotalLent();
+    const totalLent = await vault.getTotalLent();
+    console.log(`Vault totalLent is ${formatUnits(totalLent, 6)}`);
+
+    const withdrawAmount = (totalLent * 110n) / 100n;
+    const withdrawAction: IVault.ProtocolActionArgStruct = {
+      protocol: ProtocolType.Marginly,
+      data: encodeMarginlyWithdraw(marginlyPool_PtUsde_USDC_Address, withdrawAmount),
+    };
+
+    await vault.connect(vaultManager).executeProtocolAction([withdrawAction]);
+    await vault.connect(vaultManager).updateTotalLent();
+
+    console.log(`Vault free amount is ${formatUnits(await vault.getFreeAmount(), 6)}`);
+    console.log(`Vault totalLent is ${formatUnits(await vault.getTotalLent(), 6)}`);
+    console.log(`Lp price is ${formatUnits(await vault.convertToAssets(parseUnits('1', 6)), 6)} USDC`);
+  });
+
+  it('deposit and could not withdraw all lent amount', async () => {
+    console.log(`Vault totalSupply is ${formatUnits(await vault.totalSupply(), 6)}`);
+    console.log(`Vault free amount is ${formatUnits(await vault.getFreeAmount(), 6)}`);
+    console.log(`Lp price is ${formatUnits(await vault.convertToAssets(parseUnits('1', 6)), 6)} USDC`);
+
+    const depositAmount1 = parseUnits('2000', 6);
+    const depositAction1: IVault.ProtocolActionArgStruct = {
+      protocol: ProtocolType.Marginly,
+      data: encodeMarginlyDeposit(marginlyPool_PtUsde_USDC_Address, depositAmount1),
+    };
+
+    await vault.connect(vaultManager).executeProtocolAction([depositAction1]);
+    console.log(`\nVault free amount is ${formatUnits(await vault.getFreeAmount(), 6)}`);
+
+    await marginlyLong(ptUsdeHolder, marginlyPool_PtUsde_USDC, parseUnits('100', 18), parseUnits('200', 18));
+    await vault.connect(vaultManager).updateTotalLent();
+
+    console.log(`\nWait 1 month to make margin call`);
+    await shiftTime(30 * 24 * 60 * 60);
+
+    const quoteToken = ERC20__factory.connect(await marginlyPool_PtUsde_USDC.quoteToken(), ptUsdeHolder.provider);
+
+    await vault.connect(vaultManager).updateTotalLent();
+    const totalLent = await vault.getTotalLent();
+    console.log(`Vault totalLent is ${formatUnits(totalLent, 6)}`);
+    const maxAvailableForWithdraw = await quoteToken.balanceOf(marginlyPool_PtUsde_USDC);
+    console.log(`Max available for withdraw from marginly is ${formatUnits(maxAvailableForWithdraw, 6)}`);
+
+    let withdrawAmount = totalLent;
+    let withdrawAction: IVault.ProtocolActionArgStruct = {
+      protocol: ProtocolType.Marginly,
+      data: encodeMarginlyWithdraw(marginlyPool_PtUsde_USDC_Address, withdrawAmount),
+    };
+    await expect(vault.connect(vaultManager).executeProtocolAction([withdrawAction])).to.be.revertedWith('ST');
+
+    withdrawAmount = maxAvailableForWithdraw;
+    withdrawAction = {
+      protocol: ProtocolType.Marginly,
+      data: encodeMarginlyWithdraw(marginlyPool_PtUsde_USDC_Address, withdrawAmount),
+    };
+    await vault.connect(vaultManager).executeProtocolAction([withdrawAction]);
+    await vault.connect(vaultManager).updateTotalLent();
+    console.log(`\nVault totalLent is ${formatUnits(await vault.getTotalLent(), 6)}`);
+    console.log(`Vault free amount is ${formatUnits(await vault.getFreeAmount(), 6)}`);
+    console.log(`\nMarginly quote balance is ${formatUnits(await quoteToken.balanceOf(marginlyPool_PtUsde_USDC), 6)}`);
+  });
+
+  it('min deposit amount', async () => {
+    const depositAmount = 10n;
+    const supplyAction: IVault.ProtocolActionArgStruct = {
+      protocol: ProtocolType.Marginly,
+      data: encodeMarginlyDeposit(marginlyPool_PtUsde_USDC_Address, depositAmount),
+    };
+    await vault.connect(vaultManager).executeProtocolAction([supplyAction]);
+    await vault.updateTotalLent();
+
+    await logVaultState(vault, '\nafter marginly deposit');
   });
 });
