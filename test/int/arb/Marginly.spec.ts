@@ -259,7 +259,7 @@ describe('Marignly', () => {
   });
 
   it('min deposit amount', async () => {
-    const depositAmount = 1n;
+    const depositAmount = 10n;
     const supplyAction: IVault.ProtocolActionArgStruct = {
       protocol: ProtocolType.Marginly,
       data: encodeMarginlyDeposit(marginlyPool_PtUsde_USDC_Address, depositAmount),
