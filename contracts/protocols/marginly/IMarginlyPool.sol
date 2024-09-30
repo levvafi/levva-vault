@@ -55,4 +55,12 @@ interface IMarginlyPool {
     address receivePositionAddress,
     uint256 swapCalldata
   ) external payable;
+
+  struct FixedPoint {
+    uint256 inner;
+  }
+
+  function getBasePrice() external view returns (FixedPoint memory);
+
+  function defaultSwapCallData() external view returns (uint32);
 }

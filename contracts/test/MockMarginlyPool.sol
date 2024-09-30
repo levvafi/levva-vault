@@ -71,4 +71,12 @@ contract MockMarginlyPool is IMarginlyPool {
   function positions(address positionAddress) external view override returns (Position memory) {
     return _positions[positionAddress];
   }
+
+  function getBasePrice() external pure returns (FixedPoint memory fp) {
+    fp.inner = 2 ** 96;
+  }
+
+  function defaultSwapCallData() external pure returns (uint32) {
+    return 0;
+  }
 }

@@ -1,11 +1,9 @@
 import { SignerWithAddress } from '@nomicfoundation/hardhat-ethers/signers';
-import { expect, use } from 'chai';
 import { ethers, upgrades } from 'hardhat';
-import { ERC20, IERC20 } from '../../../typechain-types/@openzeppelin/contracts/token/ERC20';
+import { IERC20 } from '../../../typechain-types/@openzeppelin/contracts/token/ERC20';
 import {
   ConfigManager,
   ConfigManager__factory,
-  ERC20__factory,
   EtherfiAdapter,
   EtherfiAdapter__factory,
   IERC20__factory,
@@ -21,10 +19,16 @@ import {
   IEtherFiAdmin__factory,
   VaultViewer,
   VaultViewer__factory,
+  IVault,
 } from '../../../typechain-types';
-import { formatEther, formatUnits, parseUnits } from 'ethers';
-import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
-import { ProtocolType, EtherfiWithdrawType, logVaultState } from '../../shared/utils';
+import { formatEther, parseUnits } from 'ethers';
+import {
+  ProtocolType,
+  logVaultState,
+  encodeEtherfiDeposit,
+  encodeEtherfiRequestWithdraw,
+  encodeEtherfiClaimWithdraw,
+} from '../../shared/utils';
 
 const EtherfiWeETH = '0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee';
 const Weth9 = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2';
@@ -153,11 +157,14 @@ async function etherfiRebase() {
 
 describe('Vault with etherfi adapter', () => {
   it('seed and harvest (request withdraw and claim)', async () => {
-    const seedAmount = parseUnits('14', 18);
+    const depositAmount = parseUnits('14', 18);
 
-    const seedData = ethers.AbiCoder.defaultAbiCoder().encode(['uint256'], [seedAmount]);
-    await vault.connect(vaultManager).seed(ProtocolType.Etherfi, seedData);
-    await logVaultState(vault, 'after seed');
+    const depositAction: IVault.ProtocolActionArgStruct = {
+      protocol: ProtocolType.Etherfi,
+      data: encodeEtherfiDeposit(depositAmount),
+    };
+    await vault.connect(vaultManager).executeProtocolAction([depositAction]);
+    await logVaultState(vault, 'after deposit');
 
     await etherfiRebase();
     await etherfiFinalize();
@@ -172,27 +179,30 @@ describe('Vault with etherfi adapter', () => {
     await logVaultState(vault, 'after rebase and reinit');
 
     const requestWithdrawAmount = parseUnits('1.5', 18);
-    const requestWithdrawData = ethers.AbiCoder.defaultAbiCoder().encode(
-      ['uint8', 'uint256'],
-      [EtherfiWithdrawType.RequestWithdraw, requestWithdrawAmount]
-    );
-    await vault.connect(vaultManager).harvest(ProtocolType.Etherfi, requestWithdrawData);
+    const requestWithdrawAction: IVault.ProtocolActionArgStruct = {
+      protocol: ProtocolType.Etherfi,
+      data: encodeEtherfiRequestWithdraw(requestWithdrawAmount),
+    };
+    await vault.connect(vaultManager).executeProtocolAction([requestWithdrawAction]);
 
-    const claimWithdrawData = ethers.AbiCoder.defaultAbiCoder().encode(
-      ['uint8', 'uint256'],
-      [EtherfiWithdrawType.ClaimWithdraw, 0]
-    );
-    await vault.connect(vaultManager).harvest(ProtocolType.Etherfi, claimWithdrawData);
+    const claimWithdrawAction: IVault.ProtocolActionArgStruct = {
+      protocol: ProtocolType.Etherfi,
+      data: encodeEtherfiClaimWithdraw(),
+    };
+    await vault.connect(vaultManager).executeProtocolAction([claimWithdrawAction]);
 
     await logVaultState(vault, 'after unstake 1.5 ETH');
   });
 
   it('multiple unstake requests', async () => {
-    const seedAmount = parseUnits('14', 18);
+    const depositAmount = parseUnits('14', 18);
 
-    const seedData = ethers.AbiCoder.defaultAbiCoder().encode(['uint256'], [seedAmount]);
-    await vault.connect(vaultManager).seed(ProtocolType.Etherfi, seedData);
-    await logVaultState(vault, 'after seed');
+    const depositAction: IVault.ProtocolActionArgStruct = {
+      protocol: ProtocolType.Etherfi,
+      data: encodeEtherfiDeposit(depositAmount),
+    };
+    await vault.connect(vaultManager).executeProtocolAction([depositAction]);
+    await logVaultState(vault, 'after deposit');
 
     await logVaultState(vault, 'after 3 unstake requests');
     await etherfiRebase();
@@ -203,35 +213,35 @@ describe('Vault with etherfi adapter', () => {
     const requestWithdrawAmount2 = parseUnits('4', 18);
     const requestWithdrawAmount3 = totalClaim - requestWithdrawAmount1 - requestWithdrawAmount2;
 
-    const requestWithdrawData1 = ethers.AbiCoder.defaultAbiCoder().encode(
-      ['uint8', 'uint256'],
-      [EtherfiWithdrawType.RequestWithdraw, requestWithdrawAmount1]
-    );
-    const requestWithdrawData2 = ethers.AbiCoder.defaultAbiCoder().encode(
-      ['uint8', 'uint256'],
-      [EtherfiWithdrawType.RequestWithdraw, requestWithdrawAmount2]
-    );
-    const requestWithdrawData3 = ethers.AbiCoder.defaultAbiCoder().encode(
-      ['uint8', 'uint256'],
-      [EtherfiWithdrawType.RequestWithdraw, requestWithdrawAmount3]
-    );
-    await vault.connect(vaultManager).harvest(ProtocolType.Etherfi, requestWithdrawData1);
-    await vault.connect(vaultManager).harvest(ProtocolType.Etherfi, requestWithdrawData2);
-    await vault.connect(vaultManager).harvest(ProtocolType.Etherfi, requestWithdrawData3);
+    const requestWithdrawAction1: IVault.ProtocolActionArgStruct = {
+      protocol: ProtocolType.Etherfi,
+      data: encodeEtherfiRequestWithdraw(requestWithdrawAmount1),
+    };
+    const requestWithdrawAction2: IVault.ProtocolActionArgStruct = {
+      protocol: ProtocolType.Etherfi,
+      data: encodeEtherfiRequestWithdraw(requestWithdrawAmount2),
+    };
+    const requestWithdrawAction3: IVault.ProtocolActionArgStruct = {
+      protocol: ProtocolType.Etherfi,
+      data: encodeEtherfiRequestWithdraw(requestWithdrawAmount3),
+    };
+    await vault
+      .connect(vaultManager)
+      .executeProtocolAction([requestWithdrawAction1, requestWithdrawAction2, requestWithdrawAction3]);
 
-    const claimWithdrawData = ethers.AbiCoder.defaultAbiCoder().encode(
-      ['uint8', 'uint256'],
-      [EtherfiWithdrawType.ClaimWithdraw, 0]
-    );
-    await vault.connect(vaultManager).harvest(ProtocolType.Etherfi, claimWithdrawData);
+    const claimWithdrawAction: IVault.ProtocolActionArgStruct = {
+      protocol: ProtocolType.Etherfi,
+      data: encodeEtherfiClaimWithdraw(),
+    };
+    await vault.connect(vaultManager).executeProtocolAction([claimWithdrawAction]);
     await vault.updateTotalLent();
     await logVaultState(vault, 'after first claim');
 
-    await vault.connect(vaultManager).harvest(ProtocolType.Etherfi, claimWithdrawData);
+    await vault.connect(vaultManager).executeProtocolAction([claimWithdrawAction]);
     await vault.updateTotalLent();
     await logVaultState(vault, 'after second claim');
 
-    await vault.connect(vaultManager).harvest(ProtocolType.Etherfi, claimWithdrawData);
+    await vault.connect(vaultManager).executeProtocolAction([claimWithdrawAction]);
     await vault.updateTotalLent();
     await logVaultState(vault, 'after third claim');
 
@@ -243,5 +253,14 @@ describe('Vault with etherfi adapter', () => {
     }
 
     await logVaultState(vault, 'after dry claim');
+  });
+
+  it('min deposit', async () => {
+    const depositAmount = 10n;
+    const depositAction: IVault.ProtocolActionArgStruct = {
+      protocol: ProtocolType.Etherfi,
+      data: encodeEtherfiDeposit(depositAmount),
+    };
+    await vault.connect(vaultManager).executeProtocolAction([depositAction]);
   });
 });

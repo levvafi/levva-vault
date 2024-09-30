@@ -116,7 +116,7 @@ contract MarginlyAdapter is ConfigManagerStorage, ILendingAdapter {
   function _marginlyExecute(address pool, IMarginlyPool.CallType callType, uint256 amount) internal {
     IMarginlyPool(pool).execute(
       callType,
-      amount, // amount of deposit/withdra
+      amount, // amount of deposit/withdraw
       int256(0), // amount2 is not used in deposit/withdraw
       0, // limitPriceX96  is not used in deposit/withdraw
       false, // flag is not used in deposit/withdraw

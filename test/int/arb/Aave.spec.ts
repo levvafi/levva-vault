@@ -1,9 +1,6 @@
 import { SignerWithAddress } from '@nomicfoundation/hardhat-ethers/signers';
-import { expect, use } from 'chai';
 import { ethers, upgrades } from 'hardhat';
-import { IERC20 } from '../../../typechain-types/@openzeppelin/contracts/token/ERC20';
 import {
-  ERC20__factory,
   Vault,
   Vault__factory,
   IWeth9,
@@ -12,9 +9,10 @@ import {
   ConfigManager__factory,
   AaveAdapter,
   AaveAdapter__factory,
+  IVault,
 } from '../../../typechain-types';
-import { ArbAddressData, setTokenBalance, shiftTime, logVaultState, ProtocolType } from '../../shared/utils';
-import { formatUnits, parseUnits, ZeroAddress } from 'ethers';
+import { logVaultState, ProtocolType, encodeAaveDeposit, encodeAaveWithdraw } from '../../shared/utils';
+import { parseUnits, ZeroAddress } from 'ethers';
 
 const wethAddress = '0x82af49447d8a07e3bd95bd0d56f35241523fbab1';
 const aavePoolAddress = '0x794a61358D6845594F94dc1DB02A252b5b4814aD';
@@ -63,7 +61,7 @@ async function deployVaultWithAaveAdapter() {
   const aaveAdapter = (await new AaveAdapter__factory().connect(owner).deploy()) as any as AaveAdapter;
 
   await vault.connect(owner).addVaultManager(vaultManager.address, true);
-  await vault.connect(owner).addLendingAdapter(1, aaveAdapter);
+  await vault.connect(owner).addLendingAdapter(ProtocolType.Aave, aaveAdapter);
   await configManager.connect(owner).setAavePool(aavePoolAddress);
 }
 
@@ -87,28 +85,47 @@ before(async () => {
 });
 
 describe('Aave', () => {
-  it('seed and harvest', async () => {
-    const seedAmount = parseUnits('14', 18);
-
-    const seedData = ethers.AbiCoder.defaultAbiCoder().encode(['uint256'], [seedAmount]);
-    await vault.connect(vaultManager).seed(ProtocolType.Aave, seedData);
+  it('supply and withdraw', async () => {
+    const supplAmount = parseUnits('14', 18);
+    const supplyAction: IVault.ProtocolActionArgStruct = {
+      protocol: ProtocolType.Aave,
+      data: encodeAaveDeposit(supplAmount),
+    };
+    await vault.connect(vaultManager).executeProtocolAction([supplyAction]);
     await vault.updateTotalLent();
 
-    await logVaultState(vault, 'after seed');
+    await logVaultState(vault, '\nafter aave supply');
 
-    const harvestAmount1 = parseUnits('4', 18);
-    const harvestData1 = ethers.AbiCoder.defaultAbiCoder().encode(['uint256'], [harvestAmount1]);
-    await vault.connect(vaultManager).harvest(ProtocolType.Aave, harvestData1);
+    const withdrawAmount = parseUnits('4', 18);
+    const withdrawAction: IVault.ProtocolActionArgStruct = {
+      protocol: ProtocolType.Aave,
+      data: encodeAaveWithdraw(withdrawAmount),
+    };
+    await vault.connect(vaultManager).executeProtocolAction([withdrawAction]);
     await vault.updateTotalLent();
 
-    await logVaultState(vault, 'after first harvest');
+    await logVaultState(vault, 'after first withdraw');
 
-    const harvestAmount2 = ethers.MaxUint256;
-    const harvestData2 = ethers.AbiCoder.defaultAbiCoder().encode(['uint256'], [harvestAmount2]);
-    console.log('harvestAmount2', formatUnits(harvestAmount2, 18));
-    await vault.connect(vaultManager).harvest(ProtocolType.Aave, harvestData2);
+    const withdrawAmount2 = ethers.MaxUint256;
+    const withdrawAction2: IVault.ProtocolActionArgStruct = {
+      protocol: ProtocolType.Aave,
+      data: encodeAaveWithdraw(withdrawAmount2),
+    };
+    await vault.connect(vaultManager).executeProtocolAction([withdrawAction2]);
     await vault.updateTotalLent();
 
-    await logVaultState(vault, 'after second harvest');
+    await logVaultState(vault, 'after second withdraw');
+  });
+
+  it('min deposit amount', async () => {
+    const supplAmount = 1n;
+    const supplyAction: IVault.ProtocolActionArgStruct = {
+      protocol: ProtocolType.Aave,
+      data: encodeAaveDeposit(supplAmount),
+    };
+    await vault.connect(vaultManager).executeProtocolAction([supplyAction]);
+    await vault.updateTotalLent();
+
+    await logVaultState(vault, '\nafter aave supply');
   });
 });
