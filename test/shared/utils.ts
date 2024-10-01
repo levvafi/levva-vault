@@ -1,4 +1,4 @@
-import { BigNumberish, BytesLike, parseEther, formatEther, parseUnits } from 'ethers';
+import { BigNumberish, BytesLike, parseEther, formatEther, parseUnits, ContractTransactionResponse } from 'ethers';
 import { ethers } from 'hardhat';
 import * as helpers from '@nomicfoundation/hardhat-network-helpers';
 import {
@@ -8,6 +8,8 @@ import {
   AaveAdapter__factory,
   EtherfiAdapter__factory,
 } from '../../typechain-types';
+
+import * as gasSnapshoter from '@uniswap/snapshot-gas-cost';
 
 export const USER_WARDEN_ADDRESS = 'warden1234';
 
@@ -156,4 +158,9 @@ export function encodeEtherfiClaimWithdraw(): string {
 
 export function encodeResult(result: bigint): string {
   return ethers.AbiCoder.defaultAbiCoder().encode(['uint256'], [result]);
+}
+
+export async function snapshotGasCost(ctr: Promise<ContractTransactionResponse>) {
+  const txReceipt = await (await ctr).wait();
+  await gasSnapshoter.default(Number(txReceipt?.gasUsed));
 }
