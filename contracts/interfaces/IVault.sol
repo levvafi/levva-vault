@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 import {LendingAdaptersStorage} from '../base/LendingAdaptersStorage.sol';
 import {IERC4626} from '@openzeppelin/contracts/interfaces/IERC4626.sol';
 import {ProtocolType} from '../libraries/ProtocolType.sol';
+import {WithdrawRequestQueue} from '../base/WithdrawRequestQueue.sol';
 
 interface IVault is IERC4626 {
   event ProtocolActionExecuted(ProtocolType protocol, bytes data, bytes result);
@@ -46,4 +47,10 @@ interface IVault is IERC4626 {
   function addLendingAdapter(ProtocolType protocolType, address adapter) external;
 
   function setMinDeposit(uint256 minDeposit) external;
+
+  function getWithdrawRequest(uint128 requestId) external view returns (WithdrawRequestQueue.WithdrawRequest memory);
+
+  function getWithdrawQueueEndIndex() external view returns (uint128);
+
+  function getWithdrawQueueStartIndex() external view returns (uint128);
 }
