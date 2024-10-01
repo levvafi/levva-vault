@@ -18,16 +18,16 @@ abstract contract MarginlyAdapterConfigStorage is Ownable2StepUpgradeable {
     0xa6eb3fa43364fcf123cd77d373f6f8bf6683b4d7d4efe71af6a9e32cfb504500;
 
   struct PoolConfig {
-    // flag to indicate if pool is initialized
-    bool initialized;
+    // pool address
+    address pool;
     // true if underlyingAsset is quote
     bool isQuote;
   }
 
   struct MarginlyConfig {
     uint32 _countOfPools;
-    mapping(address marginlyPool => PoolConfig) _poolConfigs;
-    mapping(uint32 index => address marginlyPool) _poolByIndex;
+    mapping(address marginlyPool => PoolConfig) _poolConfigsByAddress;
+    mapping(uint32 index => PoolConfig) _poolConfigsByIndex;
   }
   /// @custom:storage-location erc7201:levva-vault.MarginlyAdapterConfig
   struct MarginlyAdapterConfig {
@@ -47,12 +47,12 @@ abstract contract MarginlyAdapterConfigStorage is Ownable2StepUpgradeable {
     uint32 countOfPools = $._countOfPools;
     if (countOfPools == POOL_LIMITS) revert Errors.PoolsLimitReached();
 
-    PoolConfig memory config = $._poolConfigs[pool];
-    if (config.initialized) revert Errors.PoolAlreadyAdded();
+    PoolConfig memory config = $._poolConfigsByAddress[pool];
+    if (config.pool != address(0)) revert Errors.PoolAlreadyAdded();
 
     address asset = IERC4626(vault).asset();
 
-    config.initialized = true;
+    config.pool = pool;
     if (IMarginlyPool(pool).quoteToken() == asset) {
       config.isQuote = true;
     } else if (IMarginlyPool(pool).baseToken() == asset) {
@@ -61,8 +61,8 @@ abstract contract MarginlyAdapterConfigStorage is Ownable2StepUpgradeable {
       revert Errors.WronMarginlyPool();
     }
 
-    $._poolConfigs[pool] = config;
-    $._poolByIndex[countOfPools] = pool;
+    $._poolConfigsByAddress[pool] = config;
+    $._poolConfigsByIndex[countOfPools] = config;
     $._countOfPools = countOfPools + 1;
 
     emit MarginlyPoolAdded(vault, pool);
@@ -70,7 +70,7 @@ abstract contract MarginlyAdapterConfigStorage is Ownable2StepUpgradeable {
 
   function removeMarginlyPool(address vault, uint32 poolIndex) external onlyOwner {
     MarginlyConfig storage $ = _getMarginlyAdapterConfigsStorage()._configs[vault];
-    address pool = $._poolByIndex[poolIndex];
+    address pool = $._poolConfigsByIndex[poolIndex].pool;
     if (pool == address(0)) revert Errors.UnknownPool();
 
     if (IMarginlyPool(pool).positions(vault)._type != IMarginlyPool.PositionType.Uninitialized)
@@ -79,11 +79,11 @@ abstract contract MarginlyAdapterConfigStorage is Ownable2StepUpgradeable {
     uint32 countOfPools = $._countOfPools;
     uint32 lastIndex = countOfPools - 1;
     if (poolIndex != lastIndex) {
-      $._poolByIndex[poolIndex] = $._poolByIndex[lastIndex];
+      $._poolConfigsByIndex[poolIndex] = $._poolConfigsByIndex[lastIndex];
     }
 
-    delete $._poolByIndex[lastIndex];
-    delete $._poolConfigs[pool];
+    delete $._poolConfigsByIndex[lastIndex];
+    delete $._poolConfigsByAddress[pool];
 
     $._countOfPools = lastIndex;
     emit MarginlyPoolRemoved(vault, pool);
@@ -93,11 +93,11 @@ abstract contract MarginlyAdapterConfigStorage is Ownable2StepUpgradeable {
     return _getMarginlyAdapterConfigsStorage()._configs[vault]._countOfPools;
   }
 
-  function getPoolConfig(address vault, address pool) external view returns (PoolConfig memory) {
-    return _getMarginlyAdapterConfigsStorage()._configs[vault]._poolConfigs[pool];
+  function getPoolConfigByIndex(address vault, uint32 index) external view returns (PoolConfig memory) {
+    return _getMarginlyAdapterConfigsStorage()._configs[vault]._poolConfigsByIndex[index];
   }
 
-  function getPoolByIndex(address vault, uint32 index) external view returns (address) {
-    return _getMarginlyAdapterConfigsStorage()._configs[vault]._poolByIndex[index];
+  function getPoolConfigByAddress(address vault, address pool) external view returns (PoolConfig memory) {
+    return _getMarginlyAdapterConfigsStorage()._configs[vault]._poolConfigsByAddress[pool];
   }
 }

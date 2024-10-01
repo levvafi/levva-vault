@@ -27,9 +27,9 @@ contract MarginlyAdapter is ConfigManagerStorage, ILendingAdapter {
   /// @notice Deposits an amount into a Marginly pool
   function deposit(address pool, uint256 amount) external returns (uint256) {
     MarginlyAdapterConfigStorage.PoolConfig memory config = MarginlyAdapterConfigStorage(_getConfigManager())
-      .getPoolConfig(address(this), pool);
+      .getPoolConfigByAddress(address(this), pool);
 
-    if (!config.initialized) revert Errors.UnknownPool();
+    if (config.pool == address(0)) revert Errors.UnknownPool();
 
     IERC20(IERC4626(address(this)).asset()).forceApprove(pool, amount);
     _marginlyExecute(
@@ -44,9 +44,9 @@ contract MarginlyAdapter is ConfigManagerStorage, ILendingAdapter {
   /// @notice Withdraws an exact amount or the maximum possible amount from a Marginly pool
   function withdraw(address pool, uint256 amount) external returns (uint256) {
     MarginlyAdapterConfigStorage.PoolConfig memory config = MarginlyAdapterConfigStorage(_getConfigManager())
-      .getPoolConfig(address(this), pool);
+      .getPoolConfigByAddress(address(this), pool);
 
-    if (!config.initialized) revert Errors.UnknownPool();
+    if (config.pool == address(0)) revert Errors.UnknownPool();
 
     address asset = IERC4626(address(this)).asset();
     uint256 withdrawn = IERC20(asset).balanceOf(address(this));
@@ -68,14 +68,14 @@ contract MarginlyAdapter is ConfigManagerStorage, ILendingAdapter {
     uint32 i;
     uint256 totalLent;
     for (; i < countOfPools; ) {
-      address pool = configStorage.getPoolByIndex(address(this), i);
-      IMarginlyPool.Position memory position = IMarginlyPool(pool).positions(address(this));
+      MarginlyAdapterConfigStorage.PoolConfig memory config = configStorage.getPoolConfigByIndex(address(this), i);
+      IMarginlyPool.Position memory position = IMarginlyPool(config.pool).positions(address(this));
       if (position._type == IMarginlyPool.PositionType.Lend) {
-        _marginlyExecute(pool, IMarginlyPool.CallType.Reinit, 0);
+        _marginlyExecute(config.pool, IMarginlyPool.CallType.Reinit, 0);
 
-        totalLent += configStorage.getPoolConfig(address(this), pool).isQuote
-          ? position.discountedQuoteAmount.mulDiv(IMarginlyPool(pool).quoteCollateralCoeff(), X96_ONE)
-          : position.discountedBaseAmount.mulDiv(IMarginlyPool(pool).baseCollateralCoeff(), X96_ONE);
+        totalLent += config.isQuote
+          ? position.discountedQuoteAmount.mulDiv(IMarginlyPool(config.pool).quoteCollateralCoeff(), X96_ONE)
+          : position.discountedBaseAmount.mulDiv(IMarginlyPool(config.pool).baseCollateralCoeff(), X96_ONE);
       }
 
       unchecked {
@@ -93,12 +93,12 @@ contract MarginlyAdapter is ConfigManagerStorage, ILendingAdapter {
     uint32 i;
     uint256 totalLent;
     for (; i < countOfPools; ) {
-      address pool = configStorage.getPoolByIndex(vault, i);
-      IMarginlyPool.Position memory position = IMarginlyPool(pool).positions(vault);
+      MarginlyAdapterConfigStorage.PoolConfig memory config = configStorage.getPoolConfigByIndex(vault, i);
+      IMarginlyPool.Position memory position = IMarginlyPool(config.pool).positions(vault);
       if (position._type == IMarginlyPool.PositionType.Lend) {
-        totalLent += configStorage.getPoolConfig(vault, pool).isQuote
-          ? position.discountedQuoteAmount.mulDiv(IMarginlyPool(pool).quoteCollateralCoeff(), X96_ONE)
-          : position.discountedBaseAmount.mulDiv(IMarginlyPool(pool).baseCollateralCoeff(), X96_ONE);
+        totalLent += config.isQuote
+          ? position.discountedQuoteAmount.mulDiv(IMarginlyPool(config.pool).quoteCollateralCoeff(), X96_ONE)
+          : position.discountedBaseAmount.mulDiv(IMarginlyPool(config.pool).baseCollateralCoeff(), X96_ONE);
       }
 
       unchecked {

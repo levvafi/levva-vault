@@ -67,48 +67,48 @@ describe('Marginly', () => {
     it('remove marginly pool at zero index', async () => {
       const { vault, configManager, marginlyPools } = await loadFixture(deployTestSystemWithConfiguredVault);
 
-      expect(await configManager.getPoolByIndex(vault, 0)).to.be.eq(marginlyPools[0]);
-      expect(await configManager.getPoolByIndex(vault, 1)).to.be.eq(marginlyPools[1]);
-      expect(await configManager.getPoolByIndex(vault, 2)).to.be.eq(marginlyPools[2]);
-      expect(await configManager.getPoolByIndex(vault, 3)).to.be.eq(marginlyPools[3]);
-      expect(await configManager.getPoolByIndex(vault, 4)).to.be.eq(marginlyPools[4]);
-      expect(await configManager.getPoolByIndex(vault, 5)).to.be.eq(marginlyPools[5]);
-      expect(await configManager.getPoolByIndex(vault, 6)).to.be.eq(marginlyPools[6]);
+      expect((await configManager.getPoolConfigByIndex(vault, 0)).pool).to.be.eq(marginlyPools[0]);
+      expect((await configManager.getPoolConfigByIndex(vault, 1)).pool).to.be.eq(marginlyPools[1]);
+      expect((await configManager.getPoolConfigByIndex(vault, 2)).pool).to.be.eq(marginlyPools[2]);
+      expect((await configManager.getPoolConfigByIndex(vault, 3)).pool).to.be.eq(marginlyPools[3]);
+      expect((await configManager.getPoolConfigByIndex(vault, 4)).pool).to.be.eq(marginlyPools[4]);
+      expect((await configManager.getPoolConfigByIndex(vault, 5)).pool).to.be.eq(marginlyPools[5]);
+      expect((await configManager.getPoolConfigByIndex(vault, 6)).pool).to.be.eq(marginlyPools[6]);
       expect(await configManager.getCountOfPools(vault)).to.be.eq(7);
 
       await expect(configManager.removeMarginlyPool(vault, 0))
         .to.emit(configManager, 'MarginlyPoolRemoved')
         .withArgs(vault, marginlyPools[0]);
 
-      expect(await configManager.getPoolByIndex(vault, 0)).to.be.eq(marginlyPools[6]);
-      expect(await configManager.getPoolByIndex(vault, 1)).to.be.eq(marginlyPools[1]);
-      expect(await configManager.getPoolByIndex(vault, 2)).to.be.eq(marginlyPools[2]);
-      expect(await configManager.getPoolByIndex(vault, 3)).to.be.eq(marginlyPools[3]);
-      expect(await configManager.getPoolByIndex(vault, 4)).to.be.eq(marginlyPools[4]);
-      expect(await configManager.getPoolByIndex(vault, 5)).to.be.eq(marginlyPools[5]);
+      expect((await configManager.getPoolConfigByIndex(vault, 0)).pool).to.be.eq(marginlyPools[6]);
+      expect((await configManager.getPoolConfigByIndex(vault, 1)).pool).to.be.eq(marginlyPools[1]);
+      expect((await configManager.getPoolConfigByIndex(vault, 2)).pool).to.be.eq(marginlyPools[2]);
+      expect((await configManager.getPoolConfigByIndex(vault, 3)).pool).to.be.eq(marginlyPools[3]);
+      expect((await configManager.getPoolConfigByIndex(vault, 4)).pool).to.be.eq(marginlyPools[4]);
+      expect((await configManager.getPoolConfigByIndex(vault, 5)).pool).to.be.eq(marginlyPools[5]);
       expect(await configManager.getCountOfPools(vault)).to.be.eq(6);
     });
 
     it('remove marginly pool at last index', async () => {
       const { vault, configManager, marginlyPools } = await loadFixture(deployTestSystemWithConfiguredVault);
 
-      expect(await configManager.getPoolByIndex(vault, 0)).to.be.eq(marginlyPools[0]);
-      expect(await configManager.getPoolByIndex(vault, 1)).to.be.eq(marginlyPools[1]);
-      expect(await configManager.getPoolByIndex(vault, 2)).to.be.eq(marginlyPools[2]);
-      expect(await configManager.getPoolByIndex(vault, 3)).to.be.eq(marginlyPools[3]);
-      expect(await configManager.getPoolByIndex(vault, 4)).to.be.eq(marginlyPools[4]);
-      expect(await configManager.getPoolByIndex(vault, 5)).to.be.eq(marginlyPools[5]);
-      expect(await configManager.getPoolByIndex(vault, 6)).to.be.eq(marginlyPools[6]);
+      expect((await configManager.getPoolConfigByIndex(vault, 0)).pool).to.be.eq(marginlyPools[0]);
+      expect((await configManager.getPoolConfigByIndex(vault, 1)).pool).to.be.eq(marginlyPools[1]);
+      expect((await configManager.getPoolConfigByIndex(vault, 2)).pool).to.be.eq(marginlyPools[2]);
+      expect((await configManager.getPoolConfigByIndex(vault, 3)).pool).to.be.eq(marginlyPools[3]);
+      expect((await configManager.getPoolConfigByIndex(vault, 4)).pool).to.be.eq(marginlyPools[4]);
+      expect((await configManager.getPoolConfigByIndex(vault, 5)).pool).to.be.eq(marginlyPools[5]);
+      expect((await configManager.getPoolConfigByIndex(vault, 6)).pool).to.be.eq(marginlyPools[6]);
       expect(await configManager.getCountOfPools(vault)).to.be.eq(7);
 
       await configManager.removeMarginlyPool(vault, 6);
 
-      expect(await configManager.getPoolByIndex(vault, 0)).to.be.eq(marginlyPools[0]);
-      expect(await configManager.getPoolByIndex(vault, 1)).to.be.eq(marginlyPools[1]);
-      expect(await configManager.getPoolByIndex(vault, 2)).to.be.eq(marginlyPools[2]);
-      expect(await configManager.getPoolByIndex(vault, 3)).to.be.eq(marginlyPools[3]);
-      expect(await configManager.getPoolByIndex(vault, 4)).to.be.eq(marginlyPools[4]);
-      expect(await configManager.getPoolByIndex(vault, 5)).to.be.eq(marginlyPools[5]);
+      expect((await configManager.getPoolConfigByIndex(vault, 0)).pool).to.be.eq(marginlyPools[0]);
+      expect((await configManager.getPoolConfigByIndex(vault, 1)).pool).to.be.eq(marginlyPools[1]);
+      expect((await configManager.getPoolConfigByIndex(vault, 2)).pool).to.be.eq(marginlyPools[2]);
+      expect((await configManager.getPoolConfigByIndex(vault, 3)).pool).to.be.eq(marginlyPools[3]);
+      expect((await configManager.getPoolConfigByIndex(vault, 4)).pool).to.be.eq(marginlyPools[4]);
+      expect((await configManager.getPoolConfigByIndex(vault, 5)).pool).to.be.eq(marginlyPools[5]);
       expect(await configManager.getCountOfPools(vault)).to.be.eq(6);
     });
 
