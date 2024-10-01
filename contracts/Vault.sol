@@ -34,7 +34,7 @@ contract Vault is
   function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
   function _getLendingAdapterSafe(ProtocolType protocolType) private view returns (address) {
-    address adapterImpl = _getLendginAdapter(protocolType);
+    address adapterImpl = _getLendingAdapter(protocolType);
     if (adapterImpl == address(0)) revert Errors.AdapterIsNotSet();
 
     return adapterImpl;
@@ -52,7 +52,7 @@ contract Vault is
     uint256 length = uint256(ProtocolType.ProtocolTypeLength);
     uint256 i;
     for (; i < length; ) {
-      address adapterImpl = _getLendginAdapter(ProtocolType(i));
+      address adapterImpl = _getLendingAdapter(ProtocolType(i));
       if (adapterImpl != address(0)) {
         bytes memory returnedData = Address.functionDelegateCall(
           adapterImpl,
@@ -144,7 +144,7 @@ contract Vault is
   /// @param protocolType The type of lending protocol to get the adapter for
   /// @return The address of the lending adapter for the specified protocol type
   function getLendingAdapter(ProtocolType protocolType) external view returns (address) {
-    return _getLendginAdapter(protocolType);
+    return _getLendingAdapter(protocolType);
   }
 
   /// @notice Retrieves the address of the config manager
@@ -198,7 +198,7 @@ contract Vault is
     }
 
     _transfer(msg.sender, address(this), shares);
-    requestId = _enqueuWithdraw(msg.sender, shares);
+    requestId = _enqueueWithdraw(msg.sender, shares);
 
     emit WithdrawRequested(requestId, msg.sender, shares);
     return requestId;

@@ -58,7 +58,7 @@ abstract contract MarginlyAdapterConfigStorage is Ownable2StepUpgradeable {
     } else if (IMarginlyPool(pool).baseToken() == asset) {
       config.isQuote = false;
     } else {
-      revert Errors.WronMarginlyPool();
+      revert Errors.WrongMarginlyPool();
     }
 
     $._poolConfigsByAddress[pool] = config;

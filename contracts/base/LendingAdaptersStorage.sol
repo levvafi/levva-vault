@@ -23,7 +23,7 @@ abstract contract LendingAdaptersStorage {
   }
 
   /// @dev Get adapter for protocol by protocol type
-  function _getLendginAdapter(ProtocolType protocol) internal view returns (address) {
+  function _getLendingAdapter(ProtocolType protocol) internal view returns (address) {
     return _getProtocolStorage()._protocolAdapters[protocol];
   }
 

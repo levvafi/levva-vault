@@ -12,7 +12,7 @@ abstract contract WithdrawRequestQueue {
   struct WithdrawRequest {
     /// @dev address of user
     address owner;
-    /// @dev lp amout to burn and exchange for underlying token
+    /// @dev lp amount to burn and exchange for underlying token
     uint256 shares;
   }
 
@@ -31,7 +31,7 @@ abstract contract WithdrawRequestQueue {
     }
   }
 
-  function _enqueuWithdraw(address owner, uint256 shares) internal returns (uint128 requestId) {
+  function _enqueueWithdraw(address owner, uint256 shares) internal returns (uint128 requestId) {
     WithdrawQueueStorage storage queue = _getWithdrawQueueStorageData();
     requestId = queue.end;
     queue.items[requestId] = WithdrawRequest({owner: owner, shares: shares});

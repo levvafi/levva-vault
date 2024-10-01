@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity 0.8.26;
 
-/// @title Library with all the errors used in Yield, Storage and Interactors contracts
+/// @title Error library
 library Errors {
   error ZeroAddress();
   error ZeroAmount();
@@ -11,7 +11,7 @@ library Errors {
   error UnknownPool();
   error PoolAlreadyAdded();
   error PoolsLimitReached();
-  error WronMarginlyPool();
+  error WrongMarginlyPool();
   error VaultHasPositionInPool();
   error UnknownToken();
   error SenderIsNotVault();

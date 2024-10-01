@@ -62,9 +62,9 @@ abstract contract AbstractVault is Initializable, ERC4626Upgradeable {
     return IERC20(asset()).balanceOf(address(this));
   }
 
-  function _setTotalLent(uint256 totaLent, uint256 _timestamp) internal {
+  function _setTotalLent(uint256 totalLent, uint256 _timestamp) internal {
     AbstractVaultStorage storage $ = _getAbstractVaultStorage();
-    $._totalLent = totaLent;
+    $._totalLent = totalLent;
     $._totalLentUpdatedAt = _timestamp;
   }
 
