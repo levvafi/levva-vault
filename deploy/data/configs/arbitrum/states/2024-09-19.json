@@ -8,12 +8,12 @@
       "address": "0xba49928dd332B69062864c09EA1936CFF12e714E"
     },
     "marginlyAdapter": {
-      "address": "0xb01B532ff0072E9EdC756abdBc5bd2A696764046",
-      "txHash": "0xe19eb9a684fd72fb490085c17a29312d72011399c14f19f71ee0914d776bc528"
+      "address": "0x44b6d794b089dA0F912683C5ceE5BfDeF3D63CcC",
+      "txHash": "0x2b85dc3efb6652b3e96579a2e4e05f93e89a0ae8871aaa0ce4fee5084b0a05e4"
     },
     "aaveAdapter": {
-      "address": "0x75F97a89dF7822d10Aeb3e27c53312b7f2331b82",
-      "txHash": "0x5b60fe0c11781c2800937f9afb42cde6b1d6869588b3c07266f210ee3f44a5aa"
+      "address": "0x4df92a8FA26338d192A8CE53d4DC194486F14E38",
+      "txHash": "0x5937691e572f26f18ba2be1555ec93399af1ea1f8e0c59021e0956626fbc1e2d"
     },
     "vault-usdc-proxy": {
       "address": "0xB058177A3dB501b926eDf40440d146981E2BA9fe",
