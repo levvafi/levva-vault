@@ -15,8 +15,6 @@ import {
   IWithdrawRequestNFT__factory,
   ILiquidityPool,
   ILiquidityPool__factory,
-  IEtherFiAdmin,
-  IEtherFiAdmin__factory,
   IVault,
   IMarginlyPool,
   IMarginlyPool__factory,
@@ -62,7 +60,6 @@ let techPositionUser: SignerWithAddress;
 let etherfiAdmin: SignerWithAddress;
 let etherfiWithdrawRequestNFTContract: IWithdrawRequestNFT;
 let etherfiLiquidityPoolContract: ILiquidityPool;
-let etherfiAdminContract: IEtherFiAdmin;
 let etherfiWithdrawNftOwner: SignerWithAddress;
 let etherfiMembershipManager: SignerWithAddress;
 let marginlyPool_PtWeeth26Dec2024_WETH: IMarginlyPool;
@@ -97,7 +94,6 @@ async function deployVaultWithEtherfiAdapter() {
     }
   )) as any as Vault;
 
-
   await configManager.connect(owner).addVault(vault, true);
 
   const marginlyAdapter = (await new MarginlyAdapter__factory().connect(owner).deploy()) as any as MarginlyAdapter;
@@ -120,7 +116,6 @@ async function deployVaultWithEtherfiAdapter() {
     etherfiAdmin
   );
   etherfiLiquidityPoolContract = ILiquidityPool__factory.connect(EtherfiLiquidityPoolAddress, owner.provider);
-  etherfiAdminContract = IEtherFiAdmin__factory.connect(EtherfiAdminAddress, etherfiAdmin);
 
   etherfiWithdrawNftOwner = await ethers.getImpersonatedSigner(EtherfiTimelockAddress);
   await owner.sendTransaction({
