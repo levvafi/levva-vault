@@ -1,5 +1,5 @@
-import { BytesLike, parseEther, parseUnits, Signer, TransactionResponse } from 'ethers';
-import { DeployConfig, EthConnectionConfig, UpgradeConfig, VaultConfig } from './config';
+import { BytesLike, parseUnits, Signer, TransactionResponse, ZeroAddress } from 'ethers';
+import { DeployConfig, UpgradeConfig } from './config';
 import {
   Vault__factory,
   Vault,
@@ -11,9 +11,6 @@ import {
   MarginlyAdapter,
   EtherfiAdapter__factory,
   EtherfiAdapter,
-  VaultViewer,
-  VaultViewer__factory,
-  ERC20__factory,
   ContractRegistry,
   ContractRegistry__factory,
 } from '../typechain-types';
@@ -56,7 +53,7 @@ function initDeploymentStore(network: string, dryRun: boolean, logger: SimpleLog
   ).createDeploymentStore();
 }
 
-export async function deployVault(
+export async function makeDeploy(
   signer: Signer,
   config: DeployConfig,
   network: string,
@@ -70,8 +67,7 @@ export async function deployVault(
   const contractRegistry = await deployContractRegistry(signer, hre, stateStore, deploymentStore);
   const configManager = await deployConfigManager(signer, config, hre, stateStore, deploymentStore);
   const adapters = await deployAdapters(signer, config, hre, stateStore, deploymentStore, configManager);
-  await deployVaults(signer, config, hre, stateStore, deploymentStore, configManager, adapters);
-  await deployVaultViewer(signer, config, hre, stateStore, deploymentStore, configManager);
+  await deployVaults(signer, config, hre, stateStore, deploymentStore, configManager, contractRegistry, adapters);
 
   console.log(`State file: \n${stateStore.stringify()}`);
   console.log(`Deployment file: \n${deploymentStore.stringify()}`);
@@ -558,8 +554,8 @@ async function deployVaults(
 
     console.log(`Check connected adapters`);
     for (const marginlyPool of vaultConfig.marginlyPools) {
-      const poolConfig = await configManager.getPoolConfig(vaultAddress, marginlyPool);
-      if (!poolConfig.initialized) {
+      const poolConfig = await configManager.getPoolConfigByAddress(vaultAddress, marginlyPool);
+      if (poolConfig.pool !== ZeroAddress) {
         const tx = await configManager.connect(signer).addMarginlyPool(vaultAddress, marginlyPool);
         await tx.wait();
 
@@ -567,13 +563,13 @@ async function deployVaults(
       }
     }
 
-    for (const adapterDescr of adapters) {
-      const lendingAdapter = await vault.getLendingAdapter(adapterDescr.protocolType);
-      if (lendingAdapter !== adapterDescr.adapterImpl) {
-        const tx = await vault.connect(signer).addLendingAdapter(adapterDescr.protocolType, adapterDescr.adapterImpl);
+    for (const adapterInfo of adapters) {
+      const lendingAdapter = await vault.getLendingAdapter(adapterInfo.protocolType);
+      if (lendingAdapter !== adapterInfo.adapterImpl) {
+        const tx = await vault.connect(signer).addLendingAdapter(adapterInfo.protocolType, adapterInfo.adapterImpl);
         await tx.wait();
 
-        console.log(`Set lending adapter ${adapterDescr.adapterImpl} protocolType ${adapterDescr.protocolType}`);
+        console.log(`Set lending adapter ${adapterInfo.adapterImpl} protocolType ${adapterInfo.protocolType}`);
       }
     }
 
@@ -585,46 +581,6 @@ async function deployVaults(
       await vault.connect(signer).setMinDeposit(minDepositRaw);
     }
   }
-}
-
-async function deployVaultViewer(
-  signer: Signer,
-  config: DeployConfig,
-  hre: HardhatRuntimeEnvironment,
-  stateStore: StateStore,
-  deploymentStore: DeploymentStore,
-  configManager: ConfigManager
-): Promise<VaultViewer> {
-  console.log(`Deploy VaultViewer.`);
-
-  const contractId = 'vaultViewer';
-  const txOverrides = await getTxOverrides(hre);
-
-  const state = stateStore.getById(contractId);
-  let vaultViewerAddress: string;
-  let vaultViewer: VaultViewer;
-  if (state !== undefined) {
-    console.log(`VaultViewer already deployed. Skip.`);
-    vaultViewerAddress = state.address;
-    vaultViewer = VaultViewer__factory.connect(vaultViewerAddress, signer);
-  } else {
-    vaultViewer = (await new VaultViewer__factory().connect(signer).deploy(txOverrides)) as unknown as VaultViewer;
-    await vaultViewer.waitForDeployment();
-    vaultViewerAddress = await vaultViewer.getAddress();
-
-    const txHash = vaultViewer.deploymentTransaction()?.hash;
-
-    stateStore.setById(contractId, <DeployState>{ address: vaultViewerAddress, txHash });
-    deploymentStore.setById(contractId, <DeploymentState>{ address: vaultViewerAddress });
-
-    await verifyContract(hre, vaultViewerAddress, []);
-
-    console.log(`VaultViewer deployed: ${vaultViewerAddress}, txHash: ${txHash}`);
-  }
-
-  console.log(`\n`);
-
-  return vaultViewer;
 }
 
 async function deployContractRegistry(

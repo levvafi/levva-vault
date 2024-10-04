@@ -156,7 +156,7 @@ async function marginlyReinit(signer: SignerWithAddress, marginlyPool: IMarginly
 }
 
 describe('Marignly', () => {
-  it('deposit and withdraw from marginly', async () => {
+  it.only('deposit and withdraw from marginly', async () => {
     console.log(`Vault totalSupply is ${formatUnits(await vault.totalSupply(), 6)}`);
     console.log(`Vault free amount is ${formatUnits(await vault.getFreeAmount(), 6)}`);
     console.log(`Lp price is ${formatUnits(await vault.convertToAssets(parseUnits('1', 6)), 6)} USDC`);
@@ -180,7 +180,6 @@ describe('Marignly', () => {
     console.log(`\nLong with high leverage: deposit 100, long 1850`);
 
     await marginlyLong(ptUsdeHolder, marginlyPool_PtUsde_USDC, parseUnits('100', 18), parseUnits('1850', 18));
-    await vault.connect(vaultManager).updateTotalLent();
 
     console.log(`\nMarginly quote balance is ${formatUnits(await quoteToken.balanceOf(marginlyPool_PtUsde_USDC), 6)}`);
     console.log(
@@ -193,8 +192,12 @@ describe('Marignly', () => {
     console.log(`\nWait 1 month to make margin call`);
     await shiftTime(30 * 24 * 60 * 60);
 
-    await vault.connect(vaultManager).updateTotalLent();
-    const totalLent = await vault.getTotalLent();
+    let totalLent = await vault.getTotalLent();
+    console.log(`Vault totalLent is ${formatUnits(totalLent, 6)}`);
+
+    console.log(`\nReinit marginly and getTotalLent`);
+    await marginlyReinit(ptUsdeHolder, marginlyPool_PtUsde_USDC);
+    totalLent = await vault.getTotalLent();
     console.log(`Vault totalLent is ${formatUnits(totalLent, 6)}`);
 
     const withdrawAmount = (totalLent * 110n) / 100n;
@@ -204,7 +207,6 @@ describe('Marignly', () => {
     };
 
     await vault.connect(vaultManager).executeProtocolAction([withdrawAction]);
-    await vault.connect(vaultManager).updateTotalLent();
 
     console.log(`Vault free amount is ${formatUnits(await vault.getFreeAmount(), 6)}`);
     console.log(`Vault totalLent is ${formatUnits(await vault.getTotalLent(), 6)}`);
@@ -226,14 +228,12 @@ describe('Marignly', () => {
     console.log(`\nVault free amount is ${formatUnits(await vault.getFreeAmount(), 6)}`);
 
     await marginlyLong(ptUsdeHolder, marginlyPool_PtUsde_USDC, parseUnits('100', 18), parseUnits('200', 18));
-    await vault.connect(vaultManager).updateTotalLent();
 
     console.log(`\nWait 1 month to make margin call`);
     await shiftTime(30 * 24 * 60 * 60);
 
     const quoteToken = ERC20__factory.connect(await marginlyPool_PtUsde_USDC.quoteToken(), ptUsdeHolder.provider);
 
-    await vault.connect(vaultManager).updateTotalLent();
     const totalLent = await vault.getTotalLent();
     console.log(`Vault totalLent is ${formatUnits(totalLent, 6)}`);
     const maxAvailableForWithdraw = await quoteToken.balanceOf(marginlyPool_PtUsde_USDC);
@@ -252,7 +252,6 @@ describe('Marignly', () => {
       data: encodeMarginlyWithdraw(marginlyPool_PtUsde_USDC_Address, withdrawAmount),
     };
     await vault.connect(vaultManager).executeProtocolAction([withdrawAction]);
-    await vault.connect(vaultManager).updateTotalLent();
     console.log(`\nVault totalLent is ${formatUnits(await vault.getTotalLent(), 6)}`);
     console.log(`Vault free amount is ${formatUnits(await vault.getFreeAmount(), 6)}`);
     console.log(`\nMarginly quote balance is ${formatUnits(await quoteToken.balanceOf(marginlyPool_PtUsde_USDC), 6)}`);
@@ -265,7 +264,6 @@ describe('Marignly', () => {
       data: encodeMarginlyDeposit(marginlyPool_PtUsde_USDC_Address, depositAmount),
     };
     await vault.connect(vaultManager).executeProtocolAction([supplyAction]);
-    await vault.updateTotalLent();
 
     await logVaultState(vault, '\nafter marginly deposit');
   });

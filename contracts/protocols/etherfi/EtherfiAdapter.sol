@@ -85,13 +85,6 @@ contract EtherfiAdapter is ILendingAdapter, ConfigManagerStorage {
     return withdrawn;
   }
 
-  /// @notice Update and return the total amount of ETH lent
-  /// @dev Here we use sum of staked ETH and pending withdrawals from etherfi
-  /// @return Total amount of ETH lent
-  function updateLentAmount() external view override returns (uint256) {
-    return getLentAmount(address(this));
-  }
-
   function getLentAmount(address vault) public view returns (uint256) {
     address configManager = IVault(vault).getConfigManager();
     EtherfiAdapterConfigStorage configStorage = EtherfiAdapterConfigStorage(configManager);

@@ -45,15 +45,6 @@ contract AaveAdapter is ILendingAdapter, ConfigManagerStorage {
     withdrawn = IPool(aavePool).withdraw(underlyingAsset, amount, address(this));
   }
 
-  /// @notice Updates the total amount lent to the Aave pool
-  /// @dev This function calculates the current balance of aTokens held by this contract
-  /// and converts it to the underlying asset amount using the current exchange rate
-  /// @return The total amount of underlying assets currently lent to Aave
-
-  function updateLentAmount() external view returns (uint256) {
-    return getLentAmount(address(this));
-  }
-
   /// @notice Returns the total amount of underlying assets currently lent to Aave
   /// @return The total amount of underlying assets currently lent to Aave
   function getLentAmount(address vault) public view returns (uint256) {

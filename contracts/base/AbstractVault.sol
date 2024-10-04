@@ -25,9 +25,6 @@ abstract contract AbstractVault is Initializable, ERC4626Upgradeable {
 
   /// @custom:storage-location erc7201:levva-vault.AbstractVaultStorage
   struct AbstractVaultStorage {
-    ///@dev cached value of total lent, actual value could change every time, to get actual value call _updateTotalLent()
-    uint256 _totalLent;
-    uint256 _totalLentUpdatedAt;
     uint256 _minDeposit;
   }
 
@@ -50,22 +47,10 @@ abstract contract AbstractVault is Initializable, ERC4626Upgradeable {
     }
   }
 
-  function _getTotalLent() internal view returns (uint256) {
-    return _getAbstractVaultStorage()._totalLent;
-  }
-
-  function _getTotalLentUpdatedAt() internal view returns (uint256) {
-    return _getAbstractVaultStorage()._totalLentUpdatedAt;
-  }
+  function _getTotalLent() internal view virtual returns (uint256);
 
   function _getFreeAmount() internal view returns (uint256 freeAmount) {
     return IERC20(asset()).balanceOf(address(this));
-  }
-
-  function _setTotalLent(uint256 totalLent, uint256 _timestamp) internal {
-    AbstractVaultStorage storage $ = _getAbstractVaultStorage();
-    $._totalLent = totalLent;
-    $._totalLentUpdatedAt = _timestamp;
   }
 
   function _getMinDeposit() internal view returns (uint256) {
@@ -77,25 +62,19 @@ abstract contract AbstractVault is Initializable, ERC4626Upgradeable {
     $._minDeposit = minDeposit;
   }
 
-  /// @dev Updates total lent values
-  function _updateTotalLent() internal virtual returns (uint256);
-
   //// ERC4626 methods
 
   function _convertToShares(uint256 assets, Math.Rounding rounding) internal view override returns (uint256 shares) {
-    AbstractVaultStorage storage $ = _getAbstractVaultStorage();
-    shares = assets.mulDiv(totalSupply() + 10 ** _decimalsOffset(), $._totalLent + _getFreeAmount() + 1, rounding);
+    shares = assets.mulDiv(totalSupply() + 10 ** _decimalsOffset(), _getTotalLent() + _getFreeAmount() + 1, rounding);
   }
 
   function _convertToAssets(uint256 shares, Math.Rounding rounding) internal view override returns (uint256 assets) {
-    AbstractVaultStorage storage $ = _getAbstractVaultStorage();
-    assets = shares.mulDiv($._totalLent + _getFreeAmount() + 1, totalSupply() + 10 ** _decimalsOffset(), rounding);
+    assets = shares.mulDiv(_getTotalLent() + _getFreeAmount() + 1, totalSupply() + 10 ** _decimalsOffset(), rounding);
   }
 
   /// @inheritdoc IERC4626
   function totalAssets() public view override returns (uint256 totalManagedAssets) {
-    AbstractVaultStorage storage $ = _getAbstractVaultStorage();
-    totalManagedAssets = _getFreeAmount() + $._totalLent;
+    totalManagedAssets = _getFreeAmount() + _getTotalLent();
   }
 
   /// @inheritdoc IERC4626
@@ -104,14 +83,11 @@ abstract contract AbstractVault is Initializable, ERC4626Upgradeable {
       revert Errors.LessThanMinDeposit();
     }
 
-    _updateTotalLent();
     return super.deposit(assets, receiver);
   }
 
   /// @inheritdoc IERC4626
   function mint(uint256 shares, address receiver) public override returns (uint256) {
-    _updateTotalLent();
-
     uint256 maxShares = maxMint(receiver);
     if (shares > maxShares) {
       revert ERC4626ExceededMaxMint(receiver, shares, maxShares);
@@ -125,17 +101,5 @@ abstract contract AbstractVault is Initializable, ERC4626Upgradeable {
     _deposit(_msgSender(), receiver, assets, shares);
 
     return assets;
-  }
-
-  /// @inheritdoc IERC4626
-  function withdraw(uint256 assets, address receiver, address owner) public override returns (uint256) {
-    _updateTotalLent();
-    return super.withdraw(assets, receiver, owner);
-  }
-
-  /// @inheritdoc IERC4626
-  function redeem(uint256 shares, address receiver, address owner) public override returns (uint256) {
-    _updateTotalLent();
-    return super.redeem(shares, receiver, owner);
   }
 }

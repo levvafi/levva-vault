@@ -2,7 +2,7 @@ import { task } from 'hardhat/config';
 import { parseEther } from 'ethers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { loadDeployConfig } from '../deploy/config';
-import { deployVault } from '../deploy/index';
+import { makeDeploy } from '../deploy/index';
 import { ethers } from '@nomiclabs/hardhat-ethers'; //do not remove this import
 
 interface DeployArgs {
@@ -48,7 +48,7 @@ task('task:deploy', 'Deploy vaults')
     const balanceBefore = await signer.provider!.getBalance(signer.address);
     console.log(`Balance before: ${hre.ethers.formatEther(balanceBefore)} Eth`);
 
-    await deployVault(signer, config, network, dryRun, hre);
+    await makeDeploy(signer, config, network, dryRun, hre);
 
     const balanceAfter = await signer.provider!.getBalance(signer.address);
     console.log(`Balance after: ${hre.ethers.formatEther(balanceAfter)} Eth`);

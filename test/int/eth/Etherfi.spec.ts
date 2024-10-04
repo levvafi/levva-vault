@@ -174,7 +174,6 @@ describe('Vault with etherfi adapter', () => {
       .convertToAssets.staticCallResult(await vault.getAddress(), parseUnits('1', 18));
     console.log(`lpPriceOffchain ${formatEther(lpPriceOffchain)} ETH`);
 
-    await vault.updateTotalLent();
 
     await logVaultState(vault, 'after rebase and reinit');
 
@@ -234,15 +233,12 @@ describe('Vault with etherfi adapter', () => {
       data: encodeEtherfiClaimWithdraw(),
     };
     await vault.connect(vaultManager).executeProtocolAction([claimWithdrawAction]);
-    await vault.updateTotalLent();
     await logVaultState(vault, 'after first claim');
 
     await vault.connect(vaultManager).executeProtocolAction([claimWithdrawAction]);
-    await vault.updateTotalLent();
     await logVaultState(vault, 'after second claim');
 
     await vault.connect(vaultManager).executeProtocolAction([claimWithdrawAction]);
-    await vault.updateTotalLent();
     await logVaultState(vault, 'after third claim');
 
     //all users withdraw their funds
