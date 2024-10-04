@@ -122,11 +122,11 @@ contract MockMarginlyPool is IMarginlyPool {
     return Leverage({shortX96: uint128(FP96.one().inner), longX96: uint128(FP96.one().inner)});
   }
 
-  function baseDebtCoeff() external view override returns (FP96.FixedPoint memory) {
+  function baseDebtCoeff() external pure override returns (FP96.FixedPoint memory) {
     return FP96.one();
   }
 
-  function quoteDebtCoeff() external view override returns (FP96.FixedPoint memory) {
+  function quoteDebtCoeff() external pure override returns (FP96.FixedPoint memory) {
     return FP96.one();
   }
 }
