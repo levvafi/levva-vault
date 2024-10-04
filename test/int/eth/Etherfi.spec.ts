@@ -15,8 +15,6 @@ import {
   IWithdrawRequestNFT__factory,
   ILiquidityPool,
   ILiquidityPool__factory,
-  IEtherFiAdmin,
-  IEtherFiAdmin__factory,
   IVault,
 } from '../../../typechain-types';
 import { formatEther, parseUnits } from 'ethers';
@@ -49,7 +47,6 @@ let techPositionUser: SignerWithAddress;
 let etherfiAdmin: SignerWithAddress;
 let etherfiWithdrawRequestNFTContract: IWithdrawRequestNFT;
 let etherfiLiquidityPoolContract: ILiquidityPool;
-let etherfiAdminContract: IEtherFiAdmin;
 let etherfiWithdrawNftOwner: SignerWithAddress;
 let etherfiMembershipManager: SignerWithAddress;
 
@@ -101,7 +98,6 @@ async function deployVaultWithEtherfiAdapter() {
     etherfiAdmin
   );
   etherfiLiquidityPoolContract = ILiquidityPool__factory.connect(EtherfiLiquidityPoolAddress, owner.provider);
-  etherfiAdminContract = IEtherFiAdmin__factory.connect(EtherfiAdminAddress, etherfiAdmin);
 
   etherfiWithdrawNftOwner = await ethers.getImpersonatedSigner(EtherfiTimelockAddress);
   await owner.sendTransaction({
