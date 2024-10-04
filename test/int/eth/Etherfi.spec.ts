@@ -17,8 +17,6 @@ import {
   ILiquidityPool__factory,
   IEtherFiAdmin,
   IEtherFiAdmin__factory,
-  VaultViewer,
-  VaultViewer__factory,
   IVault,
 } from '../../../typechain-types';
 import { formatEther, parseUnits } from 'ethers';
@@ -54,7 +52,6 @@ let etherfiLiquidityPoolContract: ILiquidityPool;
 let etherfiAdminContract: IEtherFiAdmin;
 let etherfiWithdrawNftOwner: SignerWithAddress;
 let etherfiMembershipManager: SignerWithAddress;
-let vaultViewer: VaultViewer;
 
 async function deployVaultWithEtherfiAdapter() {
   [owner, vaultManager, user, user2, user3, techPositionUser] = await ethers.getSigners();
@@ -85,8 +82,6 @@ async function deployVaultWithEtherfiAdapter() {
       unsafeAllow: ['delegatecall'],
     }
   )) as any as Vault;
-
-  vaultViewer = (await new VaultViewer__factory().connect(owner).deploy()) as any as VaultViewer;
 
   await configManager.connect(owner).addVault(vault, true);
 
@@ -168,12 +163,6 @@ describe('Vault with etherfi adapter', () => {
 
     await etherfiRebase();
     await etherfiFinalize();
-
-    const [lpPriceOffchain] = await vaultViewer
-      .connect(owner)
-      .convertToAssets.staticCallResult(await vault.getAddress(), parseUnits('1', 18));
-    console.log(`lpPriceOffchain ${formatEther(lpPriceOffchain)} ETH`);
-
 
     await logVaultState(vault, 'after rebase and reinit');
 
