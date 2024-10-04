@@ -12,6 +12,7 @@ const config = {
         blockNumber: 257906600,
       },
       initialBaseFeePerGas: 0,
+      allowBlocksWithSameTimestamp: true,
     },
   },
 };

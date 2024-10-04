@@ -144,8 +144,8 @@ contract MarginlyAdapter is ConfigManagerStorage, ILendingAdapter {
       return quoteCollateralCoeff.mul(factor);
     } else {
       FP96.FixedPoint memory baseCollateralCoeff = pool.baseCollateralCoeff();
-
       FP96.FixedPoint memory baseDebtCoeffPrev = pool.baseDebtCoeff();
+      
       uint256 realBaseDebtPrev = baseDebtCoeffPrev.mul(pool.discountedBaseDebt());
       FP96.FixedPoint memory onePlusIR = interestRate
         .mul(FP96.FixedPoint({inner: pool.systemLeverage().shortX96}))
