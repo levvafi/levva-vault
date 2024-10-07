@@ -1,0 +1,54 @@
+{
+    "ethConnection": {
+      "chainId": 42161,
+      "ethOptions": {}
+    },
+
+    "tokensDescription":"Here we should describe all tokens that will be used as underlying assets for vaults",
+    "tokens": [
+        {
+            "id": "weth",
+            "address": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+            "assertSymbol": "WETH",
+            "assertDecimals": "18"
+        },
+        {
+            "id": "usdc",
+            "address": "0xaf88d065e77c8cc2239327c5edb3a432268e5831",
+            "assertSymbol": "USDC",
+            "assertDecimals": "6"
+        }
+    ],
+
+    "configurationManagerDescription":"Here we should describe arguments of configuration manager. One configuration manager for all vaults",
+    "configurationManager":{
+        "weth9": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+        "weeth": "0x0000000000000000000000000000000000000000",
+        "aavePool": "0x794a61358D6845594F94dc1DB02A252b5b4814aD"
+    },
+    "adapters":[
+        {
+            "type":"marginly"
+        },
+        {
+            "type":"aave"
+        }
+    ],
+
+    "vaultsDescription":"Here we should describe all vaults that will be created",
+    "vaults": [
+        {
+            "id": "usdc",
+            "tokenId": "usdc",
+            "lpName": "levva LP USDC",
+            "lpSymbol": "lvvUSDC",
+            "marginlyPools": [
+                "0x9007A45304Ac6676CEf22ec68c870ae88Af60065",
+                "0x760B9fE6b1f6c5dD7597A02690ffe3F6a07a3042",
+                "0x230A545aBE3217BA3BdA3EEec2D8582dFD4B73CE"
+            ],
+            "minDeposit": "0",
+            "description": "usde-usdc, pt-usde-28nov2024-usdc, pt-gusdc-26dec2024-usdc"
+        }
+    ]
+  }

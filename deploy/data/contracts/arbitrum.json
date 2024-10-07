@@ -1,0 +1,22 @@
+{
+  "configManager": {
+    "address": "0x9d733DCdD69a72FAA5Fa87611d384605D2cfedF4",
+    "implementation": "0xba49928dd332B69062864c09EA1936CFF12e714E"
+  },
+  "marginlyAdapter": {
+    "address": "0xb01B532ff0072E9EdC756abdBc5bd2A696764046"
+  },
+  "aaveAdapter": {
+    "address": "0x75F97a89dF7822d10Aeb3e27c53312b7f2331b82"
+  },
+  "vault-usdc": {
+    "address": "0xB058177A3dB501b926eDf40440d146981E2BA9fe",
+    "implementation": "0x64FB6D61c62C2343356024670F14767ddf771868"
+  },
+  "vaultViewer": {
+    "address": "0x014679842882e328ae2d78475b755d12D74FFbe9"
+  },
+  "contractRegistry": {
+    "address": "0x7a923e412B934ceC16042AA28244eE4881f9B722"
+  }
+}

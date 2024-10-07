@@ -1,0 +1,2868 @@
+{
+  "manifestVersion": "3.2",
+  "proxies": [
+    {
+      "address": "0x27f519d608cC33533801bDDfD7635B6cD12878A6",
+      "txHash": "0x57f8c58bd92a4fd536aa26b048a58b0bcb52e6cff310db95691a214e6ce82235",
+      "kind": "uups"
+    },
+    {
+      "address": "0xABF25f467401D5af575fBbAF4Ecb0b297804aC88",
+      "txHash": "0x5abca3edbde1b4ad618c453206c9f46cfd105fb4f7ee4019b8dc0f862e67a624",
+      "kind": "uups"
+    },
+    {
+      "address": "0xA44D2904B31A078acFE6225b49df9ae31A0D169B",
+      "txHash": "0xcebce06e66f744a84e0451f473869774eedc7a54814e3909ac83db6a3c2c9383",
+      "kind": "uups"
+    },
+    {
+      "address": "0x9d733DCdD69a72FAA5Fa87611d384605D2cfedF4",
+      "txHash": "0xbaef48bca3262faaa3c7ca97b7622bc9124f8a1d8c5f896123771386a32275a2",
+      "kind": "uups"
+    },
+    {
+      "address": "0xB058177A3dB501b926eDf40440d146981E2BA9fe",
+      "txHash": "0xdc1c99bbcf6fba02e8095a2b2ff99907f03ad03332899c5b364b9660d640b166",
+      "kind": "uups"
+    }
+  ],
+  "impls": {
+    "1102d9acc594d7e6cbfe28773f7a92215028f24291d2364aefa265a9f5ad1a98": {
+      "address": "0x929B77bBEe22A07321352E1D5aaC4Ee50907387B",
+      "txHash": "0x7759702cac0b8d0a9e8e549364833b7bcee67d1c40755a05f794ae55b995446d",
+      "layout": {
+        "solcVersion": "0.8.26",
+        "storage": [],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(EtherfiUnstakeQueue)3659_storage)": {
+            "label": "mapping(address => struct EtherfiAdapterConfigStorage.EtherfiUnstakeQueue)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(MarginlyConfig)4130_storage)": {
+            "label": "mapping(address => struct MarginlyAdapterConfigStorage.MarginlyConfig)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(PoolConfig)4118_storage)": {
+            "label": "mapping(address => struct MarginlyAdapterConfigStorage.PoolConfig)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint128,t_struct(QueueItem)3649_storage)": {
+            "label": "mapping(uint128 => struct EtherfiAdapterConfigStorage.QueueItem)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint32,t_address)": {
+            "label": "mapping(uint32 => address)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(AaveAdapterConfig)3509_storage": {
+            "label": "struct AaveAdapterConfigStorage.AaveAdapterConfig",
+            "members": [
+              {
+                "label": "aavePool",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(EtherfiAdapterConfig)3686_storage": {
+            "label": "struct EtherfiAdapterConfigStorage.EtherfiAdapterConfig",
+            "members": [
+              {
+                "label": "_weth9",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_weeth",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "_marginlyRouter",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "_weethEthPriceOracle",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "_vaults",
+                "type": "t_mapping(t_address,t_bool)",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "_avgPricesByVault",
+                "type": "t_mapping(t_address,t_uint256)",
+                "offset": 0,
+                "slot": "5"
+              },
+              {
+                "label": "_unstakeQueue",
+                "type": "t_mapping(t_address,t_struct(EtherfiUnstakeQueue)3659_storage)",
+                "offset": 0,
+                "slot": "6"
+              },
+              {
+                "label": "_pendingWithdrawals",
+                "type": "t_mapping(t_address,t_uint256)",
+                "offset": 0,
+                "slot": "7"
+              }
+            ],
+            "numberOfBytes": "256"
+          },
+          "t_struct(EtherfiUnstakeQueue)3659_storage": {
+            "label": "struct EtherfiAdapterConfigStorage.EtherfiUnstakeQueue",
+            "members": [
+              {
+                "label": "start",
+                "type": "t_uint128",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "end",
+                "type": "t_uint128",
+                "offset": 16,
+                "slot": "0"
+              },
+              {
+                "label": "items",
+                "type": "t_mapping(t_uint128,t_struct(QueueItem)3649_storage)",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(InitializableStorage)1131_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(MarginlyAdapterConfigs)4137_storage": {
+            "label": "struct MarginlyAdapterConfigStorage.MarginlyAdapterConfigs",
+            "members": [
+              {
+                "label": "_configs",
+                "type": "t_mapping(t_address,t_struct(MarginlyConfig)4130_storage)",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(MarginlyConfig)4130_storage": {
+            "label": "struct MarginlyAdapterConfigStorage.MarginlyConfig",
+            "members": [
+              {
+                "label": "_countOfPools",
+                "type": "t_uint32",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_poolConfigs",
+                "type": "t_mapping(t_address,t_struct(PoolConfig)4118_storage)",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "_poolByIndex",
+                "type": "t_mapping(t_uint32,t_address)",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_struct(Ownable2StepStorage)1003_storage": {
+            "label": "struct Ownable2StepUpgradeable.Ownable2StepStorage",
+            "members": [
+              {
+                "label": "_pendingOwner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)1064_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(PoolConfig)4118_storage": {
+            "label": "struct MarginlyAdapterConfigStorage.PoolConfig",
+            "members": [
+              {
+                "label": "initialized",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "isQuote",
+                "type": "t_bool",
+                "offset": 1,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(QueueItem)3649_storage": {
+            "label": "struct EtherfiAdapterConfigStorage.QueueItem",
+            "members": [
+              {
+                "label": "requestId",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_uint128": {
+            "label": "uint128",
+            "numberOfBytes": "16"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint32": {
+            "label": "uint32",
+            "numberOfBytes": "4"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          }
+        },
+        "namespaces": {
+          "erc7201:levva-vault.config.EtherfiAdapterConfig": [
+            {
+              "contract": "EtherfiAdapterConfigStorage",
+              "label": "_weth9",
+              "type": "t_address",
+              "src": "contracts/protocols/etherfi/EtherfiAdapterConfigStorage.sol:34",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "EtherfiAdapterConfigStorage",
+              "label": "_weeth",
+              "type": "t_address",
+              "src": "contracts/protocols/etherfi/EtherfiAdapterConfigStorage.sol:35",
+              "offset": 0,
+              "slot": "1"
+            },
+            {
+              "contract": "EtherfiAdapterConfigStorage",
+              "label": "_marginlyRouter",
+              "type": "t_address",
+              "src": "contracts/protocols/etherfi/EtherfiAdapterConfigStorage.sol:36",
+              "offset": 0,
+              "slot": "2"
+            },
+            {
+              "contract": "EtherfiAdapterConfigStorage",
+              "label": "_weethEthPriceOracle",
+              "type": "t_address",
+              "src": "contracts/protocols/etherfi/EtherfiAdapterConfigStorage.sol:37",
+              "offset": 0,
+              "slot": "3"
+            },
+            {
+              "contract": "EtherfiAdapterConfigStorage",
+              "label": "_vaults",
+              "type": "t_mapping(t_address,t_bool)",
+              "src": "contracts/protocols/etherfi/EtherfiAdapterConfigStorage.sol:39",
+              "offset": 0,
+              "slot": "4"
+            },
+            {
+              "contract": "EtherfiAdapterConfigStorage",
+              "label": "_avgPricesByVault",
+              "type": "t_mapping(t_address,t_uint256)",
+              "src": "contracts/protocols/etherfi/EtherfiAdapterConfigStorage.sol:40",
+              "offset": 0,
+              "slot": "5"
+            },
+            {
+              "contract": "EtherfiAdapterConfigStorage",
+              "label": "_unstakeQueue",
+              "type": "t_mapping(t_address,t_struct(EtherfiUnstakeQueue)3659_storage)",
+              "src": "contracts/protocols/etherfi/EtherfiAdapterConfigStorage.sol:41",
+              "offset": 0,
+              "slot": "6"
+            },
+            {
+              "contract": "EtherfiAdapterConfigStorage",
+              "label": "_pendingWithdrawals",
+              "type": "t_mapping(t_address,t_uint256)",
+              "src": "contracts/protocols/etherfi/EtherfiAdapterConfigStorage.sol:43",
+              "offset": 0,
+              "slot": "7"
+            }
+          ],
+          "erc7201:levva-vault.MarginlyAdapterConfigs": [
+            {
+              "contract": "MarginlyAdapterConfigStorage",
+              "label": "_configs",
+              "type": "t_mapping(t_address,t_struct(MarginlyConfig)4130_storage)",
+              "src": "contracts/protocols/marginly/MarginlyAdapterConfigStorage.sol:34",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:levva-vault.config.AaveAdapterConfig": [
+            {
+              "contract": "AaveAdapterConfigStorage",
+              "label": "aavePool",
+              "type": "t_address",
+              "src": "contracts/protocols/aave/AaveAdapterConfigStorage.sol:15",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable2Step": [
+            {
+              "contract": "Ownable2StepUpgradeable",
+              "label": "_pendingOwner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol:23",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "242b6d7e7b2e615863cca8f24755420c24072e7226ddbbb3a52aaab60e2a8d12": {
+      "address": "0x3f5272244e89F26D598Bbb7d4684e27f73708146",
+      "txHash": "0x53d671225d4880ae85b37afed02f1ceffb999bba94540a46009a59f755c607d0",
+      "layout": {
+        "solcVersion": "0.8.26",
+        "storage": [],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_enum(ProtocolType)2120": {
+            "label": "enum ProtocolType",
+            "members": [
+              "Marginly",
+              "Aave",
+              "Etherfi",
+              "ProtocolTypeLength"
+            ],
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(address => mapping(address => uint256))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_enum(ProtocolType)2120,t_address)": {
+            "label": "mapping(enum ProtocolType => address)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(ConfigManagerData)1564_storage": {
+            "label": "struct ConfigManagerStorage.ConfigManagerData",
+            "members": [
+              {
+                "label": "configManager",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ERC20Storage)295_storage": {
+            "label": "struct ERC20Upgradeable.ERC20Storage",
+            "members": [
+              {
+                "label": "_balances",
+                "type": "t_mapping(t_address,t_uint256)",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_allowances",
+                "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "_totalSupply",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "_name",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "_symbol",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "4"
+              }
+            ],
+            "numberOfBytes": "160"
+          },
+          "t_struct(InitializableStorage)141_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(LendingAdaptersData)1934_storage": {
+            "label": "struct LendingAdaptersStorage.LendingAdaptersData",
+            "members": [
+              {
+                "label": "_protocolAdapters",
+                "type": "t_mapping(t_enum(ProtocolType)2120,t_address)",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(Ownable2StepStorage)13_storage": {
+            "label": "struct Ownable2StepUpgradeable.Ownable2StepStorage",
+            "members": [
+              {
+                "label": "_pendingOwner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)74_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(VaultStorage)1633_storage": {
+            "label": "struct ERC4626Vault.VaultStorage",
+            "members": [
+              {
+                "label": "_asset",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_decimalsOffset",
+                "type": "t_uint8",
+                "offset": 20,
+                "slot": "0"
+              },
+              {
+                "label": "_totalDeposited",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "_cachedTotalLent",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "_totalUpdatedAt",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "_vaultManagers",
+                "type": "t_mapping(t_address,t_bool)",
+                "offset": 0,
+                "slot": "4"
+              }
+            ],
+            "numberOfBytes": "160"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {
+          "erc7201:levva-vault.ConfigManagerData": [
+            {
+              "contract": "ConfigManagerStorage",
+              "label": "configManager",
+              "type": "t_address",
+              "src": "contracts/base/ConfigManagerStorage.sol:15",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:levva-vault.LendingAdaptersData": [
+            {
+              "contract": "LendingAdaptersStorage",
+              "label": "_protocolAdapters",
+              "type": "t_mapping(t_enum(ProtocolType)2120,t_address)",
+              "src": "contracts/base/LendingAdaptersStorage.sol:15",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:levva-vault.VaultStorage": [
+            {
+              "contract": "ERC4626Vault",
+              "label": "_asset",
+              "type": "t_address",
+              "src": "contracts/base/ERC4626Vault.sol:26",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "ERC4626Vault",
+              "label": "_decimalsOffset",
+              "type": "t_uint8",
+              "src": "contracts/base/ERC4626Vault.sol:28",
+              "offset": 20,
+              "slot": "0"
+            },
+            {
+              "contract": "ERC4626Vault",
+              "label": "_totalDeposited",
+              "type": "t_uint256",
+              "src": "contracts/base/ERC4626Vault.sol:30",
+              "offset": 0,
+              "slot": "1"
+            },
+            {
+              "contract": "ERC4626Vault",
+              "label": "_cachedTotalLent",
+              "type": "t_uint256",
+              "src": "contracts/base/ERC4626Vault.sol:31",
+              "offset": 0,
+              "slot": "2"
+            },
+            {
+              "contract": "ERC4626Vault",
+              "label": "_totalUpdatedAt",
+              "type": "t_uint256",
+              "src": "contracts/base/ERC4626Vault.sol:32",
+              "offset": 0,
+              "slot": "3"
+            },
+            {
+              "contract": "ERC4626Vault",
+              "label": "_vaultManagers",
+              "type": "t_mapping(t_address,t_bool)",
+              "src": "contracts/base/ERC4626Vault.sol:34",
+              "offset": 0,
+              "slot": "4"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable2Step": [
+            {
+              "contract": "Ownable2StepUpgradeable",
+              "label": "_pendingOwner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol:23",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.ERC20": [
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_balances",
+              "type": "t_mapping(t_address,t_uint256)",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:38",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_allowances",
+              "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:40",
+              "offset": 0,
+              "slot": "1"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_totalSupply",
+              "type": "t_uint256",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:42",
+              "offset": 0,
+              "slot": "2"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_name",
+              "type": "t_string_storage",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:44",
+              "offset": 0,
+              "slot": "3"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_symbol",
+              "type": "t_string_storage",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:45",
+              "offset": 0,
+              "slot": "4"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "576dacebccc10a79e2805dc1fbc248dc35398d5729d1cc8042ed09f312f80cb3": {
+      "address": "0xda6a0FEeeB667f06C3D4b9C4e6c8e07A8a2983F4",
+      "txHash": "0x0ab7c19fa98f6867fc57b311553b4ab83bbea0f6b3b5154c0d8179b9de1decbf",
+      "layout": {
+        "solcVersion": "0.8.26",
+        "storage": [],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_enum(ProtocolType)2141": {
+            "label": "enum ProtocolType",
+            "members": [
+              "Marginly",
+              "Aave",
+              "Etherfi",
+              "ProtocolTypeLength"
+            ],
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(address => mapping(address => uint256))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_enum(ProtocolType)2141,t_address)": {
+            "label": "mapping(enum ProtocolType => address)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(ConfigManagerData)1564_storage": {
+            "label": "struct ConfigManagerStorage.ConfigManagerData",
+            "members": [
+              {
+                "label": "configManager",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ERC20Storage)295_storage": {
+            "label": "struct ERC20Upgradeable.ERC20Storage",
+            "members": [
+              {
+                "label": "_balances",
+                "type": "t_mapping(t_address,t_uint256)",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_allowances",
+                "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "_totalSupply",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "_name",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "_symbol",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "4"
+              }
+            ],
+            "numberOfBytes": "160"
+          },
+          "t_struct(InitializableStorage)141_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(LendingAdaptersData)1955_storage": {
+            "label": "struct LendingAdaptersStorage.LendingAdaptersData",
+            "members": [
+              {
+                "label": "_protocolAdapters",
+                "type": "t_mapping(t_enum(ProtocolType)2141,t_address)",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(Ownable2StepStorage)13_storage": {
+            "label": "struct Ownable2StepUpgradeable.Ownable2StepStorage",
+            "members": [
+              {
+                "label": "_pendingOwner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)74_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(VaultStorage)1635_storage": {
+            "label": "struct ERC4626Vault.VaultStorage",
+            "members": [
+              {
+                "label": "_asset",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_underlyingDecimals",
+                "type": "t_uint8",
+                "offset": 20,
+                "slot": "0"
+              },
+              {
+                "label": "_decimalsOffset",
+                "type": "t_uint8",
+                "offset": 21,
+                "slot": "0"
+              },
+              {
+                "label": "_totalDeposited",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "_cachedTotalLent",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "_totalUpdatedAt",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "_vaultManagers",
+                "type": "t_mapping(t_address,t_bool)",
+                "offset": 0,
+                "slot": "4"
+              }
+            ],
+            "numberOfBytes": "160"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {
+          "erc7201:levva-vault.ConfigManagerData": [
+            {
+              "contract": "ConfigManagerStorage",
+              "label": "configManager",
+              "type": "t_address",
+              "src": "contracts/base/ConfigManagerStorage.sol:15",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:levva-vault.LendingAdaptersData": [
+            {
+              "contract": "LendingAdaptersStorage",
+              "label": "_protocolAdapters",
+              "type": "t_mapping(t_enum(ProtocolType)2141,t_address)",
+              "src": "contracts/base/LendingAdaptersStorage.sol:15",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:levva-vault.VaultStorage": [
+            {
+              "contract": "ERC4626Vault",
+              "label": "_asset",
+              "type": "t_address",
+              "src": "contracts/base/ERC4626Vault.sol:26",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "ERC4626Vault",
+              "label": "_underlyingDecimals",
+              "type": "t_uint8",
+              "src": "contracts/base/ERC4626Vault.sol:28",
+              "offset": 20,
+              "slot": "0"
+            },
+            {
+              "contract": "ERC4626Vault",
+              "label": "_decimalsOffset",
+              "type": "t_uint8",
+              "src": "contracts/base/ERC4626Vault.sol:30",
+              "offset": 21,
+              "slot": "0"
+            },
+            {
+              "contract": "ERC4626Vault",
+              "label": "_totalDeposited",
+              "type": "t_uint256",
+              "src": "contracts/base/ERC4626Vault.sol:32",
+              "offset": 0,
+              "slot": "1"
+            },
+            {
+              "contract": "ERC4626Vault",
+              "label": "_cachedTotalLent",
+              "type": "t_uint256",
+              "src": "contracts/base/ERC4626Vault.sol:33",
+              "offset": 0,
+              "slot": "2"
+            },
+            {
+              "contract": "ERC4626Vault",
+              "label": "_totalUpdatedAt",
+              "type": "t_uint256",
+              "src": "contracts/base/ERC4626Vault.sol:34",
+              "offset": 0,
+              "slot": "3"
+            },
+            {
+              "contract": "ERC4626Vault",
+              "label": "_vaultManagers",
+              "type": "t_mapping(t_address,t_bool)",
+              "src": "contracts/base/ERC4626Vault.sol:36",
+              "offset": 0,
+              "slot": "4"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable2Step": [
+            {
+              "contract": "Ownable2StepUpgradeable",
+              "label": "_pendingOwner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol:23",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.ERC20": [
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_balances",
+              "type": "t_mapping(t_address,t_uint256)",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:38",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_allowances",
+              "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:40",
+              "offset": 0,
+              "slot": "1"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_totalSupply",
+              "type": "t_uint256",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:42",
+              "offset": 0,
+              "slot": "2"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_name",
+              "type": "t_string_storage",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:44",
+              "offset": 0,
+              "slot": "3"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_symbol",
+              "type": "t_string_storage",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:45",
+              "offset": 0,
+              "slot": "4"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "5ecdf0e3025d77889fc2798e5c62cef2ea7bbc6eb84c31468eb8c71d7a877780": {
+      "address": "0xba49928dd332B69062864c09EA1936CFF12e714E",
+      "txHash": "0xd8fc86cec17e9f3b4cd7d2c75e014f7d8d943c6ef3474e397a44ed4606b2b2ad",
+      "layout": {
+        "solcVersion": "0.8.26",
+        "storage": [],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_struct(EtherfiUnstakeQueue)4706_storage)": {
+            "label": "mapping(address => struct EtherfiAdapterConfigStorage.EtherfiUnstakeQueue)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(MarginlyConfig)5127_storage)": {
+            "label": "mapping(address => struct MarginlyAdapterConfigStorage.MarginlyConfig)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(PoolConfig)5115_storage)": {
+            "label": "mapping(address => struct MarginlyAdapterConfigStorage.PoolConfig)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint128,t_struct(QueueItem)4696_storage)": {
+            "label": "mapping(uint128 => struct EtherfiAdapterConfigStorage.QueueItem)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint32,t_address)": {
+            "label": "mapping(uint32 => address)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(AaveAdapterConfig)4536_storage": {
+            "label": "struct AaveAdapterConfigStorage.AaveAdapterConfig",
+            "members": [
+              {
+                "label": "aavePool",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(EtherfiAdapterConfig)4723_storage": {
+            "label": "struct EtherfiAdapterConfigStorage.EtherfiAdapterConfig",
+            "members": [
+              {
+                "label": "_weth9",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_weeth",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "_weethEthPriceOracle",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "_unstakeQueue",
+                "type": "t_mapping(t_address,t_struct(EtherfiUnstakeQueue)4706_storage)",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "_pendingWithdrawals",
+                "type": "t_mapping(t_address,t_uint256)",
+                "offset": 0,
+                "slot": "4"
+              }
+            ],
+            "numberOfBytes": "160"
+          },
+          "t_struct(EtherfiUnstakeQueue)4706_storage": {
+            "label": "struct EtherfiAdapterConfigStorage.EtherfiUnstakeQueue",
+            "members": [
+              {
+                "label": "start",
+                "type": "t_uint128",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "end",
+                "type": "t_uint128",
+                "offset": 16,
+                "slot": "0"
+              },
+              {
+                "label": "items",
+                "type": "t_mapping(t_uint128,t_struct(QueueItem)4696_storage)",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(InitializableStorage)1131_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(MarginlyAdapterConfig)5134_storage": {
+            "label": "struct MarginlyAdapterConfigStorage.MarginlyAdapterConfig",
+            "members": [
+              {
+                "label": "_configs",
+                "type": "t_mapping(t_address,t_struct(MarginlyConfig)5127_storage)",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(MarginlyConfig)5127_storage": {
+            "label": "struct MarginlyAdapterConfigStorage.MarginlyConfig",
+            "members": [
+              {
+                "label": "_countOfPools",
+                "type": "t_uint32",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_poolConfigs",
+                "type": "t_mapping(t_address,t_struct(PoolConfig)5115_storage)",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "_poolByIndex",
+                "type": "t_mapping(t_uint32,t_address)",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_struct(Ownable2StepStorage)1003_storage": {
+            "label": "struct Ownable2StepUpgradeable.Ownable2StepStorage",
+            "members": [
+              {
+                "label": "_pendingOwner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)1064_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(PoolConfig)5115_storage": {
+            "label": "struct MarginlyAdapterConfigStorage.PoolConfig",
+            "members": [
+              {
+                "label": "initialized",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "isQuote",
+                "type": "t_bool",
+                "offset": 1,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(QueueItem)4696_storage": {
+            "label": "struct EtherfiAdapterConfigStorage.QueueItem",
+            "members": [
+              {
+                "label": "requestId",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_uint128": {
+            "label": "uint128",
+            "numberOfBytes": "16"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint32": {
+            "label": "uint32",
+            "numberOfBytes": "4"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          }
+        },
+        "namespaces": {
+          "erc7201:levva-vault.config.EtherfiAdapterConfig": [
+            {
+              "contract": "EtherfiAdapterConfigStorage",
+              "label": "_weth9",
+              "type": "t_address",
+              "src": "contracts/protocols/etherfi/EtherfiAdapterConfigStorage.sol:35",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "EtherfiAdapterConfigStorage",
+              "label": "_weeth",
+              "type": "t_address",
+              "src": "contracts/protocols/etherfi/EtherfiAdapterConfigStorage.sol:36",
+              "offset": 0,
+              "slot": "1"
+            },
+            {
+              "contract": "EtherfiAdapterConfigStorage",
+              "label": "_weethEthPriceOracle",
+              "type": "t_address",
+              "src": "contracts/protocols/etherfi/EtherfiAdapterConfigStorage.sol:37",
+              "offset": 0,
+              "slot": "2"
+            },
+            {
+              "contract": "EtherfiAdapterConfigStorage",
+              "label": "_unstakeQueue",
+              "type": "t_mapping(t_address,t_struct(EtherfiUnstakeQueue)4706_storage)",
+              "src": "contracts/protocols/etherfi/EtherfiAdapterConfigStorage.sol:38",
+              "offset": 0,
+              "slot": "3"
+            },
+            {
+              "contract": "EtherfiAdapterConfigStorage",
+              "label": "_pendingWithdrawals",
+              "type": "t_mapping(t_address,t_uint256)",
+              "src": "contracts/protocols/etherfi/EtherfiAdapterConfigStorage.sol:40",
+              "offset": 0,
+              "slot": "4"
+            }
+          ],
+          "erc7201:levva-vault.MarginlyAdapterConfig": [
+            {
+              "contract": "MarginlyAdapterConfigStorage",
+              "label": "_configs",
+              "type": "t_mapping(t_address,t_struct(MarginlyConfig)5127_storage)",
+              "src": "contracts/protocols/marginly/MarginlyAdapterConfigStorage.sol:34",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:levva-vault.config.AaveAdapterConfig": [
+            {
+              "contract": "AaveAdapterConfigStorage",
+              "label": "aavePool",
+              "type": "t_address",
+              "src": "contracts/protocols/aave/AaveAdapterConfigStorage.sol:15",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable2Step": [
+            {
+              "contract": "Ownable2StepUpgradeable",
+              "label": "_pendingOwner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol:23",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "0f1b5ea5dd82e8487115785ec95c0c29cfe259c94480881161e4854835b49e1a": {
+      "address": "0x850e3b809Ad573Dbec896398d1A38C273a9dcFc6",
+      "txHash": "0x0e29d430ea10d9a1e25c5914dcb6e4cf5b952b341cd10d5d180a2694080b097b",
+      "layout": {
+        "solcVersion": "0.8.26",
+        "storage": [],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(IERC20)2371": {
+            "label": "contract IERC20",
+            "numberOfBytes": "20"
+          },
+          "t_enum(ProtocolType)4387": {
+            "label": "enum ProtocolType",
+            "members": [
+              "Marginly",
+              "Aave",
+              "Etherfi",
+              "ProtocolTypeLength"
+            ],
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(address => mapping(address => uint256))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_enum(ProtocolType)4387,t_address)": {
+            "label": "mapping(enum ProtocolType => address)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(AbstractVaultStorage)3881_storage": {
+            "label": "struct AbstractVault.AbstractVaultStorage",
+            "members": [
+              {
+                "label": "_totalLent",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_totalLentUpdatedAt",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(ConfigManagerData)4052_storage": {
+            "label": "struct ConfigManagerStorage.ConfigManagerData",
+            "members": [
+              {
+                "label": "configManager",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ERC20Storage)1285_storage": {
+            "label": "struct ERC20Upgradeable.ERC20Storage",
+            "members": [
+              {
+                "label": "_balances",
+                "type": "t_mapping(t_address,t_uint256)",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_allowances",
+                "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "_totalSupply",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "_name",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "_symbol",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "4"
+              }
+            ],
+            "numberOfBytes": "160"
+          },
+          "t_struct(ERC4626Storage)1487_storage": {
+            "label": "struct ERC4626Upgradeable.ERC4626Storage",
+            "members": [
+              {
+                "label": "_asset",
+                "type": "t_contract(IERC20)2371",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_underlyingDecimals",
+                "type": "t_uint8",
+                "offset": 20,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(InitializableStorage)1131_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(LendingAdaptersData)4088_storage": {
+            "label": "struct LendingAdaptersStorage.LendingAdaptersData",
+            "members": [
+              {
+                "label": "_protocolAdapters",
+                "type": "t_mapping(t_enum(ProtocolType)4387,t_address)",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(Ownable2StepStorage)1003_storage": {
+            "label": "struct Ownable2StepUpgradeable.Ownable2StepStorage",
+            "members": [
+              {
+                "label": "_pendingOwner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)1064_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {
+          "erc7201:levva-vault.ConfigManagerData": [
+            {
+              "contract": "ConfigManagerStorage",
+              "label": "configManager",
+              "type": "t_address",
+              "src": "contracts/base/ConfigManagerStorage.sol:15",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:levva-vault.LendingAdaptersData": [
+            {
+              "contract": "LendingAdaptersStorage",
+              "label": "_protocolAdapters",
+              "type": "t_mapping(t_enum(ProtocolType)4387,t_address)",
+              "src": "contracts/base/LendingAdaptersStorage.sol:15",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:levva-vault.AbstractVaultStorage": [
+            {
+              "contract": "AbstractVault",
+              "label": "_totalLent",
+              "type": "t_uint256",
+              "src": "contracts/base/AbstractVault.sol:29",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "AbstractVault",
+              "label": "_totalLentUpdatedAt",
+              "type": "t_uint256",
+              "src": "contracts/base/AbstractVault.sol:30",
+              "offset": 0,
+              "slot": "1"
+            }
+          ],
+          "erc7201:openzeppelin.storage.ERC4626": [
+            {
+              "contract": "ERC4626Upgradeable",
+              "label": "_asset",
+              "type": "t_contract(IERC20)2371",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC4626Upgradeable.sol:56",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "ERC4626Upgradeable",
+              "label": "_underlyingDecimals",
+              "type": "t_uint8",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC4626Upgradeable.sol:57",
+              "offset": 20,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable2Step": [
+            {
+              "contract": "Ownable2StepUpgradeable",
+              "label": "_pendingOwner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol:23",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.ERC20": [
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_balances",
+              "type": "t_mapping(t_address,t_uint256)",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:38",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_allowances",
+              "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:40",
+              "offset": 0,
+              "slot": "1"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_totalSupply",
+              "type": "t_uint256",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:42",
+              "offset": 0,
+              "slot": "2"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_name",
+              "type": "t_string_storage",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:44",
+              "offset": 0,
+              "slot": "3"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_symbol",
+              "type": "t_string_storage",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:45",
+              "offset": 0,
+              "slot": "4"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "38ab16ba76bb14cb1772c80ec7538f63c2ca00836b11632ea20f2238169c094b": {
+      "address": "0x15fE59452a5ad7824f6b75De49c0F575Ccc37552",
+      "txHash": "0x1e5c5f04e04b2b6ef08cee17df9e848c491643591ab9609650f4e7d3adcd34fe",
+      "layout": {
+        "solcVersion": "0.8.26",
+        "storage": [],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(IERC20)1132": {
+            "label": "contract IERC20",
+            "numberOfBytes": "20"
+          },
+          "t_enum(ProtocolType)2272": {
+            "label": "enum ProtocolType",
+            "members": [
+              "Marginly",
+              "Aave",
+              "Etherfi",
+              "ProtocolTypeLength"
+            ],
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(address => mapping(address => uint256))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_enum(ProtocolType)2272,t_address)": {
+            "label": "mapping(enum ProtocolType => address)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(AbstractVaultStorage)1897_storage": {
+            "label": "struct AbstractVault.AbstractVaultStorage",
+            "members": [
+              {
+                "label": "_totalLent",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_totalLentUpdatedAt",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(ConfigManagerData)2070_storage": {
+            "label": "struct ConfigManagerStorage.ConfigManagerData",
+            "members": [
+              {
+                "label": "configManager",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ERC20Storage)295_storage": {
+            "label": "struct ERC20Upgradeable.ERC20Storage",
+            "members": [
+              {
+                "label": "_balances",
+                "type": "t_mapping(t_address,t_uint256)",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_allowances",
+                "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "_totalSupply",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "_name",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "_symbol",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "4"
+              }
+            ],
+            "numberOfBytes": "160"
+          },
+          "t_struct(ERC4626Storage)497_storage": {
+            "label": "struct ERC4626Upgradeable.ERC4626Storage",
+            "members": [
+              {
+                "label": "_asset",
+                "type": "t_contract(IERC20)1132",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_underlyingDecimals",
+                "type": "t_uint8",
+                "offset": 20,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(InitializableStorage)141_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(LendingAdaptersData)2106_storage": {
+            "label": "struct LendingAdaptersStorage.LendingAdaptersData",
+            "members": [
+              {
+                "label": "_protocolAdapters",
+                "type": "t_mapping(t_enum(ProtocolType)2272,t_address)",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(Ownable2StepStorage)13_storage": {
+            "label": "struct Ownable2StepUpgradeable.Ownable2StepStorage",
+            "members": [
+              {
+                "label": "_pendingOwner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)74_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {
+          "erc7201:levva-vault.ConfigManagerData": [
+            {
+              "contract": "ConfigManagerStorage",
+              "label": "configManager",
+              "type": "t_address",
+              "src": "contracts/base/ConfigManagerStorage.sol:15",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:levva-vault.LendingAdaptersData": [
+            {
+              "contract": "LendingAdaptersStorage",
+              "label": "_protocolAdapters",
+              "type": "t_mapping(t_enum(ProtocolType)2272,t_address)",
+              "src": "contracts/base/LendingAdaptersStorage.sol:15",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:levva-vault.AbstractVaultStorage": [
+            {
+              "contract": "AbstractVault",
+              "label": "_totalLent",
+              "type": "t_uint256",
+              "src": "contracts/base/AbstractVault.sol:29",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "AbstractVault",
+              "label": "_totalLentUpdatedAt",
+              "type": "t_uint256",
+              "src": "contracts/base/AbstractVault.sol:30",
+              "offset": 0,
+              "slot": "1"
+            }
+          ],
+          "erc7201:openzeppelin.storage.ERC4626": [
+            {
+              "contract": "ERC4626Upgradeable",
+              "label": "_asset",
+              "type": "t_contract(IERC20)1132",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC4626Upgradeable.sol:56",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "ERC4626Upgradeable",
+              "label": "_underlyingDecimals",
+              "type": "t_uint8",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC4626Upgradeable.sol:57",
+              "offset": 20,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable2Step": [
+            {
+              "contract": "Ownable2StepUpgradeable",
+              "label": "_pendingOwner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol:23",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.ERC20": [
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_balances",
+              "type": "t_mapping(t_address,t_uint256)",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:38",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_allowances",
+              "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:40",
+              "offset": 0,
+              "slot": "1"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_totalSupply",
+              "type": "t_uint256",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:42",
+              "offset": 0,
+              "slot": "2"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_name",
+              "type": "t_string_storage",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:44",
+              "offset": 0,
+              "slot": "3"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_symbol",
+              "type": "t_string_storage",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:45",
+              "offset": 0,
+              "slot": "4"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "c4b9f3059969eb377adc60b22710289fecb65454e37c876cdf1df7d5014f1dbd": {
+      "address": "0x7d34953B84C74ca3e49F88d0399590e0b645924A",
+      "txHash": "0xa94bfba96875514b417475db61e2edfceb9cf87b7eddc329970b33ef23d68b10",
+      "layout": {
+        "solcVersion": "0.8.26",
+        "storage": [],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(IERC20)2293": {
+            "label": "contract IERC20",
+            "numberOfBytes": "20"
+          },
+          "t_enum(ProtocolType)3563": {
+            "label": "enum ProtocolType",
+            "members": [
+              "Marginly",
+              "Aave",
+              "Etherfi",
+              "ProtocolTypeLength"
+            ],
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(address => mapping(address => uint256))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_enum(ProtocolType)3563,t_address)": {
+            "label": "mapping(enum ProtocolType => address)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(AbstractVaultStorage)3097_storage": {
+            "label": "struct AbstractVault.AbstractVaultStorage",
+            "members": [
+              {
+                "label": "_totalLent",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_totalLentUpdatedAt",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "_minDeposit",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_struct(ConfigManagerData)3282_storage": {
+            "label": "struct ConfigManagerStorage.ConfigManagerData",
+            "members": [
+              {
+                "label": "configManager",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ERC20Storage)1285_storage": {
+            "label": "struct ERC20Upgradeable.ERC20Storage",
+            "members": [
+              {
+                "label": "_balances",
+                "type": "t_mapping(t_address,t_uint256)",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_allowances",
+                "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "_totalSupply",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "_name",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "_symbol",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "4"
+              }
+            ],
+            "numberOfBytes": "160"
+          },
+          "t_struct(ERC4626Storage)1487_storage": {
+            "label": "struct ERC4626Upgradeable.ERC4626Storage",
+            "members": [
+              {
+                "label": "_asset",
+                "type": "t_contract(IERC20)2293",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_underlyingDecimals",
+                "type": "t_uint8",
+                "offset": 20,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(InitializableStorage)1131_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(LendingAdaptersData)3318_storage": {
+            "label": "struct LendingAdaptersStorage.LendingAdaptersData",
+            "members": [
+              {
+                "label": "_protocolAdapters",
+                "type": "t_mapping(t_enum(ProtocolType)3563,t_address)",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(Ownable2StepStorage)1003_storage": {
+            "label": "struct Ownable2StepUpgradeable.Ownable2StepStorage",
+            "members": [
+              {
+                "label": "_pendingOwner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)1064_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {
+          "erc7201:levva-vault.ConfigManagerData": [
+            {
+              "contract": "ConfigManagerStorage",
+              "label": "configManager",
+              "type": "t_address",
+              "src": "contracts/base/ConfigManagerStorage.sol:15",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:levva-vault.LendingAdaptersData": [
+            {
+              "contract": "LendingAdaptersStorage",
+              "label": "_protocolAdapters",
+              "type": "t_mapping(t_enum(ProtocolType)3563,t_address)",
+              "src": "contracts/base/LendingAdaptersStorage.sol:15",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:levva-vault.AbstractVaultStorage": [
+            {
+              "contract": "AbstractVault",
+              "label": "_totalLent",
+              "type": "t_uint256",
+              "src": "contracts/base/AbstractVault.sol:29",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "AbstractVault",
+              "label": "_totalLentUpdatedAt",
+              "type": "t_uint256",
+              "src": "contracts/base/AbstractVault.sol:30",
+              "offset": 0,
+              "slot": "1"
+            },
+            {
+              "contract": "AbstractVault",
+              "label": "_minDeposit",
+              "type": "t_uint256",
+              "src": "contracts/base/AbstractVault.sol:31",
+              "offset": 0,
+              "slot": "2"
+            }
+          ],
+          "erc7201:openzeppelin.storage.ERC4626": [
+            {
+              "contract": "ERC4626Upgradeable",
+              "label": "_asset",
+              "type": "t_contract(IERC20)2293",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC4626Upgradeable.sol:56",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "ERC4626Upgradeable",
+              "label": "_underlyingDecimals",
+              "type": "t_uint8",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC4626Upgradeable.sol:57",
+              "offset": 20,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable2Step": [
+            {
+              "contract": "Ownable2StepUpgradeable",
+              "label": "_pendingOwner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol:23",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.ERC20": [
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_balances",
+              "type": "t_mapping(t_address,t_uint256)",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:38",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_allowances",
+              "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:40",
+              "offset": 0,
+              "slot": "1"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_totalSupply",
+              "type": "t_uint256",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:42",
+              "offset": 0,
+              "slot": "2"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_name",
+              "type": "t_string_storage",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:44",
+              "offset": 0,
+              "slot": "3"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_symbol",
+              "type": "t_string_storage",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:45",
+              "offset": 0,
+              "slot": "4"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "b3b7d0693fdc71a29f34cf827e2897c162d1322aaa771caa71af2f2069d9ca81": {
+      "address": "0x64FB6D61c62C2343356024670F14767ddf771868",
+      "txHash": "0x988fb30a1400a3041895c112cbf644b3f91acbfe86fe10e6b308dc1b7c0e2ca9",
+      "layout": {
+        "solcVersion": "0.8.26",
+        "storage": [],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(IERC20)2371": {
+            "label": "contract IERC20",
+            "numberOfBytes": "20"
+          },
+          "t_enum(ProtocolType)4535": {
+            "label": "enum ProtocolType",
+            "members": [
+              "Marginly",
+              "Aave",
+              "Etherfi",
+              "ProtocolTypeLength"
+            ],
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(address => mapping(address => uint256))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_enum(ProtocolType)4535,t_address)": {
+            "label": "mapping(enum ProtocolType => address)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(AbstractVaultStorage)3925_storage": {
+            "label": "struct AbstractVault.AbstractVaultStorage",
+            "members": [
+              {
+                "label": "_totalLent",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_totalLentUpdatedAt",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "_minDeposit",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_struct(ConfigManagerData)4110_storage": {
+            "label": "struct ConfigManagerStorage.ConfigManagerData",
+            "members": [
+              {
+                "label": "configManager",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(ERC20Storage)1285_storage": {
+            "label": "struct ERC20Upgradeable.ERC20Storage",
+            "members": [
+              {
+                "label": "_balances",
+                "type": "t_mapping(t_address,t_uint256)",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_allowances",
+                "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "_totalSupply",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "_name",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "_symbol",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "4"
+              }
+            ],
+            "numberOfBytes": "160"
+          },
+          "t_struct(ERC4626Storage)1487_storage": {
+            "label": "struct ERC4626Upgradeable.ERC4626Storage",
+            "members": [
+              {
+                "label": "_asset",
+                "type": "t_contract(IERC20)2371",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_underlyingDecimals",
+                "type": "t_uint8",
+                "offset": 20,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(InitializableStorage)1131_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(LendingAdaptersData)4146_storage": {
+            "label": "struct LendingAdaptersStorage.LendingAdaptersData",
+            "members": [
+              {
+                "label": "_protocolAdapters",
+                "type": "t_mapping(t_enum(ProtocolType)4535,t_address)",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(Ownable2StepStorage)1003_storage": {
+            "label": "struct Ownable2StepUpgradeable.Ownable2StepStorage",
+            "members": [
+              {
+                "label": "_pendingOwner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)1064_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        },
+        "namespaces": {
+          "erc7201:levva-vault.ConfigManagerData": [
+            {
+              "contract": "ConfigManagerStorage",
+              "label": "configManager",
+              "type": "t_address",
+              "src": "contracts/base/ConfigManagerStorage.sol:15",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:levva-vault.LendingAdaptersData": [
+            {
+              "contract": "LendingAdaptersStorage",
+              "label": "_protocolAdapters",
+              "type": "t_mapping(t_enum(ProtocolType)4535,t_address)",
+              "src": "contracts/base/LendingAdaptersStorage.sol:15",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:levva-vault.AbstractVaultStorage": [
+            {
+              "contract": "AbstractVault",
+              "label": "_totalLent",
+              "type": "t_uint256",
+              "src": "contracts/base/AbstractVault.sol:29",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "AbstractVault",
+              "label": "_totalLentUpdatedAt",
+              "type": "t_uint256",
+              "src": "contracts/base/AbstractVault.sol:30",
+              "offset": 0,
+              "slot": "1"
+            },
+            {
+              "contract": "AbstractVault",
+              "label": "_minDeposit",
+              "type": "t_uint256",
+              "src": "contracts/base/AbstractVault.sol:31",
+              "offset": 0,
+              "slot": "2"
+            }
+          ],
+          "erc7201:openzeppelin.storage.ERC4626": [
+            {
+              "contract": "ERC4626Upgradeable",
+              "label": "_asset",
+              "type": "t_contract(IERC20)2371",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC4626Upgradeable.sol:56",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "ERC4626Upgradeable",
+              "label": "_underlyingDecimals",
+              "type": "t_uint8",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC4626Upgradeable.sol:57",
+              "offset": 20,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable2Step": [
+            {
+              "contract": "Ownable2StepUpgradeable",
+              "label": "_pendingOwner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol:23",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.ERC20": [
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_balances",
+              "type": "t_mapping(t_address,t_uint256)",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:38",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_allowances",
+              "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:40",
+              "offset": 0,
+              "slot": "1"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_totalSupply",
+              "type": "t_uint256",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:42",
+              "offset": 0,
+              "slot": "2"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_name",
+              "type": "t_string_storage",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:44",
+              "offset": 0,
+              "slot": "3"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_symbol",
+              "type": "t_string_storage",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:45",
+              "offset": 0,
+              "slot": "4"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    }
+  }
+}
