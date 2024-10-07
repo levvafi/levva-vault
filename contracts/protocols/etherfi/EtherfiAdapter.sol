@@ -23,9 +23,9 @@ import {IVault} from '../../interfaces/IVault.sol';
 contract EtherfiAdapter is ILendingAdapter, ConfigManagerStorage {
   using SafeERC20 for IERC20;
 
-  event EtherfiRequestWithdraw(uint256 requestId, uint256 amount);
+  event EtherfiRequestWithdraw(uint256 indexed requestId, uint256 amount);
 
-  event EtherfiClaimWithdraw(uint256 requestId, uint256 amount);
+  event EtherfiClaimWithdraw(uint256 indexed requestId, uint256 amount);
 
   /// @notice Deposit ETH into EtherFi Liquidity Pool
   /// @return Actual amount of ETH staked

@@ -149,6 +149,7 @@ contract Vault is
   /// @param add True to add the manager, false to remove
   function addVaultManager(address manager, bool add) external onlyOwner {
     _addVaultManager(manager, add);
+    emit AddVaultManager(manager, add);
   }
 
   /// @notice Adds a new lending adapter for a specific protocol type
