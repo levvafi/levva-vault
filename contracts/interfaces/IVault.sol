@@ -7,17 +7,17 @@ import {ProtocolType} from '../libraries/ProtocolType.sol';
 import {WithdrawRequestQueue} from '../base/WithdrawRequestQueue.sol';
 
 interface IVault is IERC4626 {
-  event ProtocolActionExecuted(ProtocolType protocol, bytes data, bytes result);
+  event ProtocolActionExecuted(ProtocolType indexed protocol, bytes data, bytes result);
 
-  event UpdateTotalLent(uint256 totalLent, uint256 timestamp, uint256 oldTotalLent, uint256 oldTimestamp);
+  event AddLendingAdapter(ProtocolType indexed protocolType, address indexed adapter);
 
-  event AddLendingAdapter(ProtocolType protocolType, address adapter);
+  event AddVaultManager(address indexed manager, bool add);
 
   event MinDepositSet(uint256 minDeposit);
 
-  event WithdrawRequested(uint128 requestId, address owner, uint256 shares);
+  event WithdrawRequested(uint128 indexed requestId, address indexed owner, uint256 shares);
 
-  event WithdrawFinalized(uint128 requestId, address owner, uint256 shares, uint256 assets);
+  event WithdrawFinalized(uint128 indexed requestId, address indexed owner, uint256 shares, uint256 assets);
 
   struct ProtocolActionArg {
     /// @dev Protocol type
@@ -37,8 +37,6 @@ interface IVault is IERC4626 {
   function getLentAmount(ProtocolType protocol) external view returns (uint256);
 
   function getMinDeposit() external view returns (uint256);
-
-  function updateTotalLent() external returns (uint256);
 
   function executeProtocolAction(ProtocolActionArg[] calldata protocolActionArgs) external returns (bytes[] memory);
 

@@ -15,10 +15,6 @@ import {
   IWithdrawRequestNFT__factory,
   ILiquidityPool,
   ILiquidityPool__factory,
-  IEtherFiAdmin,
-  IEtherFiAdmin__factory,
-  VaultViewer,
-  VaultViewer__factory,
   IVault,
   IMarginlyPool,
   IMarginlyPool__factory,
@@ -64,10 +60,8 @@ let techPositionUser: SignerWithAddress;
 let etherfiAdmin: SignerWithAddress;
 let etherfiWithdrawRequestNFTContract: IWithdrawRequestNFT;
 let etherfiLiquidityPoolContract: ILiquidityPool;
-let etherfiAdminContract: IEtherFiAdmin;
 let etherfiWithdrawNftOwner: SignerWithAddress;
 let etherfiMembershipManager: SignerWithAddress;
-let vaultViewer: VaultViewer;
 let marginlyPool_PtWeeth26Dec2024_WETH: IMarginlyPool;
 
 async function deployVaultWithEtherfiAdapter() {
@@ -100,8 +94,6 @@ async function deployVaultWithEtherfiAdapter() {
     }
   )) as any as Vault;
 
-  vaultViewer = (await new VaultViewer__factory().connect(owner).deploy()) as any as VaultViewer;
-
   await configManager.connect(owner).addVault(vault, true);
 
   const marginlyAdapter = (await new MarginlyAdapter__factory().connect(owner).deploy()) as any as MarginlyAdapter;
@@ -124,7 +116,6 @@ async function deployVaultWithEtherfiAdapter() {
     etherfiAdmin
   );
   etherfiLiquidityPoolContract = ILiquidityPool__factory.connect(EtherfiLiquidityPoolAddress, owner.provider);
-  etherfiAdminContract = IEtherFiAdmin__factory.connect(EtherfiAdminAddress, etherfiAdmin);
 
   etherfiWithdrawNftOwner = await ethers.getImpersonatedSigner(EtherfiTimelockAddress);
   await owner.sendTransaction({
@@ -231,10 +222,6 @@ describe('Vault.Eth', () => {
       const withdrawAmount = parseEther('1.5');
       await snapshotGasCost(vault.connect(user2).withdraw(withdrawAmount, user2, user2));
     });
-
-    it('updateTotalLent', async () => {
-      await snapshotGasCost(vault.updateTotalLent());
-    });
   });
 
   describe('Marginly1 Aave EtherFi', async () => {
@@ -279,10 +266,6 @@ describe('Vault.Eth', () => {
     it('userWithdraw', async () => {
       const withdrawAmount = parseEther('1.5');
       await snapshotGasCost(vault.connect(user2).withdraw(withdrawAmount, user2, user2));
-    });
-
-    it('updateTotalLent', async () => {
-      await snapshotGasCost(vault.updateTotalLent());
     });
   });
 });

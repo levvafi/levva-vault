@@ -92,7 +92,6 @@ describe('Aave', () => {
       data: encodeAaveDeposit(supplAmount),
     };
     await vault.connect(vaultManager).executeProtocolAction([supplyAction]);
-    await vault.updateTotalLent();
 
     await logVaultState(vault, '\nafter aave supply');
 
@@ -102,7 +101,6 @@ describe('Aave', () => {
       data: encodeAaveWithdraw(withdrawAmount),
     };
     await vault.connect(vaultManager).executeProtocolAction([withdrawAction]);
-    await vault.updateTotalLent();
 
     await logVaultState(vault, 'after first withdraw');
 
@@ -112,7 +110,6 @@ describe('Aave', () => {
       data: encodeAaveWithdraw(withdrawAmount2),
     };
     await vault.connect(vaultManager).executeProtocolAction([withdrawAction2]);
-    await vault.updateTotalLent();
 
     await logVaultState(vault, 'after second withdraw');
   });
@@ -124,7 +121,6 @@ describe('Aave', () => {
       data: encodeAaveDeposit(supplAmount),
     };
     await vault.connect(vaultManager).executeProtocolAction([supplyAction]);
-    await vault.updateTotalLent();
 
     await logVaultState(vault, '\nafter aave supply');
   });

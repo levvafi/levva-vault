@@ -115,7 +115,6 @@ describe('Etherfi', () => {
         data: encodeEtherfiDeposit(etherfiDepositAmount),
       };
       await vault.connect(user1).executeProtocolAction([eherfiDepositAction]);
-      await vault.connect(user1).updateTotalLent();
     });
 
     it('withdraw', async () => {
@@ -127,7 +126,6 @@ describe('Etherfi', () => {
       await weth.connect(user2).deposit({ value: depositAmount });
       await weth.connect(user2).approve(vault, depositAmount);
       await vault.connect(user2).deposit(depositAmount, user2);
-      await vault.connect(user1).updateTotalLent();
 
       const etherfiDepositAmount = parseEther('3');
       const eherfiDepositAction = {
@@ -176,7 +174,6 @@ describe('Etherfi', () => {
       await weth.connect(user2).deposit({ value: depositAmount });
       await weth.connect(user2).approve(vault, depositAmount);
       await vault.connect(user2).deposit(depositAmount, user2);
-      await vault.connect(user1).updateTotalLent();
 
       const eherfiDepositAction = {
         protocol: ProtocolType.Etherfi,
@@ -212,7 +209,6 @@ describe('Etherfi', () => {
       await weth.connect(user2).deposit({ value: depositAmount });
       await weth.connect(user2).approve(vault, depositAmount);
       await vault.connect(user2).deposit(depositAmount, user2);
-      await vault.connect(user1).updateTotalLent();
 
       const eherfiDepositAction = {
         protocol: ProtocolType.Etherfi,
@@ -248,7 +244,6 @@ describe('Etherfi', () => {
       await weth.connect(user2).deposit({ value: depositAmount });
       await weth.connect(user2).approve(vault, depositAmount);
       await vault.connect(user2).deposit(depositAmount, user2);
-      await vault.connect(user1).updateTotalLent();
 
       const eherfiDepositAction = {
         protocol: ProtocolType.Etherfi,
@@ -282,7 +277,6 @@ describe('Etherfi', () => {
       };
       await vault.connect(user1).executeProtocolAction([eherfiDepositAction]);
 
-      await vault.connect(user1).updateTotalLent();
       expect(await vault.connect(user1).getTotalLent()).to.equal(etherfiDepositAmount);
     });
   });

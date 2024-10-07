@@ -7,8 +7,8 @@ import {Errors} from '../../libraries/Errors.sol';
 import {IMarginlyPool} from './IMarginlyPool.sol';
 
 abstract contract MarginlyAdapterConfigStorage is Ownable2StepUpgradeable {
-  event MarginlyPoolAdded(address vault, address pool);
-  event MarginlyPoolRemoved(address vault, address pool);
+  event MarginlyPoolAdded(address indexed vault, address indexed pool);
+  event MarginlyPoolRemoved(address indexed vault, address indexed pool);
 
   uint8 public constant POOL_LIMITS = 7;
 

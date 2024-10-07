@@ -1,4 +1,4 @@
-import { Addressable, ethers, formatUnits, parseUnits, ZeroAddress } from 'ethers';
+import { parseUnits, ZeroAddress } from 'ethers';
 import { expect, use } from 'chai';
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 import { deployTestSystem, deployTestSystemWithConfiguredVault } from './shared/fixtures';
@@ -60,13 +60,11 @@ describe('Aave', () => {
     });
 
     it('update', async () => {
-      const { vault, user1, user2, usdc } = await loadFixture(deployTestSystemWithConfiguredVault);
+      const { vault, user2, usdc } = await loadFixture(deployTestSystemWithConfiguredVault);
 
       const depositAmount = parseUnits('100', 18);
       await usdc.connect(user2).approve(vault, depositAmount);
       await vault.connect(user2).deposit(depositAmount, user2);
-
-      await vault.connect(user1).updateTotalLent();
     });
   });
 });

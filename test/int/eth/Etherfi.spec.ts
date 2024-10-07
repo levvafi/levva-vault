@@ -15,10 +15,6 @@ import {
   IWithdrawRequestNFT__factory,
   ILiquidityPool,
   ILiquidityPool__factory,
-  IEtherFiAdmin,
-  IEtherFiAdmin__factory,
-  VaultViewer,
-  VaultViewer__factory,
   IVault,
 } from '../../../typechain-types';
 import { formatEther, parseUnits } from 'ethers';
@@ -51,10 +47,8 @@ let techPositionUser: SignerWithAddress;
 let etherfiAdmin: SignerWithAddress;
 let etherfiWithdrawRequestNFTContract: IWithdrawRequestNFT;
 let etherfiLiquidityPoolContract: ILiquidityPool;
-let etherfiAdminContract: IEtherFiAdmin;
 let etherfiWithdrawNftOwner: SignerWithAddress;
 let etherfiMembershipManager: SignerWithAddress;
-let vaultViewer: VaultViewer;
 
 async function deployVaultWithEtherfiAdapter() {
   [owner, vaultManager, user, user2, user3, techPositionUser] = await ethers.getSigners();
@@ -86,8 +80,6 @@ async function deployVaultWithEtherfiAdapter() {
     }
   )) as any as Vault;
 
-  vaultViewer = (await new VaultViewer__factory().connect(owner).deploy()) as any as VaultViewer;
-
   await configManager.connect(owner).addVault(vault, true);
 
   const etherfiAdapter = (await new EtherfiAdapter__factory().connect(owner).deploy()) as any as EtherfiAdapter;
@@ -106,7 +98,6 @@ async function deployVaultWithEtherfiAdapter() {
     etherfiAdmin
   );
   etherfiLiquidityPoolContract = ILiquidityPool__factory.connect(EtherfiLiquidityPoolAddress, owner.provider);
-  etherfiAdminContract = IEtherFiAdmin__factory.connect(EtherfiAdminAddress, etherfiAdmin);
 
   etherfiWithdrawNftOwner = await ethers.getImpersonatedSigner(EtherfiTimelockAddress);
   await owner.sendTransaction({
@@ -169,13 +160,6 @@ describe('Vault with etherfi adapter', () => {
     await etherfiRebase();
     await etherfiFinalize();
 
-    const [lpPriceOffchain] = await vaultViewer
-      .connect(owner)
-      .convertToAssets.staticCallResult(await vault.getAddress(), parseUnits('1', 18));
-    console.log(`lpPriceOffchain ${formatEther(lpPriceOffchain)} ETH`);
-
-    await vault.updateTotalLent();
-
     await logVaultState(vault, 'after rebase and reinit');
 
     const requestWithdrawAmount = parseUnits('1.5', 18);
@@ -234,15 +218,12 @@ describe('Vault with etherfi adapter', () => {
       data: encodeEtherfiClaimWithdraw(),
     };
     await vault.connect(vaultManager).executeProtocolAction([claimWithdrawAction]);
-    await vault.updateTotalLent();
     await logVaultState(vault, 'after first claim');
 
     await vault.connect(vaultManager).executeProtocolAction([claimWithdrawAction]);
-    await vault.updateTotalLent();
     await logVaultState(vault, 'after second claim');
 
     await vault.connect(vaultManager).executeProtocolAction([claimWithdrawAction]);
-    await vault.updateTotalLent();
     await logVaultState(vault, 'after third claim');
 
     //all users withdraw their funds

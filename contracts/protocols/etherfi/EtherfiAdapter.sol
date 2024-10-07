@@ -23,9 +23,9 @@ import {IVault} from '../../interfaces/IVault.sol';
 contract EtherfiAdapter is ILendingAdapter, ConfigManagerStorage {
   using SafeERC20 for IERC20;
 
-  event EtherfiRequestWithdraw(uint256 requestId, uint256 amount);
+  event EtherfiRequestWithdraw(uint256 indexed requestId, uint256 amount);
 
-  event EtherfiClaimWithdraw(uint256 requestId, uint256 amount);
+  event EtherfiClaimWithdraw(uint256 indexed requestId, uint256 amount);
 
   /// @notice Deposit ETH into EtherFi Liquidity Pool
   /// @return Actual amount of ETH staked
@@ -83,13 +83,6 @@ contract EtherfiAdapter is ILendingAdapter, ConfigManagerStorage {
     emit EtherfiClaimWithdraw(requestId, withdrawn);
 
     return withdrawn;
-  }
-
-  /// @notice Update and return the total amount of ETH lent
-  /// @dev Here we use sum of staked ETH and pending withdrawals from etherfi
-  /// @return Total amount of ETH lent
-  function updateLentAmount() external view override returns (uint256) {
-    return getLentAmount(address(this));
   }
 
   function getLentAmount(address vault) public view returns (uint256) {

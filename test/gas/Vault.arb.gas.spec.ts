@@ -206,10 +206,6 @@ describe('Vault.Arbitrum.', () => {
       const withdrawAmount = parseUnits('1000', 6);
       await snapshotGasCost(vault.connect(user2).withdraw(withdrawAmount, user2, user2));
     });
-
-    it('updateTotalLent', async () => {
-      await snapshotGasCost(vault.updateTotalLent());
-    });
   });
 
   describe('Marginly1.', async () => {
@@ -242,10 +238,6 @@ describe('Vault.Arbitrum.', () => {
     it('userWithdraw', async () => {
       const withdrawAmount = parseUnits('1000', 6);
       await snapshotGasCost(vault.connect(user2).withdraw(withdrawAmount, user2, user2));
-    });
-
-    it('updateTotalLent', async () => {
-      await snapshotGasCost(vault.updateTotalLent());
     });
 
     it('executeProtocolAction.Withdraw', async () => {
@@ -287,10 +279,6 @@ describe('Vault.Arbitrum.', () => {
     it('userWithdraw', async () => {
       const withdrawAmount = parseUnits('1000', 6);
       await snapshotGasCost(vault.connect(user2).withdraw(withdrawAmount, user2, user2));
-    });
-
-    it('updateTotalLent', async () => {
-      await snapshotGasCost(vault.updateTotalLent());
     });
 
     it('executeProtocolAction.Withdraw', async () => {
@@ -338,10 +326,6 @@ describe('Vault.Arbitrum.', () => {
     it('userWithdraw', async () => {
       const withdrawAmount = parseUnits('1000', 6);
       await snapshotGasCost(vault.connect(user2).withdraw(withdrawAmount, user2, user2));
-    });
-
-    it('updateTotalLent', async () => {
-      await snapshotGasCost(vault.updateTotalLent());
     });
 
     it('executeProtocolAction.Withdraw', async () => {
@@ -395,10 +379,6 @@ describe('Vault.Arbitrum.', () => {
     it('userWithdraw', async () => {
       const withdrawAmount = parseUnits('1000', 6);
       await snapshotGasCost(vault.connect(user2).withdraw(withdrawAmount, user2, user2));
-    });
-
-    it('updateTotalLent', async () => {
-      await snapshotGasCost(vault.updateTotalLent());
     });
   });
 });

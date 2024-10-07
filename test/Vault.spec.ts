@@ -23,7 +23,6 @@ describe('Vault', () => {
       const lpUserBalanceBefore = await vault.balanceOf(user1);
 
       const depositAmount = parseUnits('100', 18);
-      await vault.updateTotalLent();
       const mintAmount = await vault.previewDeposit(depositAmount);
       await usdc.connect(user1).approve(vault, depositAmount);
       await expect(vault.connect(user1).deposit(depositAmount, user1))
@@ -45,7 +44,6 @@ describe('Vault', () => {
       const lpUserBalanceBefore = await vault.balanceOf(user2);
 
       const depositAmount = parseUnits('100', 18);
-      await vault.updateTotalLent();
       const mintAmount = await vault.previewDeposit(depositAmount);
       await usdc.connect(user1).approve(vault, depositAmount);
       await expect(vault.connect(user1).deposit(depositAmount, user2))
@@ -82,7 +80,6 @@ describe('Vault', () => {
       const lpUserBalanceBefore = await vault.balanceOf(user1);
 
       const mintAmount = parseUnits('100', 18);
-      await vault.updateTotalLent();
       const depositAmount = await vault.previewDeposit(mintAmount);
       await usdc.connect(user1).approve(vault, mintAmount);
       await expect(vault.connect(user1).mint(mintAmount, user1))
@@ -119,7 +116,6 @@ describe('Vault', () => {
       const lpUserBalanceBefore = await vault.balanceOf(user2);
 
       const mintAmount = parseUnits('100', 18);
-      await vault.updateTotalLent();
       const depositAmount = await vault.previewDeposit(mintAmount);
       await usdc.connect(user1).approve(vault, depositAmount);
       await expect(vault.connect(user1).mint(mintAmount, user2))
@@ -144,7 +140,6 @@ describe('Vault', () => {
       const lpUserBalanceBefore = await vault.balanceOf(user1);
 
       const withdrawAmount = depositAmount;
-      await vault.updateTotalLent();
       const redeemAmount = await vault.previewRedeem(withdrawAmount);
       await expect(vault.connect(user1).withdraw(withdrawAmount, user1, user1))
         .to.emit(vault, 'Withdraw')
@@ -168,7 +163,6 @@ describe('Vault', () => {
       const lpUserBalanceBefore = await vault.balanceOf(user1);
 
       const withdrawAmount = depositAmount;
-      await vault.updateTotalLent();
       const redeemAmount = await vault.previewRedeem(withdrawAmount);
       await expect(vault.connect(user1).withdraw(withdrawAmount, user2, user1))
         .to.emit(vault, 'Withdraw')
@@ -192,7 +186,6 @@ describe('Vault', () => {
       const lpUserBalanceBefore = await vault.balanceOf(user1);
 
       const withdrawAmount = depositAmount;
-      await vault.updateTotalLent();
       const redeemAmount = await vault.previewRedeem(withdrawAmount);
       await vault.connect(user1).approve(user3, withdrawAmount);
       expect(await vault.allowance(user1, user3)).to.be.eq(withdrawAmount);
@@ -251,7 +244,6 @@ describe('Vault', () => {
       const lpUserBalanceBefore = await vault.balanceOf(user1);
 
       const redeemAmount = depositAmount;
-      await vault.updateTotalLent();
       const withdrawAmount = await vault.previewRedeem(redeemAmount);
       await expect(vault.connect(user1).redeem(redeemAmount, user2, user1))
         .to.emit(vault, 'Withdraw')
@@ -275,7 +267,6 @@ describe('Vault', () => {
       const lpUserBalanceBefore = await vault.balanceOf(user1);
 
       const redeemAmount = depositAmount;
-      await vault.updateTotalLent();
       const withdrawAmount = await vault.previewRedeem(redeemAmount);
       await vault.connect(user1).approve(user3, redeemAmount);
       expect(await vault.allowance(user1, user3)).to.be.eq(redeemAmount);
@@ -337,7 +328,6 @@ describe('Vault', () => {
       await connectedMarginlyPools[0].setPosition(vault, position);
 
       console.log(`lent Amount in vault ${await vault.connect(user1).getLentAmount(0)}`);
-      await vault.connect(user1).updateTotalLent();
       expect(await vault.connect(user1).getLentAmount(0)).to.be.eq(1);
 
       // redeem all lp tokens
@@ -369,7 +359,6 @@ describe('Vault', () => {
 
       //simulate profit
       await usdc.connect(user1).transfer(vault, parseUnits('50', 18));
-      await vault.connect(user1).updateTotalLent();
 
       // simulate small amount in lending protocol
       const position = {
@@ -493,17 +482,6 @@ describe('Vault', () => {
       await expect(vault.connect(user1).executeProtocolAction([marginlyDepositAction]))
         .to.emit(vault, 'ProtocolActionExecuted')
         .withArgs(ProtocolType.Marginly, marginlyDepositAction.data, encodeResult(supplyAmount));
-
-      const tx = vault.connect(user1).updateTotalLent();
-
-      await expect(tx)
-        .to.emit(vault, 'UpdateTotalLent')
-        .withArgs(
-          supplyAmount,
-          (await user1.provider.getBlock((await tx).blockNumber!))!.timestamp,
-          0,
-          oldBlockTimestamp
-        );
 
       expect(await vault.getTotalLent()).to.be.eq(supplyAmount);
       expect(await vault.getFreeAmount()).to.be.eq(0);

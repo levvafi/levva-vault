@@ -273,8 +273,6 @@ describe('Marginly', () => {
           marginlyDepositAction3,
         ]);
 
-      await vault.connect(user1).updateTotalLent();
-
       expect(await vault.getTotalLent()).to.be.eq(seedAmount0 * 4n);
     });
 
@@ -286,7 +284,6 @@ describe('Marginly', () => {
       const depositAmount = parseUnits('100', 18);
       await usdc.connect(user2).approve(vault, depositAmount);
       await vault.connect(user2).deposit(depositAmount, user2);
-      await vault.connect(user1).updateTotalLent();
 
       const seedAmount0 = parseUnits('10', 18);
       const marginlyDepositAction0 = {

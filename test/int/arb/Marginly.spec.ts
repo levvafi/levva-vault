@@ -25,7 +25,8 @@ import {
   setTokenBalance,
   shiftTime,
 } from '../../shared/utils';
-import { formatUnits, parseEther, parseUnits, ZeroAddress } from 'ethers';
+import { Addressable, formatUnits, parseEther, parseUnits, ZeroAddress } from 'ethers';
+import { mine, reset, time } from '@nomicfoundation/hardhat-network-helpers';
 
 const wethAddress = '0x82af49447d8a07e3bd95bd0d56f35241523fbab1';
 const marginlyPool_PtUsde_USDC_Address = '0x760B9fE6b1f6c5dD7597A02690ffe3F6a07a3042';
@@ -34,6 +35,7 @@ const marginlyPool_USDE_USDC_Address = '0x9007A45304Ac6676CEf22ec68c870ae88Af600
 
 const usdeHolderAddress = '0x99F4176EE457afedFfCB1839c7aB7A030a5e4A92';
 const ptUsdeHolderAddress = '0x4DfD5f7Dd019F2F9Fc4D954FF3aDD3348839845d';
+const ptUsdeHolder2Address = '0x23ABdAF99c0da073b2F51515190d37674Ca7d404';
 const ptgUSDCHolderAddress = '0x1754f738710e337012be0CcC10B37a2930a85aFf';
 
 let vault: Vault;
@@ -44,6 +46,7 @@ let user2: SignerWithAddress;
 let user3: SignerWithAddress;
 let usdeHolder: SignerWithAddress;
 let ptUsdeHolder: SignerWithAddress;
+let ptUsdeHolder2: SignerWithAddress;
 let ptgUSDCHolder: SignerWithAddress;
 let techPositionUser: SignerWithAddress;
 let weth: IWeth9;
@@ -100,7 +103,7 @@ async function deployVaultWithMarginlyAdapter() {
   await setUsdcBalance(techPositionUser.address, initialAmount);
 
   // fund holders with 1 eth
-  for (const holder of [usdeHolderAddress, ptUsdeHolderAddress, ptgUSDCHolderAddress]) {
+  for (const holder of [usdeHolderAddress, ptUsdeHolderAddress, ptgUSDCHolderAddress, ptUsdeHolder2Address]) {
     await owner.sendTransaction({
       to: holder,
       value: parseEther('1'),
@@ -109,6 +112,7 @@ async function deployVaultWithMarginlyAdapter() {
 
   usdeHolder = await ethers.getImpersonatedSigner(usdeHolderAddress);
   ptUsdeHolder = await ethers.getImpersonatedSigner(ptUsdeHolderAddress);
+  ptUsdeHolder2 = await ethers.getImpersonatedSigner(ptUsdeHolder2Address);
   ptgUSDCHolder = await ethers.getImpersonatedSigner(ptgUSDCHolderAddress);
 
   marginlyPool_PtUsde_USDC = IMarginlyPool__factory.connect(marginlyPool_PtUsde_USDC_Address, owner.provider);
@@ -121,22 +125,6 @@ async function setUsdcBalance(account: string, amount: bigint) {
   //console.log(`Account balance is ${await usdc.balanceOf(account)}`);
   expect(await usdc.balanceOf(account)).to.gte(amount);
 }
-
-beforeEach(async () => {
-  await deployVaultWithMarginlyAdapter();
-
-  //initialize vault with 2000 usdc from 3 users
-  const depositAmount = parseUnits('2000', 6);
-  for (const usr of [user, user2, user3]) {
-    await usdc.connect(usr).approve(vault, depositAmount);
-    await vault.connect(usr).deposit(depositAmount, usr);
-  }
-
-  // make special technical position
-  const technicalPositionAmount = parseUnits('5', 6);
-  await usdc.connect(techPositionUser).approve(vault, technicalPositionAmount);
-  await vault.connect(techPositionUser).deposit(technicalPositionAmount, techPositionUser);
-});
 
 async function marginlyLong(signer: SignerWithAddress, marginlyPool: IMarginlyPool, deposit: bigint, long: bigint) {
   const depositBaseCallType = 0;
@@ -155,7 +143,29 @@ async function marginlyReinit(signer: SignerWithAddress, marginlyPool: IMarginly
   await marginlyPool.connect(signer).execute(7, 0, 0, 0, false, ZeroAddress, swapCallData);
 }
 
-describe('Marignly', () => {
+async function getRealQuoteAmount(positionAddress: Addressable, marginlyPool: IMarginlyPool) {
+  const quoteCollateralCoeff = await marginlyPool.quoteCollateralCoeff();
+  const position = await marginlyPool.positions(positionAddress);
+  return (quoteCollateralCoeff.inner * position.discountedQuoteAmount) / 2n ** 96n;
+}
+
+describe('Marginly', () => {
+  beforeEach(async () => {
+    await deployVaultWithMarginlyAdapter();
+
+    //initialize vault with 2000 usdc from 3 users
+    const depositAmount = parseUnits('2000', 6);
+    for (const usr of [user, user2, user3]) {
+      await usdc.connect(usr).approve(vault, depositAmount);
+      await vault.connect(usr).deposit(depositAmount, usr);
+    }
+
+    // make special technical position
+    const technicalPositionAmount = parseUnits('5', 6);
+    await usdc.connect(techPositionUser).approve(vault, technicalPositionAmount);
+    await vault.connect(techPositionUser).deposit(technicalPositionAmount, techPositionUser);
+  });
+
   it('deposit and withdraw from marginly', async () => {
     console.log(`Vault totalSupply is ${formatUnits(await vault.totalSupply(), 6)}`);
     console.log(`Vault free amount is ${formatUnits(await vault.getFreeAmount(), 6)}`);
@@ -180,7 +190,6 @@ describe('Marignly', () => {
     console.log(`\nLong with high leverage: deposit 100, long 1850`);
 
     await marginlyLong(ptUsdeHolder, marginlyPool_PtUsde_USDC, parseUnits('100', 18), parseUnits('1850', 18));
-    await vault.connect(vaultManager).updateTotalLent();
 
     console.log(`\nMarginly quote balance is ${formatUnits(await quoteToken.balanceOf(marginlyPool_PtUsde_USDC), 6)}`);
     console.log(
@@ -193,8 +202,12 @@ describe('Marignly', () => {
     console.log(`\nWait 1 month to make margin call`);
     await shiftTime(30 * 24 * 60 * 60);
 
-    await vault.connect(vaultManager).updateTotalLent();
-    const totalLent = await vault.getTotalLent();
+    let totalLent = await vault.getTotalLent();
+    console.log(`Vault totalLent is ${formatUnits(totalLent, 6)}`);
+
+    console.log(`\nReinit marginly and getTotalLent`);
+    await marginlyReinit(ptUsdeHolder, marginlyPool_PtUsde_USDC);
+    totalLent = await vault.getTotalLent();
     console.log(`Vault totalLent is ${formatUnits(totalLent, 6)}`);
 
     const withdrawAmount = (totalLent * 110n) / 100n;
@@ -204,7 +217,6 @@ describe('Marignly', () => {
     };
 
     await vault.connect(vaultManager).executeProtocolAction([withdrawAction]);
-    await vault.connect(vaultManager).updateTotalLent();
 
     console.log(`Vault free amount is ${formatUnits(await vault.getFreeAmount(), 6)}`);
     console.log(`Vault totalLent is ${formatUnits(await vault.getTotalLent(), 6)}`);
@@ -226,14 +238,12 @@ describe('Marignly', () => {
     console.log(`\nVault free amount is ${formatUnits(await vault.getFreeAmount(), 6)}`);
 
     await marginlyLong(ptUsdeHolder, marginlyPool_PtUsde_USDC, parseUnits('100', 18), parseUnits('200', 18));
-    await vault.connect(vaultManager).updateTotalLent();
 
     console.log(`\nWait 1 month to make margin call`);
-    await shiftTime(30 * 24 * 60 * 60);
+    await shiftTime(10 * 24 * 60 * 60);
 
     const quoteToken = ERC20__factory.connect(await marginlyPool_PtUsde_USDC.quoteToken(), ptUsdeHolder.provider);
 
-    await vault.connect(vaultManager).updateTotalLent();
     const totalLent = await vault.getTotalLent();
     console.log(`Vault totalLent is ${formatUnits(totalLent, 6)}`);
     const maxAvailableForWithdraw = await quoteToken.balanceOf(marginlyPool_PtUsde_USDC);
@@ -252,7 +262,6 @@ describe('Marignly', () => {
       data: encodeMarginlyWithdraw(marginlyPool_PtUsde_USDC_Address, withdrawAmount),
     };
     await vault.connect(vaultManager).executeProtocolAction([withdrawAction]);
-    await vault.connect(vaultManager).updateTotalLent();
     console.log(`\nVault totalLent is ${formatUnits(await vault.getTotalLent(), 6)}`);
     console.log(`Vault free amount is ${formatUnits(await vault.getFreeAmount(), 6)}`);
     console.log(`\nMarginly quote balance is ${formatUnits(await quoteToken.balanceOf(marginlyPool_PtUsde_USDC), 6)}`);
@@ -265,8 +274,95 @@ describe('Marignly', () => {
       data: encodeMarginlyDeposit(marginlyPool_PtUsde_USDC_Address, depositAmount),
     };
     await vault.connect(vaultManager).executeProtocolAction([supplyAction]);
-    await vault.updateTotalLent();
 
     await logVaultState(vault, '\nafter marginly deposit');
+  });
+
+  it('total lent without MC', async () => {
+    // Here we check correctness of getTotalLent amount
+    // we calculate getTotalLent amount after some period of time without reinits
+    // than make reinit and check that getTotalLent amount is the same as reinit
+    console.log(`\nCurrent blockNumber is ${await owner.provider.getBlockNumber()}`);
+
+    const depositAmount1 = parseUnits('2000', 6);
+    const depositAction1: IVault.ProtocolActionArgStruct = {
+      protocol: ProtocolType.Marginly,
+      data: encodeMarginlyDeposit(marginlyPool_PtUsde_USDC_Address, depositAmount1),
+    };
+
+    await vault.connect(vaultManager).executeProtocolAction([depositAction1]);
+    console.log(`Vault free amount is ${formatUnits(await vault.getFreeAmount(), 6)}`);
+
+    console.log(`\nLong with high leverage: deposit 500, long 1850`);
+
+    await marginlyLong(ptUsdeHolder, marginlyPool_PtUsde_USDC, parseUnits('500', 18), parseUnits('1850', 18));
+
+    console.log(`Vault free amount is ${formatUnits(await vault.getFreeAmount(), 6)}`);
+    console.log(`Vault totalLent is ${formatUnits(await vault.getTotalLent(), 6)}`);
+
+    console.log(`\nWait 1 month`);
+    await shiftTime(10 * 24 * 60 * 60);
+
+    const totalLentBeforeReinit = await vault.getTotalLent();
+    console.log(`Vault totalLent is ${formatUnits(totalLentBeforeReinit, 6)}`);
+
+    //trick to save same blockTime for both reinit and getTotalLent
+    const currentBlockTimestamp = (await owner.provider.getBlock(await owner.provider.getBlockNumber()))?.timestamp!;
+    await time.setNextBlockTimestamp(currentBlockTimestamp);
+
+    console.log(`\nReinit marginly and getTotalLent`);
+    await marginlyReinit(ptUsdeHolder, marginlyPool_PtUsde_USDC);
+
+    const totalLentAfterReinit = await vault.getTotalLent();
+    console.log(`Vault totalLent is ${formatUnits(totalLentAfterReinit, 6)}`);
+
+    const realQuoteAmountByMarginly = await getRealQuoteAmount(vault, marginlyPool_PtUsde_USDC);
+    console.log(`Marginly vault position realQuoteAmount is ${formatUnits(realQuoteAmountByMarginly, 6)}`);
+
+    expect(totalLentBeforeReinit).to.eq(totalLentAfterReinit);
+    expect(totalLentAfterReinit).to.eq(realQuoteAmountByMarginly);
+  });
+
+  it('total lent with MC', async () => {
+    // Here we ensure that getTotalLent less than after reinit with MC
+    console.log(`\nCurrent blockNumber is ${await owner.provider.getBlockNumber()}`);
+
+    const depositAmount1 = parseUnits('2000', 6);
+    const depositAction1: IVault.ProtocolActionArgStruct = {
+      protocol: ProtocolType.Marginly,
+      data: encodeMarginlyDeposit(marginlyPool_PtUsde_USDC_Address, depositAmount1),
+    };
+
+    await vault.connect(vaultManager).executeProtocolAction([depositAction1]);
+    console.log(`Vault free amount is ${formatUnits(await vault.getFreeAmount(), 6)}`);
+
+    console.log(`\nLong with high leverage: deposit 100, long 1850`);
+
+    await marginlyLong(ptUsdeHolder2, marginlyPool_PtUsde_USDC, parseUnits('100', 18), parseUnits('1850', 18));
+
+    console.log(`Vault free amount is ${formatUnits(await vault.getFreeAmount(), 6)}`);
+    console.log(`Vault totalLent is ${formatUnits(await vault.getTotalLent(), 6)}`);
+
+    console.log(`\nWait 1 month`);
+    await shiftTime(30 * 24 * 60 * 60);
+
+    const totalLentBeforeReinit = await vault.getTotalLent();
+    console.log(`Vault totalLent is ${formatUnits(totalLentBeforeReinit, 6)}`);
+
+    //trick to save same blockTime for both reinit and getTotalLent
+    const currentBlockTimestamp = (await owner.provider.getBlock(await owner.provider.getBlockNumber()))?.timestamp!;
+    await time.setNextBlockTimestamp(currentBlockTimestamp);
+
+    console.log(`\nReinit marginly and getTotalLent`);
+    await marginlyReinit(ptUsdeHolder2, marginlyPool_PtUsde_USDC);
+
+    const totalLentAfterReinit = await vault.getTotalLent();
+    console.log(`Vault totalLent is ${formatUnits(totalLentAfterReinit, 6)}`);
+
+    const realQuoteAmountByMarginly = await getRealQuoteAmount(vault, marginlyPool_PtUsde_USDC);
+    console.log(`Marginly vault position realQuoteAmount is ${formatUnits(realQuoteAmountByMarginly, 6)}`);
+
+    expect(totalLentBeforeReinit).to.lt(totalLentAfterReinit);
+    expect(totalLentAfterReinit).to.eq(realQuoteAmountByMarginly);
   });
 });

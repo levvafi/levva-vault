@@ -44,31 +44,20 @@ contract Vault is
   /// @dev This function iterates through all lending adapters and sums up their lent amounts
   /// @dev The total lent amount is then cached along with the current timestamp
   /// @return The total lent amount
-  function _updateTotalLent() internal override returns (uint256) {
-    uint256 oldTotalLent = _getTotalLent();
-    uint256 oldTimestamp = _getTotalLentUpdatedAt();
-
+  function _getTotalLent() internal view override returns (uint256) {
     uint256 totalLent;
     uint256 length = uint256(ProtocolType.ProtocolTypeLength);
     uint256 i;
     for (; i < length; ) {
       address adapterImpl = _getLendingAdapter(ProtocolType(i));
       if (adapterImpl != address(0)) {
-        bytes memory returnedData = Address.functionDelegateCall(
-          adapterImpl,
-          abi.encodeWithSelector(ILendingAdapter.updateLentAmount.selector)
-        );
-        totalLent += abi.decode(returnedData, (uint256));
+        totalLent += ILendingAdapter(adapterImpl).getLentAmount(address(this));
       }
 
       unchecked {
         ++i;
       }
     }
-
-    _setTotalLent(totalLent, block.timestamp);
-
-    emit UpdateTotalLent(totalLent, block.timestamp, oldTotalLent, oldTimestamp);
 
     return totalLent;
   }
@@ -95,13 +84,6 @@ contract Vault is
   /// @return The total amount of lent assets
   function getTotalLent() external view returns (uint256) {
     return _getTotalLent();
-  }
-
-  /// @notice Updates the total amount lent across all lending protocols
-  /// @dev This function calls the internal _updateTotalLent() function to recalculate and update the cached total lent value
-  /// @dev Can be called by any external address to refresh the total lent amount
-  function updateTotalLent() external returns (uint256) {
-    return _updateTotalLent();
   }
 
   /// @notice Executes a protocol action for a given protocol type
@@ -167,6 +149,7 @@ contract Vault is
   /// @param add True to add the manager, false to remove
   function addVaultManager(address manager, bool add) external onlyOwner {
     _addVaultManager(manager, add);
+    emit AddVaultManager(manager, add);
   }
 
   /// @notice Adds a new lending adapter for a specific protocol type
@@ -190,8 +173,6 @@ contract Vault is
   /// @dev This function allows users to request a withdrawal of LP tokens
   /// @param shares The amount of LP tokens to withdraw
   function requestWithdraw(uint256 shares) external returns (uint128 requestId) {
-    _updateTotalLent();
-
     uint256 assets = previewRedeem(shares);
     if (assets <= _getFreeAmount()) {
       revert Errors.NoNeedToRequestWithdraw();

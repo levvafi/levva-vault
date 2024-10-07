@@ -6,7 +6,6 @@ import {
   ConfigManager__factory,
   EtherfiAdapter,
   EtherfiAdapter__factory,
-  ILiquidityPool,
   MarginlyAdapter,
   MarginlyAdapter__factory,
   MintableERC20,
@@ -27,8 +26,6 @@ import {
   Vault__factory,
   MockWETH,
   MockWETH__factory,
-  VaultViewer,
-  VaultViewer__factory,
 } from '../../typechain-types';
 import { Addressable, formatUnits, parseUnits, ZeroAddress } from 'ethers';
 import { SignerWithAddress } from '@nomicfoundation/hardhat-ethers/signers';
@@ -95,7 +92,6 @@ export async function setUserBalance(token: MintableERC20, user: Addressable, am
 
 type TestSystem = {
   vault: Vault;
-  vaultViewer: VaultViewer;
   configManager: ConfigManager;
   aaveAdapter: AaveAdapter;
   marginlyAdapter: MarginlyAdapter;
@@ -172,8 +168,6 @@ export async function deployTestSystemWithWETH(): Promise<TestSystem> {
     }
   )) as any as Vault;
 
-  const vaultViewer = (await new VaultViewer__factory().connect(owner).deploy()) as any as VaultViewer;
-
   await configManager.connect(owner).addVault(vault, true);
 
   const aaveAdapter = (await new AaveAdapter__factory().connect(owner).deploy()) as any as AaveAdapter;
@@ -182,7 +176,6 @@ export async function deployTestSystemWithWETH(): Promise<TestSystem> {
 
   return {
     vault,
-    vaultViewer,
     configManager,
     owner,
     user1,
@@ -260,15 +253,12 @@ export async function deployTestSystem(): Promise<TestSystem> {
     }
   )) as any as Vault;
 
-  const vaultViewer = (await new VaultViewer__factory().connect(owner).deploy()) as any as VaultViewer;
-
   const aaveAdapter = (await new AaveAdapter__factory().connect(owner).deploy()) as any as AaveAdapter;
   const marginlyAdapter = (await new MarginlyAdapter__factory().connect(owner).deploy()) as any as MarginlyAdapter;
   const etherfiAdapter = (await new EtherfiAdapter__factory().connect(owner).deploy()) as any as EtherfiAdapter;
 
   return {
     vault,
-    vaultViewer,
     configManager,
     owner,
     user1,
