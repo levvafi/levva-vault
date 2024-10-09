@@ -16,7 +16,7 @@ export const config = {
           viaIR: true,
           optimizer: {
             enabled: true,
-            runs: 4000000000,
+            runs: 100000000,
           },
         },
       },
@@ -35,6 +35,9 @@ export const config = {
     strict: false,
     only: ['Vault', 'ConfigManager', 'Adapter', 'ContractRegistry'],
     except: ['Mock', 'Test'],
+  },
+  sourcify: {
+    enabled: false,
   },
 };
 

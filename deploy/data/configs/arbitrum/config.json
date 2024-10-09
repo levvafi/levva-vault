@@ -40,8 +40,8 @@
         {
             "id": "usdc",
             "tokenId": "usdc",
-            "lpName": "levva LP USDC",
-            "lpSymbol": "lvvUSDC",
+            "lpName": "Levva LP USDC",
+            "lpSymbol": "levvaUSDC",
             "marginlyPools": [
                 "0x9007A45304Ac6676CEf22ec68c870ae88Af60065",
                 "0x760B9fE6b1f6c5dD7597A02690ffe3F6a07a3042",

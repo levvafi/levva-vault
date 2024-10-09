@@ -546,7 +546,7 @@ async function deployVaults(
       await registerInContractRegistry(signer, contractRegistry, {
         contractAddress: vaultAddress,
         contractType: ContractType.LevvaVault,
-        data: '0x0',
+        data: '0x',
       });
 
       console.log(`Vault ${vaultConfig.id} deployed: ${vaultAddress}, txHash: ${txHash}\n`);
@@ -555,7 +555,7 @@ async function deployVaults(
     console.log(`Check connected adapters`);
     for (const marginlyPool of vaultConfig.marginlyPools) {
       const poolConfig = await configManager.getPoolConfigByAddress(vaultAddress, marginlyPool);
-      if (poolConfig.pool !== ZeroAddress) {
+      if (poolConfig.pool === ZeroAddress) {
         const tx = await configManager.connect(signer).addMarginlyPool(vaultAddress, marginlyPool);
         await tx.wait();
 
