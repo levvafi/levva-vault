@@ -1,0 +1,30 @@
+{
+  "contracts": {
+    "contractRegistry": {
+      "address": "0x7a923e412B934ceC16042AA28244eE4881f9B722",
+      "txHash": "0x2319fde5df22826b48df0afb758e707b263c74caac61ec17226b71c8558b2ab4"
+    },
+    "marginlyAdapter": {
+      "address": "0x68D7524d75967DF63B86FF340ce1EFE4D16cC152",
+      "txHash": "0xab6107184ececcd47b7d08d30ad203799988650149a971f36fb8dc4b7e6a1f0d"
+    },
+    "aaveAdapter": {
+      "address": "0x5469594d56746871d473Cb9Dd99239110024A346",
+      "txHash": "0xf922fed12374cc3501fc6100765a7fdb150102eebeeb22270884f4cae79fb557"
+    },
+    "configManager-proxy": {
+      "address": "0xb71891A95DAe47470CA840A0d5eac804C17a81C2",
+      "txHash": "0xf97cb206bdffdcd87dbada97b313d501ed75be1efedc3081b9c81ddadbfff66d"
+    },
+    "configManager-impl": {
+      "address": "0x6C3FFb07320A755380CA5e48c69223B28FD1539F"
+    },
+    "vault-usdc-proxy": {
+      "address": "0xebE17dd44AFf684FFBEe600734C144169843544c",
+      "txHash": "0x1deaafccd15f314819b3dcd84fa4996bbabd1f9dbef7a345253e4ebff4fa82de"
+    },
+    "vault-usdc-impl": {
+      "address": "0xA0f6F97DE299d97251983dE40DBA5BfBf33a6B3C"
+    }
+  }
+}

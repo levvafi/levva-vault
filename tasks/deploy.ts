@@ -13,7 +13,7 @@ interface DeployArgs {
 
 /*
  *  Deploy on fork / dry-run deploy:
- *  npx hardhat --network hardhat --config hardhat-arb-fork.config.ts task:deploy --network-name <network-name> --creator-key <private-key>
+ *  npx hardhat --network hardhat --config hardhat-arb-fork.config.ts task:deploy --network-name <network-name> --creator-key <public-or-private-key>
  *
  *  Deploy on real network:
  *  npx hardhat --network <network-name> --config hardhat.config.ts task:deploy --network-name <network-name> --creator-key <private-key> --is-private-key
