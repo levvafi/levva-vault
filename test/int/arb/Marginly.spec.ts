@@ -300,8 +300,8 @@ describe('Marginly', () => {
     console.log(`Vault free amount is ${formatUnits(await vault.getFreeAmount(), 6)}`);
     console.log(`Vault totalLent is ${formatUnits(await vault.getTotalLent(), 6)}`);
 
-    console.log(`\nWait 1 month`);
-    await shiftTime(10 * 24 * 60 * 60);
+    console.log(`\nWait 5 days`);
+    await shiftTime(5 * 24 * 60 * 60);
 
     const totalLentBeforeReinit = await vault.getTotalLent();
     console.log(`Vault totalLent is ${formatUnits(totalLentBeforeReinit, 6)}`);
@@ -343,8 +343,8 @@ describe('Marginly', () => {
     console.log(`Vault free amount is ${formatUnits(await vault.getFreeAmount(), 6)}`);
     console.log(`Vault totalLent is ${formatUnits(await vault.getTotalLent(), 6)}`);
 
-    console.log(`\nWait 1 month`);
-    await shiftTime(30 * 24 * 60 * 60);
+    console.log(`\nWait 20 days`);
+    await shiftTime(20 * 24 * 60 * 60);
 
     const totalLentBeforeReinit = await vault.getTotalLent();
     console.log(`Vault totalLent is ${formatUnits(totalLentBeforeReinit, 6)}`);
