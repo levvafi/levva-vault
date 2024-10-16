@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Vault.Arbitrum. Aave and Marginly3. executeProtocolAction.BatchDeposit 1`] = `1231758`;
+exports[`Vault.Arbitrum. Aave and Marginly3. executeProtocolAction.BatchDeposit 1`] = `1218869`;
 
 exports[`Vault.Arbitrum. Aave and Marginly3. userDeposit 1`] = `224328`;
 
@@ -14,7 +14,7 @@ exports[`Vault.Arbitrum. Aave. userDeposit 1`] = `204652`;
 
 exports[`Vault.Arbitrum. Aave. userDeposit empty vault 1`] = `205112`;
 
-exports[`Vault.Arbitrum. Aave. userWithdraw 1`] = `237762`;
+exports[`Vault.Arbitrum. Aave. userWithdraw 1`] = `237730`;
 
 exports[`Vault.Arbitrum. Marginly1. executeProtocolAction.Deposit 1`] = `512983`;
 
@@ -34,10 +34,10 @@ exports[`Vault.Arbitrum. Marginly2. userDeposit 1`] = `217770`;
 
 exports[`Vault.Arbitrum. Marginly2. userWithdraw 1`] = `255966`;
 
-exports[`Vault.Arbitrum. Marginly3. executeProtocolAction.Deposit into two connected pools 1`] = `1086737`;
+exports[`Vault.Arbitrum. Marginly3. executeProtocolAction.Deposit into two connected pools 1`] = `1044221`;
 
 exports[`Vault.Arbitrum. Marginly3. executeProtocolAction.Withdraw 1`] = `418542`;
 
-exports[`Vault.Arbitrum. Marginly3. userDeposit 1`] = `224788`;
+exports[`Vault.Arbitrum. Marginly3. userDeposit 1`] = `224328`;
 
-exports[`Vault.Arbitrum. Marginly3. userWithdraw 1`] = `266002`;
+exports[`Vault.Arbitrum. Marginly3. userWithdraw 1`] = `265082`;

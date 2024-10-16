@@ -585,7 +585,7 @@ describe('Vault', () => {
   });
 
   describe('Withdraw queue', async () => {
-    it('request withdraw should fail when enough free amount of underlying asset', async () => {
+    it('request withdraw should immediately withdraw when free amount is enough', async () => {
       const { vault, owner, user1, user2, usdc, marginlyPools } = await loadFixture(
         deployTestSystemWithConfiguredVault
       );
@@ -595,10 +595,17 @@ describe('Vault', () => {
       await vault.connect(user2).deposit(depositAmount, user2);
 
       const sharesToWithdraw = parseUnits('50', 18);
-      await expect(vault.connect(user2).requestWithdraw(sharesToWithdraw)).to.revertedWithCustomError(
-        vault,
-        'NoNeedToRequestWithdraw'
-      );
+      const previewRedeem = await vault.previewRedeem(sharesToWithdraw);
+      const assetsBefore = await usdc.balanceOf(user2.address);
+      const sharesBefore = await vault.balanceOf(user2.address);
+      await expect(vault.connect(user2).requestWithdraw(sharesToWithdraw))
+        .to.emit(vault, 'Withdraw')
+        .withArgs(user2.address, user2.address, user2.address, previewRedeem, sharesToWithdraw);
+
+      const assetsAfter = await usdc.balanceOf(user2.address);
+      const sharesAfter = await vault.balanceOf(user2.address);
+      expect(assetsAfter).to.be.eq(assetsBefore + previewRedeem);
+      expect(sharesAfter).to.be.eq(sharesBefore - sharesToWithdraw);
     });
 
     it('request withdraw', async () => {

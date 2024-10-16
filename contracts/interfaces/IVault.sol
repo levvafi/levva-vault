@@ -46,6 +46,10 @@ interface IVault is IERC4626 {
 
   function setMinDeposit(uint256 minDeposit) external;
 
+  function requestWithdraw(uint256 shares) external;
+
+  function finalizeWithdrawRequest() external returns (uint256 assets);
+
   function getWithdrawRequest(uint128 requestId) external view returns (WithdrawRequestQueue.WithdrawRequest memory);
 
   function getWithdrawQueueEndIndex() external view returns (uint128);
