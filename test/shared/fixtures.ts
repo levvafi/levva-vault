@@ -278,7 +278,6 @@ export async function deployTestSystem(): Promise<TestSystem> {
 
 type TestSystemConfigured = {
   vault: Vault;
-  vaultViewer: VaultViewer;
   configManager: ConfigManager;
   aaveAdapter: AaveAdapter;
   marginlyAdapter: MarginlyAdapter;

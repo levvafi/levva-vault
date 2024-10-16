@@ -1,6 +1,6 @@
-import { formatUnits, parseEther, parseUnits, ZeroAddress } from 'ethers';
+import { formatUnits, parseEther, parseUnits, Typed, ZeroAddress } from 'ethers';
 import { upgrades } from 'hardhat';
-import { expect } from 'chai';
+import { expect, expect } from 'chai';
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 import { deployTestSystem, deployTestSystemWithConfiguredVault } from './shared/fixtures';
 import {
@@ -796,6 +796,114 @@ describe('Vault', () => {
         vault,
         'NoElementWithIndex'
       );
+    });
+  });
+
+  describe('Slippage protection', async () => {
+    it('deposit with slippage protection', async () => {
+      const { vault, usdc, user2 } = await loadFixture(deployTestSystemWithConfiguredVault);
+
+      const depositAmount = parseUnits('100', 18);
+      const minShares = parseUnits('100', 18);
+      await usdc.connect(user2).approve(vault, depositAmount);
+      expect(await vault.balanceOf(user2)).to.eq(0);
+      await vault.connect(user2).depositWithSlippage(depositAmount, user2, minShares);
+      expect(await vault.balanceOf(user2)).to.gte(minShares);
+    });
+
+    it('deposit should fail when shares are less than minShares', async () => {
+      const { vault, usdc, user2 } = await loadFixture(deployTestSystemWithConfiguredVault);
+
+      const depositAmount = parseUnits('100', 18);
+      const minShares = parseUnits('101', 18);
+      await usdc.connect(user2).approve(vault, depositAmount);
+      await expect(
+        vault.connect(user2).depositWithSlippage(depositAmount, user2, minShares)
+      ).to.be.revertedWithCustomError(vault, 'DepositSlippageProtection');
+    });
+
+    it('mint with slippage protection', async () => {
+      const { vault, usdc, user2 } = await loadFixture(deployTestSystemWithConfiguredVault);
+
+      const mintAmount = parseUnits('100', 18);
+      const maxAssets = parseUnits('100', 18);
+      const balanceBefore = await vault.balanceOf(user2);
+      await usdc.connect(user2).approve(vault, await vault.previewMint(mintAmount));
+      await vault.connect(user2).mintWithSlippage(mintAmount, user2, maxAssets);
+
+      expect(await vault.balanceOf(user2)).to.gte(balanceBefore + maxAssets);
+    });
+
+    it('mint should fail when assets are more than maxAssets', async () => {
+      const { vault, usdc, user2 } = await loadFixture(deployTestSystemWithConfiguredVault);
+
+      const mintAmount = parseUnits('100', 18);
+      const maxAssets = parseUnits('99', 18);
+      await usdc.connect(user2).approve(vault, await vault.previewMint(mintAmount));
+      await expect(vault.connect(user2).mintWithSlippage(mintAmount, user2, maxAssets)).to.be.revertedWithCustomError(
+        vault,
+        'MintSlippageProtection'
+      );
+    });
+
+    it('withdraw with slippage protection', async () => {
+      const { vault, usdc, user2 } = await loadFixture(deployTestSystemWithConfiguredVault);
+
+      const depositAmount = parseUnits('100', 18);
+      await usdc.connect(user2).approve(vault, depositAmount);
+      await vault.connect(user2).deposit(depositAmount, user2);
+
+      const withdrawAmount = parseUnits('50', 18);
+      const maxShares = parseUnits('50', 18);
+      const sharesBefore = await vault.balanceOf(user2);
+      await vault.connect(user2).withdrawWithSlippage(withdrawAmount, user2, user2, maxShares);
+      const sharesAfter = await vault.balanceOf(user2);
+      const burnedShares = sharesBefore - sharesAfter;
+      expect(burnedShares).to.lte(maxShares);
+    });
+
+    it('withdraw should fail when shares are more than maxShares', async () => {
+      const { vault, usdc, user2 } = await loadFixture(deployTestSystemWithConfiguredVault);
+
+      const depositAmount = parseUnits('100', 18);
+      await usdc.connect(user2).approve(vault, depositAmount);
+      await vault.connect(user2).deposit(depositAmount, user2);
+
+      const withdrawAmount = parseUnits('50', 18);
+      const maxShares = parseUnits('49', 18);
+      await expect(
+        vault.connect(user2).withdrawWithSlippage(withdrawAmount, user2, user2, maxShares)
+      ).to.be.revertedWithCustomError(vault, 'WithdrawSlippageProtection');
+    });
+
+    it('redeem with slippage protection', async () => {
+      const { vault, usdc, user2 } = await loadFixture(deployTestSystemWithConfiguredVault);
+
+      const depositAmount = parseUnits('100', 18);
+      await usdc.connect(user2).approve(vault, depositAmount);
+      await vault.connect(user2).deposit(depositAmount, user2);
+
+      const redeemAmount = parseUnits('50', 18);
+      const minAssets = parseUnits('50', 18);
+      const assetsBefore = await usdc.balanceOf(user2);
+      await vault.connect(user2).redeemWithSlippage(redeemAmount, user2, user2, minAssets);
+      const assetsAfter = await usdc.balanceOf(user2);
+      const assetsReceived = assetsAfter - assetsBefore;
+      expect(assetsReceived).to.gte(minAssets);
+    });
+
+    it('redeem should fail when assets are less than minAssets', async () => {
+      const { vault, usdc, user2 } = await loadFixture(deployTestSystemWithConfiguredVault);
+
+      const depositAmount = parseUnits('100', 18);
+      await usdc.connect(user2).approve(vault, depositAmount);
+      await vault.connect(user2).deposit(depositAmount, user2);
+
+      const redeemAmount = parseUnits('50', 18);
+      const minAssets = parseUnits('51', 18);
+      await expect(
+        vault.connect(user2).redeemWithSlippage(redeemAmount, user2, user2, minAssets)
+      ).to.be.revertedWithCustomError(vault, 'RedeemSlippageProtection');
     });
   });
 });
