@@ -1,5 +1,5 @@
-import { BytesLike, parseUnits, Signer, TransactionResponse, ZeroAddress } from 'ethers';
-import { DeployConfig, UpgradeConfig } from './config';
+import { BytesLike, formatUnits, parseUnits, Signer, TransactionResponse, ZeroAddress } from 'ethers';
+import { DeployConfig, UpgradeConfig, VaultConfig, TokenConfig } from './config';
 import {
   Vault__factory,
   Vault,
@@ -13,6 +13,7 @@ import {
   EtherfiAdapter,
   ContractRegistry,
   ContractRegistry__factory,
+  ERC20__factory,
 } from '../typechain-types';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { createDefaultBaseState, DeployState, StateFile, StateStore } from './state-store';
@@ -279,9 +280,9 @@ async function deployConfigManager(
     await verifyContract(hre, implementationAddress, []);
   }
 
-  if ((await configManager.getAavePool()) !== config.configurationManager.aavePool) {
-    console.log(`Set ConfigManager Aave pool to ${config.configurationManager.aavePool}`);
-    await configManager.setAavePool(config.configurationManager.aavePool);
+  if ((await configManager.getAavePoolAddressProvider()) !== config.configurationManager.aavePoolAddressProvider) {
+    console.log(`Set ConfigManager Aave pool to ${config.configurationManager.aavePoolAddressProvider}`);
+    await configManager.setAavePoolAddressProvider(config.configurationManager.aavePoolAddressProvider);
   }
 
   return configManager;
@@ -573,10 +574,13 @@ async function deployVaults(
       }
     }
 
+    await technicalPositionDeposit(signer, vaultConfig, underlyingToken, vault);
+
     const minDepositRaw = parseUnits(
       vaultConfig.minDeposit,
       Number.parseInt(underlyingToken.assertDecimals.toString())
     );
+
     if ((await vault.getMinDeposit()) !== minDepositRaw) {
       await vault.connect(signer).setMinDeposit(minDepositRaw);
     }
@@ -656,6 +660,44 @@ async function registerInContractRegistry(
     .registerContract(registerArgs.contractType, registerArgs.contractAddress, registerArgs.data);
 
   console.log(`Contract ${registerArgs.contractAddress} registered in registry`);
+}
+
+async function technicalPositionDeposit(
+  signer: Signer,
+  vaultConfig: VaultConfig,
+  underlyingTokenConfig: TokenConfig,
+  vault: Vault
+) {
+  try {
+    const decimals = Number.parseInt(underlyingTokenConfig.assertDecimals.toString());
+    const symbol = underlyingTokenConfig.assertSymbol;
+    const amountToDeposit = parseUnits(vaultConfig.technicalPositionDeposit, decimals);
+
+    const underlyingToken = ERC20__factory.connect(underlyingTokenConfig.address, signer);
+    const signerBalance = await underlyingToken.balanceOf(signer);
+    if (signerBalance < amountToDeposit) {
+      throw new Error(
+        `Signer balance ${formatUnits(signerBalance, decimals)} ${symbol}  is less than amount to deposit ${formatUnits(amountToDeposit, decimals)} ${symbol}`
+      );
+    }
+
+    const totalSupply = await vault.totalSupply();
+    if (totalSupply == 0n && amountToDeposit > 0n) {
+      console.log(`\nTechnical position deposit into vault ${vaultConfig.id}`);
+
+      let tx = await underlyingToken.approve(vault.getAddress(), amountToDeposit);
+      await tx.wait();
+
+      tx = await vault.connect(signer).deposit(amountToDeposit, signer);
+      await tx.wait();
+
+      console.log(`Technical position deposit ${formatUnits(amountToDeposit, decimals)} ${symbol} done`);
+    } else {
+      console.log(`Technical position deposit into vault ${vaultConfig.id} skipped`);
+    }
+  } catch (e) {
+    console.log(`Technical position deposit into vault ${vaultConfig.id} failed:\n ${e}`);
+  }
 }
 
 //TODO: move to another file

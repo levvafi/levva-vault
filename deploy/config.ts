@@ -27,7 +27,7 @@ export interface TokenConfig {
 export interface ConfigurationManagerConfig {
   weth9: string;
   weeth: string;
-  aavePool: string;
+  aavePoolAddressProvider: string;
 }
 
 export interface VaultConfig {
@@ -37,6 +37,7 @@ export interface VaultConfig {
   lpSymbol: string;
   marginlyPools: string[];
   minDeposit: string; // min deposit, human like, e.g. "0.001"
+  technicalPositionDeposit: string; // technical position deposit, human like, e.g. "0.001"
 }
 
 export interface AdapterConfig {
