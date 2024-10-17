@@ -169,20 +169,20 @@ contract Vault is
     emit MinDepositSet(minDeposit);
   }
 
-  /// @notice Requests for withdraw underlying amount corresponding to shares. Locks shares on address(this)
-  /// @dev This function allows users to request a withdrawal of LP tokens
-  /// @param shares The amount of LP tokens to withdraw
-  function requestWithdraw(uint256 shares) external returns (uint128 requestId) {
+  /// @notice Initiates a withdrawal request
+  /// @dev This function allows users to request a withdrawal of a specific amount of shares
+  /// @param shares The amount of shares to withdraw
+  function requestWithdraw(uint256 shares) external {
     uint256 assets = previewRedeem(shares);
-    if (assets <= _getFreeAmount()) {
-      revert Errors.NoNeedToRequestWithdraw();
+    if (assets > _getFreeAmount()) {
+      _transfer(msg.sender, address(this), shares);
+      uint128 requestId = _enqueueWithdraw(msg.sender, shares);
+
+      emit WithdrawRequested(requestId, msg.sender, shares);
+    } else {
+      // Immediate withdraw
+      redeem(shares, msg.sender, msg.sender);
     }
-
-    _transfer(msg.sender, address(this), shares);
-    requestId = _enqueueWithdraw(msg.sender, shares);
-
-    emit WithdrawRequested(requestId, msg.sender, shares);
-    return requestId;
   }
 
   /// @notice Finalizes a withdrawal request

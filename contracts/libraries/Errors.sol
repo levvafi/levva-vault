@@ -22,7 +22,6 @@ library Errors {
   error NoUnstakeRequest();
   error InvalidWithdrawRequest();
   error NoElementWithIndex(uint128 index);
-  error NoNeedToRequestWithdraw();
   error DepositSlippageProtection();
   error MintSlippageProtection();
   error WithdrawSlippageProtection();

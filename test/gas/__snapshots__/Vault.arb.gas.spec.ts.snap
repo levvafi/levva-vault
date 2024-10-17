@@ -4,7 +4,7 @@ exports[`Vault.Arbitrum. Aave and Marginly3. executeProtocolAction.BatchDeposit 
 
 exports[`Vault.Arbitrum. Aave and Marginly3. userDeposit 1`] = `230136`;
 
-exports[`Vault.Arbitrum. Aave and Marginly3. userWithdraw 1`] = `399116`;
+exports[`Vault.Arbitrum. Aave and Marginly3. userWithdraw 1`] = `272158`;
 
 exports[`Vault.Arbitrum. Aave. executeProtocolAction.Deposit 1`] = `295838`;
 
@@ -14,7 +14,7 @@ exports[`Vault.Arbitrum. Aave. userDeposit 1`] = `210460`;
 
 exports[`Vault.Arbitrum. Aave. userDeposit empty vault 1`] = `210920`;
 
-exports[`Vault.Arbitrum. Aave. userWithdraw 1`] = `244806`;
+exports[`Vault.Arbitrum. Aave. userWithdraw 1`] = `244838`;
 
 exports[`Vault.Arbitrum. Marginly1. executeProtocolAction.Deposit 1`] = `513071`;
 
