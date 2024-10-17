@@ -7,6 +7,7 @@ library Errors {
   error ZeroAmount();
   error ZeroShares();
   error LessThanMinDeposit();
+  error MoreThanMaxAssets();
   error NotEnoughFreeAmount();
   error SenderIsNotVaultManager();
   error UnknownPool();
@@ -22,4 +23,8 @@ library Errors {
   error InvalidWithdrawRequest();
   error NoElementWithIndex(uint128 index);
   error NoNeedToRequestWithdraw();
+  error DepositSlippageProtection();
+  error MintSlippageProtection();
+  error WithdrawSlippageProtection();
+  error RedeemSlippageProtection();
 }

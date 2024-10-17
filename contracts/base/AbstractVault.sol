@@ -10,11 +10,12 @@ import {IERC20} from '@openzeppelin/contracts/interfaces/IERC20.sol';
 import {IERC20Metadata} from '@openzeppelin/contracts/interfaces/IERC20Metadata.sol';
 import {Math} from '@openzeppelin/contracts/utils/math/Math.sol';
 import {Errors} from '../libraries/Errors.sol';
+import {IERC4626Extended} from '../interfaces/IERC4626Extended.sol';
 
 /// @title
 /// @dev Abstract vault implemented ERC-4626
 /// @dev Conversion to shares/ to assets same as https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v5.0/contracts/token/ERC20/extensions/ERC4626.sol
-abstract contract AbstractVault is Initializable, ERC4626Upgradeable {
+abstract contract AbstractVault is Initializable, ERC4626Upgradeable, IERC4626Extended {
   using SafeERC20 for IERC20;
   using Math for uint256;
 
@@ -73,12 +74,12 @@ abstract contract AbstractVault is Initializable, ERC4626Upgradeable {
   }
 
   /// @inheritdoc IERC4626
-  function totalAssets() public view override returns (uint256 totalManagedAssets) {
+  function totalAssets() public view override(IERC4626, ERC4626Upgradeable) returns (uint256 totalManagedAssets) {
     totalManagedAssets = _getFreeAmount() + _getTotalLent();
   }
 
   /// @inheritdoc IERC4626
-  function deposit(uint256 assets, address receiver) public override returns (uint256) {
+  function deposit(uint256 assets, address receiver) public override(IERC4626, ERC4626Upgradeable) returns (uint256) {
     if (assets < _getMinDeposit()) {
       revert Errors.LessThanMinDeposit();
     }
@@ -102,7 +103,7 @@ abstract contract AbstractVault is Initializable, ERC4626Upgradeable {
   }
 
   /// @inheritdoc IERC4626
-  function mint(uint256 shares, address receiver) public override returns (uint256) {
+  function mint(uint256 shares, address receiver) public override(IERC4626, ERC4626Upgradeable) returns (uint256) {
     uint256 maxShares = maxMint(receiver);
     if (shares > maxShares) {
       revert ERC4626ExceededMaxMint(receiver, shares, maxShares);
@@ -116,5 +117,53 @@ abstract contract AbstractVault is Initializable, ERC4626Upgradeable {
     _deposit(_msgSender(), receiver, assets, shares);
 
     return assets;
+  }
+
+  /// ERC-5143 methods, an extension of ERC-4626
+
+  /// @inheritdoc IERC4626Extended
+  function depositWithSlippage(uint256 assets, address receiver, uint256 minShares) public returns (uint256) {
+    uint256 shares = deposit(assets, receiver);
+    if (shares < minShares) {
+      revert Errors.DepositSlippageProtection();
+    }
+    return shares;
+  }
+
+  /// @inheritdoc IERC4626Extended
+  function mintWithSlippage(uint256 shares, address receiver, uint256 maxAssets) public returns (uint256) {
+    uint256 assets = mint(shares, receiver);
+    if (assets > maxAssets) {
+      revert Errors.MintSlippageProtection();
+    }
+    return assets;
+  }
+
+  /// @inheritdoc IERC4626Extended
+  function redeemWithSlippage(
+    uint256 shares,
+    address receiver,
+    address owner,
+    uint256 minAssets
+  ) public returns (uint256) {
+    uint256 assets = redeem(shares, receiver, owner);
+    if (assets < minAssets) {
+      revert Errors.RedeemSlippageProtection();
+    }
+    return assets;
+  }
+
+  /// @inheritdoc IERC4626Extended
+  function withdrawWithSlippage(
+    uint256 assets,
+    address receiver,
+    address owner,
+    uint256 maxShares
+  ) public returns (uint256) {
+    uint256 shares = withdraw(assets, receiver, owner);
+    if (shares > maxShares) {
+      revert Errors.WithdrawSlippageProtection();
+    }
+    return shares;
   }
 }
