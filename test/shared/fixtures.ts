@@ -26,8 +26,10 @@ import {
   Vault__factory,
   MockWETH,
   MockWETH__factory,
+  MockAavePoolAddressProvider,
+  MockAavePoolAddressProvider__factory,
 } from '../../typechain-types';
-import { Addressable, formatUnits, parseUnits, ZeroAddress } from 'ethers';
+import { Addressable, parseUnits } from 'ethers';
 import { SignerWithAddress } from '@nomicfoundation/hardhat-ethers/signers';
 import { ProtocolType } from './utils';
 
@@ -49,9 +51,10 @@ export async function deployMockMarginlyPool(
   return new MockMarginlyPool__factory().connect(owner).deploy(baseToken, quoteToken);
 }
 
-export async function deployMockAavePool(): Promise<MockAavePool> {
+export async function deployMockAavePoolAddressProvider(): Promise<MockAavePoolAddressProvider> {
   const [owner] = await ethers.getSigners();
-  return new MockAavePool__factory().connect(owner).deploy();
+  const aavePool = (await new MockAavePool__factory().connect(owner).deploy()) as any as MockAavePool;
+  return new MockAavePoolAddressProvider__factory().connect(owner).deploy(aavePool);
 }
 
 type EtherfiMock = {
@@ -104,7 +107,7 @@ type TestSystem = {
   usdc: MintableERC20;
   weth: MockWETH;
   marginlyPools: MockMarginlyPool[];
-  aavePool: MockAavePool;
+  aavePoolAddressProvider: MockAavePoolAddressProvider;
   etherFi: EtherfiMock;
 };
 
@@ -143,7 +146,7 @@ export async function deployTestSystemWithWETH(): Promise<TestSystem> {
     await deployMockMarginlyPool(testGmx, testDai),
   ];
 
-  const aavePool = await deployMockAavePool();
+  const aavePoolAddressProvider = await deployMockAavePoolAddressProvider();
   const etherFi = await deployMockEtherFi();
 
   const configManager = (await upgrades.deployProxy(
@@ -188,7 +191,7 @@ export async function deployTestSystemWithWETH(): Promise<TestSystem> {
     aaveAdapter,
     marginlyAdapter,
     etherfiAdapter,
-    aavePool,
+    aavePoolAddressProvider,
     etherFi,
   };
 }
@@ -228,7 +231,7 @@ export async function deployTestSystem(): Promise<TestSystem> {
     await deployMockMarginlyPool(testGmx, testDai),
   ];
 
-  const aavePool = await deployMockAavePool();
+  const aavePoolAddressProvider = await deployMockAavePoolAddressProvider();
   const etherFi = await deployMockEtherFi();
 
   const configManager = (await upgrades.deployProxy(
@@ -271,7 +274,7 @@ export async function deployTestSystem(): Promise<TestSystem> {
     aaveAdapter,
     marginlyAdapter,
     etherfiAdapter,
-    aavePool,
+    aavePoolAddressProvider,
     etherFi,
   };
 }
@@ -291,7 +294,7 @@ type TestSystemConfigured = {
   weth: MockWETH;
   marginlyPools: MockMarginlyPool[];
   connectedMarginlyPools: MockMarginlyPool[];
-  aavePool: MockAavePool;
+  aavePoolAddressProvider: MockAavePoolAddressProvider;
   etherFi: EtherfiMock;
 };
 
@@ -312,7 +315,7 @@ export async function deployTestSystemWithConfiguredVault(): Promise<TestSystemC
   await ts.configManager.connect(ts.owner).addMarginlyPool(ts.vault, ts.marginlyPools[5]);
   await ts.configManager.connect(ts.owner).addMarginlyPool(ts.vault, ts.marginlyPools[6]);
 
-  await ts.configManager.connect(ts.owner).setAavePool(ts.aavePool);
+  await ts.configManager.connect(ts.owner).setAavePoolAddressProvider(ts.aavePoolAddressProvider);
 
   return {
     ...ts,
@@ -337,7 +340,7 @@ export async function deployTestSystemWithConfiguredWethVault(): Promise<TestSys
   await ts.configManager.connect(ts.owner).addMarginlyPool(ts.vault, ts.marginlyPools[5]);
   await ts.configManager.connect(ts.owner).addMarginlyPool(ts.vault, ts.marginlyPools[6]);
 
-  await ts.configManager.connect(ts.owner).setAavePool(ts.aavePool);
+  await ts.configManager.connect(ts.owner).setAavePoolAddressProvider(ts.aavePoolAddressProvider);
 
   return {
     ...ts,

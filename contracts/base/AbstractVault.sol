@@ -84,7 +84,22 @@ abstract contract AbstractVault is Initializable, ERC4626Upgradeable, IERC4626Ex
       revert Errors.LessThanMinDeposit();
     }
 
-    return super.deposit(assets, receiver);
+    uint256 maxAssets = maxDeposit(receiver);
+    if (assets > maxAssets) {
+      revert ERC4626ExceededMaxDeposit(receiver, assets, maxAssets);
+    }
+
+    uint256 shares = previewDeposit(assets);
+
+    // Deposit from technical position as soon as new vault deployed
+    // and this check should prevent depositors from losing their assets
+    if (shares == 0) {
+      revert Errors.ZeroShares();
+    }
+
+    _deposit(_msgSender(), receiver, assets, shares);
+
+    return shares;
   }
 
   /// @inheritdoc IERC4626

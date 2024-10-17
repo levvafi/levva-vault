@@ -71,6 +71,19 @@ describe('Vault', () => {
       );
     });
 
+    it('deposit should fail when zero shares calculated', async () => {
+      const { vault, usdc, user1, user2: attacker } = await loadFixture(deployTestSystem);
+
+      await usdc.connect(attacker).transfer(vault, parseUnits('1000', 18));
+
+      const depositAmount = parseUnits('1', 18);
+      await usdc.connect(user1).approve(vault, depositAmount);
+      await expect(vault.connect(user1).deposit(depositAmount, user1)).to.be.revertedWithCustomError(
+        vault,
+        'ZeroShares'
+      );
+    });
+
     it('mint', async () => {
       const { vault, usdc, user1 } = await loadFixture(deployTestSystem);
 

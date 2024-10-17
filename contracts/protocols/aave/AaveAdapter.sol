@@ -7,6 +7,7 @@ import {IERC4626} from '@openzeppelin/contracts/interfaces/IERC4626.sol';
 
 import {WadRayMath} from '@aave/core-v3/contracts/protocol/libraries/math/WadRayMath.sol';
 import {IPool} from '@aave/core-v3/contracts/interfaces/IPool.sol';
+import {IPoolAddressesProvider} from '@aave/core-v3/contracts/interfaces/IPoolAddressesProvider.sol';
 
 import {IAToken} from './IAToken.sol';
 
@@ -28,7 +29,8 @@ contract AaveAdapter is ILendingAdapter, ConfigManagerStorage {
   /// @notice Supplies a specified amount of assets to the Aave pool
   /// @dev This function approves the Aave pool to spend the underlying asset and then supplies it
   function supply(uint256 amount) external returns (uint256) {
-    address aavePool = AaveAdapterConfigStorage(_getConfigManager()).getAavePool();
+    address poolAddressProvider = AaveAdapterConfigStorage(_getConfigManager()).getAavePoolAddressProvider();
+    address aavePool = IPoolAddressesProvider(poolAddressProvider).getPool();
     address underlyingAsset = IERC4626(address(this)).asset();
     IERC20(underlyingAsset).forceApprove(aavePool, amount);
     IPool(aavePool).supply(underlyingAsset, amount, address(this), 0);
@@ -40,7 +42,8 @@ contract AaveAdapter is ILendingAdapter, ConfigManagerStorage {
   /// @dev This function interacts with the Aave pool to withdraw the underlying asset
   /// @return withdrawn The actual amount of assets that were withdrawn
   function withdraw(uint256 amount) external returns (uint256 withdrawn) {
-    address aavePool = AaveAdapterConfigStorage(_getConfigManager()).getAavePool();
+    address poolAddressProvider = AaveAdapterConfigStorage(_getConfigManager()).getAavePoolAddressProvider();
+    address aavePool = IPoolAddressesProvider(poolAddressProvider).getPool();
     address underlyingAsset = IERC4626(address(this)).asset();
     withdrawn = IPool(aavePool).withdraw(underlyingAsset, amount, address(this));
   }
@@ -49,7 +52,8 @@ contract AaveAdapter is ILendingAdapter, ConfigManagerStorage {
   /// @return The total amount of underlying assets currently lent to Aave
   function getLentAmount(address vault) public view returns (uint256) {
     address configManager = IVault(vault).getConfigManager();
-    address aavePool = AaveAdapterConfigStorage(configManager).getAavePool();
+    address poolAddressProvider = AaveAdapterConfigStorage(configManager).getAavePoolAddressProvider();
+    address aavePool = IPoolAddressesProvider(poolAddressProvider).getPool();
     address underlyingAsset = IERC4626(vault).asset();
     uint256 scaledAmount = IAToken(IPool(aavePool).getReserveData(underlyingAsset).aTokenAddress).scaledBalanceOf(
       vault
