@@ -82,6 +82,8 @@ abstract contract EtherfiAdapterConfigStorage is Initializable, Ownable2StepUpgr
     uint256 requestId = item.requestId;
     _subPendingWithdrawals(item.amount);
 
+    delete $._unstakeQueue[msg.sender].items[queueStart];
+
     unchecked {
       $._unstakeQueue[msg.sender].start = queueStart + 1;
     }
