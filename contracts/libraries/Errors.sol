@@ -5,7 +5,9 @@ pragma solidity 0.8.26;
 library Errors {
   error ZeroAddress();
   error ZeroAmount();
+  error ZeroShares();
   error LessThanMinDeposit();
+  error MoreThanMaxAssets();
   error NotEnoughFreeAmount();
   error SenderIsNotVaultManager();
   error UnknownPool();
@@ -20,4 +22,8 @@ library Errors {
   error NoUnstakeRequest();
   error InvalidWithdrawRequest();
   error NoElementWithIndex(uint128 index);
+  error DepositSlippageProtection();
+  error MintSlippageProtection();
+  error WithdrawSlippageProtection();
+  error RedeemSlippageProtection();
 }

@@ -5,8 +5,9 @@ import {LendingAdaptersStorage} from '../base/LendingAdaptersStorage.sol';
 import {IERC4626} from '@openzeppelin/contracts/interfaces/IERC4626.sol';
 import {ProtocolType} from '../libraries/ProtocolType.sol';
 import {WithdrawRequestQueue} from '../base/WithdrawRequestQueue.sol';
+import {IERC4626Extended} from './IERC4626Extended.sol';
 
-interface IVault is IERC4626 {
+interface IVault is IERC4626Extended {
   event ProtocolActionExecuted(ProtocolType indexed protocol, bytes data, bytes result);
 
   event AddLendingAdapter(ProtocolType indexed protocolType, address indexed adapter);

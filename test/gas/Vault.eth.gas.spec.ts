@@ -45,7 +45,7 @@ const EtherfiMembershipManagerAddress = '0x3d320286E014C3e1ce99Af6d6B00f0C1D63E3
 
 const marginlyPool_PtWeeth26Dec2024_WETH_Address = '0xa77C2275C1F403056c7F73B44df69E374C299dd7';
 
-const aavePoolAddress = '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2';
+const aavePoolAddressProviderAddress = '0x2f39d218133AFaB8F2B819B1066c7E434Ad94E9e';
 
 let weeth: IERC20;
 let weth: IWeth9;
@@ -135,7 +135,7 @@ async function deployVaultWithEtherfiAdapter() {
   );
 
   await configManager.connect(owner).addMarginlyPool(vault, marginlyPool_PtWeeth26Dec2024_WETH);
-  await configManager.connect(owner).setAavePool(aavePoolAddress);
+  await configManager.connect(owner).setAavePoolAddressProvider(aavePoolAddressProviderAddress);
 }
 
 async function initVault() {
