@@ -6,27 +6,26 @@ import { encodeAaveDeposit, encodeAaveWithdraw, ProtocolType } from './shared/ut
 
 describe('Aave', () => {
   describe('Config', async () => {
-    it('set aave pool', async () => {
-      const { configManager, owner, aavePool } = await loadFixture(deployTestSystem);
-      expect(await configManager.getAavePool()).to.be.eq(ZeroAddress);
-      await configManager.connect(owner).setAavePool(aavePool);
-      expect(await configManager.getAavePool()).to.be.eq(aavePool);
+    it('set aave pool address provider', async () => {
+      const { configManager, owner, aavePoolAddressProvider } = await loadFixture(deployTestSystem);
+      expect(await configManager.getAavePoolAddressProvider()).to.be.eq(ZeroAddress);
+      await configManager.connect(owner).setAavePoolAddressProvider(aavePoolAddressProvider);
+      expect(await configManager.getAavePoolAddressProvider()).to.be.eq(aavePoolAddressProvider);
     });
 
-    it('set aave pool should fail when address is zero', async () => {
+    it('set aave pool address provider should fail when address is zero', async () => {
       const { configManager, owner } = await loadFixture(deployTestSystem);
-      await expect(configManager.connect(owner).setAavePool(ZeroAddress)).to.be.revertedWithCustomError(
+      await expect(configManager.connect(owner).setAavePoolAddressProvider(ZeroAddress)).to.be.revertedWithCustomError(
         configManager,
         'ZeroAddress'
       );
     });
 
-    it('set aave pool should fail when sender is not an owner', async () => {
-      const { configManager, user1, aavePool } = await loadFixture(deployTestSystem);
-      await expect(configManager.connect(user1).setAavePool(aavePool)).to.be.revertedWithCustomError(
-        configManager,
-        'OwnableUnauthorizedAccount'
-      );
+    it('set aave pool address provider should fail when sender is not an owner', async () => {
+      const { configManager, user1, aavePoolAddressProvider } = await loadFixture(deployTestSystem);
+      await expect(
+        configManager.connect(user1).setAavePoolAddressProvider(aavePoolAddressProvider)
+      ).to.be.revertedWithCustomError(configManager, 'OwnableUnauthorizedAccount');
     });
   });
 
