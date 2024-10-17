@@ -12,7 +12,7 @@ abstract contract AaveAdapterConfigStorage is Ownable2StepUpgradeable {
 
   /// @custom:storage-location erc7201:levva-vault.config.AaveAdapterConfig
   struct AaveAdapterConfig {
-    address aavePool;
+    address poolAddressProvider;
   }
 
   function _getAaveAdapterConfigsStorage() private pure returns (AaveAdapterConfig storage $) {
@@ -21,13 +21,13 @@ abstract contract AaveAdapterConfigStorage is Ownable2StepUpgradeable {
     }
   }
 
-  function getAavePool() external view returns (address) {
-    return _getAaveAdapterConfigsStorage().aavePool;
+  function getAavePoolAddressProvider() external view returns (address) {
+    return _getAaveAdapterConfigsStorage().poolAddressProvider;
   }
 
-  function setAavePool(address aavePool) external onlyOwner {
-    if (aavePool == address(0)) revert Errors.ZeroAddress();
+  function setAavePoolAddressProvider(address poolAddressProvider) external onlyOwner {
+    if (poolAddressProvider == address(0)) revert Errors.ZeroAddress();
 
-    _getAaveAdapterConfigsStorage().aavePool = aavePool;
+    _getAaveAdapterConfigsStorage().poolAddressProvider = poolAddressProvider;
   }
 }

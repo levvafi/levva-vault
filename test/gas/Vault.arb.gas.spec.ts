@@ -34,7 +34,7 @@ const marginlyPool_PtUsde_USDC_Address = '0x760B9fE6b1f6c5dD7597A02690ffe3F6a07a
 const marginlyPool_PtgUSDC_USDC_Address = '0x230A545aBE3217BA3BdA3EEec2D8582dFD4B73CE';
 const marginlyPool_USDE_USDC_Address = '0x9007A45304Ac6676CEf22ec68c870ae88Af60065';
 
-const aavePoolAddress = '0x794a61358D6845594F94dc1DB02A252b5b4814aD';
+const aavePoolAddressProviderAddress = '0xa97684ead0e402dC232d5A977953DF7ECBaB3CDb';
 
 const usdeHolderAddress = '0x99F4176EE457afedFfCB1839c7aB7A030a5e4A92';
 const ptUsdeHolderAddress = '0x4DfD5f7Dd019F2F9Fc4D954FF3aDD3348839845d';
@@ -100,7 +100,7 @@ async function deployVaultWithMarginlyAdapter() {
   const aaveAdapter = (await new AaveAdapter__factory().connect(owner).deploy()) as any as AaveAdapter;
 
   await vault.connect(owner).addLendingAdapter(ProtocolType.Aave, aaveAdapter);
-  await configManager.connect(owner).setAavePool(aavePoolAddress);
+  await configManager.connect(owner).setAavePoolAddressProvider(aavePoolAddressProviderAddress);
 
   const initialAmount = parseUnits('100000', 6);
   await setUsdcBalance(user.address, initialAmount);

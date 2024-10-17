@@ -15,7 +15,7 @@ import { logVaultState, ProtocolType, encodeAaveDeposit, encodeAaveWithdraw } fr
 import { parseUnits, ZeroAddress } from 'ethers';
 
 const wethAddress = '0x82af49447d8a07e3bd95bd0d56f35241523fbab1';
-const aavePoolAddress = '0x794a61358D6845594F94dc1DB02A252b5b4814aD';
+const aavePoolAddressProvider = '0xa97684ead0e402dC232d5A977953DF7ECBaB3CDb';
 
 let vault: Vault;
 let owner: SignerWithAddress;
@@ -62,7 +62,7 @@ async function deployVaultWithAaveAdapter() {
 
   await vault.connect(owner).addVaultManager(vaultManager.address, true);
   await vault.connect(owner).addLendingAdapter(ProtocolType.Aave, aaveAdapter);
-  await configManager.connect(owner).setAavePool(aavePoolAddress);
+  await configManager.connect(owner).setAavePoolAddressProvider(aavePoolAddressProvider);
 }
 
 before(async () => {
