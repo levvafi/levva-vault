@@ -24,7 +24,7 @@
     "configurationManager":{
         "weth9": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
         "weeth": "0x0000000000000000000000000000000000000000",
-        "aavePool": "0x794a61358D6845594F94dc1DB02A252b5b4814aD"
+        "aavePoolAddressProvider": "0xa97684ead0e402dC232d5A977953DF7ECBaB3CDb"
     },
     "adapters":[
         {
@@ -48,6 +48,7 @@
                 "0x230A545aBE3217BA3BdA3EEec2D8582dFD4B73CE"
             ],
             "minDeposit": "0",
+            "technicalPositionDeposit": "4.0",
             "description": "usde-usdc, pt-usde-28nov2024-usdc, pt-gusdc-26dec2024-usdc"
         }
     ]
