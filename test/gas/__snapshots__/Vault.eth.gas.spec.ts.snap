@@ -1,21 +1,21 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Vault.Eth Etherfi executeProtocolAction.ClaimWithdraw 1`] = `258655`;
+exports[`Vault.Eth Etherfi executeProtocolAction.ClaimWithdraw 1`] = `258743`;
 
-exports[`Vault.Eth Etherfi executeProtocolAction.Deposit 1`] = `160593`;
+exports[`Vault.Eth Etherfi executeProtocolAction.Deposit 1`] = `160681`;
 
-exports[`Vault.Eth Etherfi executeProtocolAction.RequestWithdraw 1`] = `329855`;
+exports[`Vault.Eth Etherfi executeProtocolAction.RequestWithdraw 1`] = `329943`;
 
-exports[`Vault.Eth Etherfi userDeposit 1`] = `219847`;
+exports[`Vault.Eth Etherfi userDeposit 1`] = `220047`;
 
-exports[`Vault.Eth Etherfi userDeposit empty vault 1`] = `219847`;
+exports[`Vault.Eth Etherfi userDeposit empty vault 1`] = `220047`;
 
-exports[`Vault.Eth Etherfi userWithdraw 1`] = `250937`;
+exports[`Vault.Eth Etherfi userWithdraw 1`] = `251335`;
 
-exports[`Vault.Eth Marginly1 Aave EtherFi executeProtocolAction.BatchDeposit 1`] = `645123`;
+exports[`Vault.Eth Marginly1 Aave EtherFi executeProtocolAction.BatchDeposit 1`] = `645255`;
 
-exports[`Vault.Eth Marginly1 Aave EtherFi userDeposit 1`] = `256395`;
+exports[`Vault.Eth Marginly1 Aave EtherFi userDeposit 1`] = `256595`;
 
-exports[`Vault.Eth Marginly1 Aave EtherFi userDeposit empty vault 1`] = `219847`;
+exports[`Vault.Eth Marginly1 Aave EtherFi userDeposit empty vault 1`] = `220047`;
 
-exports[`Vault.Eth Marginly1 Aave EtherFi userWithdraw 1`] = `302351`;
+exports[`Vault.Eth Marginly1 Aave EtherFi userWithdraw 1`] = `302749`;
