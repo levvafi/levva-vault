@@ -54,6 +54,23 @@ function initDeploymentStore(network: string, dryRun: boolean, logger: SimpleLog
   ).createDeploymentStore();
 }
 
+export async function makeDeployContractRegistry(
+  signer: Signer,
+  config: DeployConfig,
+  network: string,
+  dryRun: boolean,
+  hre: HardhatRuntimeEnvironment
+) {
+  const logger = new SimpleLogger((x) => console.error(x));
+  const stateStore = initStateStore(network, dryRun, logger);
+  const deploymentStore = initDeploymentStore(network, dryRun, logger);
+
+  const contractRegistry = await deployContractRegistry(signer, hre, stateStore, deploymentStore);
+
+  console.log(`State file: \n${stateStore.stringify()}`);
+  console.log(`Deployment file: \n${deploymentStore.stringify()}`);
+}
+
 export async function makeDeploy(
   signer: Signer,
   config: DeployConfig,
