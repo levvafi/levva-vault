@@ -39,6 +39,7 @@ async function deployVaultWithAaveAdapter() {
     ],
     {
       initializer: 'initialize',
+      redeployImplementation: 'always', // only for tests
     }
   )) as any as ConfigManager;
 
@@ -53,6 +54,7 @@ async function deployVaultWithAaveAdapter() {
     {
       initializer: 'initialize',
       unsafeAllow: ['delegatecall'],
+      redeployImplementation: 'always', // only for tests
     }
   )) as any as Vault;
 

@@ -69,6 +69,7 @@ async function deployVaultWithMarginlyAdapter() {
     ],
     {
       initializer: 'initialize',
+      redeployImplementation: 'always', // only for tests
     }
   )) as any as ConfigManager;
 
@@ -83,6 +84,7 @@ async function deployVaultWithMarginlyAdapter() {
     {
       initializer: 'initialize',
       unsafeAllow: ['delegatecall'],
+      redeployImplementation: 'always', // only for tests
     }
   )) as any as Vault;
 
