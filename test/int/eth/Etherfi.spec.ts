@@ -63,6 +63,7 @@ async function deployVaultWithEtherfiAdapter() {
     ],
     {
       initializer: 'initialize',
+      redeployImplementation: 'always', // only for tests
     }
   )) as any as ConfigManager;
 
@@ -77,6 +78,7 @@ async function deployVaultWithEtherfiAdapter() {
     {
       initializer: 'initialize',
       unsafeAllow: ['delegatecall'],
+      redeployImplementation: 'always', // only for tests
     }
   )) as any as Vault;
 
