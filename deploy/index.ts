@@ -1,4 +1,15 @@
-import { BytesLike, formatUnits, parseUnits, Signer, TransactionResponse, ZeroAddress } from 'ethers';
+import {
+  BytesLike,
+  Contract,
+  ContractTransactionReceipt,
+  formatEther,
+  formatUnits,
+  parseUnits,
+  Signer,
+  TransactionReceipt,
+  TransactionResponse,
+  ZeroAddress,
+} from 'ethers';
 import { DeployConfig, UpgradeConfig, VaultConfig, TokenConfig } from './config';
 import {
   Vault__factory,
@@ -672,10 +683,10 @@ async function registerInContractRegistry(
   contractRegistry: ContractRegistry,
   registerArgs: RegisterContractArgs
 ) {
-  await contractRegistry
+  const tx = await contractRegistry
     .connect(signer)
     .registerContract(registerArgs.contractType, registerArgs.contractAddress, registerArgs.data);
-
+  await tx.wait();
   console.log(`Contract ${registerArgs.contractAddress} registered in registry`);
 }
 

@@ -3,6 +3,7 @@ import { parseEther, formatEther, Signer } from 'ethers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { loadDeployConfig } from '../deploy/config';
 import { makeDeploy, makeDeployContractRegistry } from '../deploy/index';
+import { showGasUsed } from '../deploy/utils';
 import { ethers } from '@nomiclabs/hardhat-ethers'; //do not remove this import
 
 interface DeployArgs {
@@ -33,6 +34,7 @@ task('task:deploy', 'Deploy vaults')
     }
 
     const provider = hre.ethers.provider;
+    const startBlockNumber = await provider.getBlockNumber();
 
     let signer: Signer;
     if (taskArgs.isPrivateKey) {
@@ -64,6 +66,14 @@ task('task:deploy', 'Deploy vaults')
     console.log(`Balance after: ${formatEther(balanceAfter)} Eth`);
 
     console.log(`Spent for deploy: ${formatEther(balanceBefore - balanceAfter)} Eth`);
+    if (dryRun) {
+      const currentBlockNumber = await provider.getBlockNumber();
+      // skip first two blocks
+      // first block - current block of fork
+      // second block - funding deployer account
+      await showGasUsed(hre, startBlockNumber + 2, currentBlockNumber);
+    }
+
     console.log(`Done!`);
   });
 
