@@ -1,0 +1,9 @@
+{
+  "contractRegistry": {
+    "address": "0x8Dbc09C0BD6D99AF01B8254432A13E6FF1b214Bd"
+  },
+  "configManager": {
+    "address": "0x9b3FaC455C34B45b8fEbfE844391bFB06849F03F",
+    "implementation": "0xb88600ae5AC91486B13b2EF20bBf2378c3D35D64"
+  }
+}

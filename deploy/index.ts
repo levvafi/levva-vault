@@ -246,7 +246,7 @@ async function getContractAddress(contractCreationTxOrAddress: string | Transact
 
 async function getTxOverrides(hre: HardhatRuntimeEnvironment) {
   const blockNumber = await hre.ethers.provider.provider.getBlockNumber();
-  const maxFeePerGas = (await hre.ethers.provider.getBlock(blockNumber))!.baseFeePerGas! * 10n;
+  const maxFeePerGas = ((await hre.ethers.provider.getBlock(blockNumber))!.baseFeePerGas! * 130n) / 100n;
   return { maxFeePerGas, maxPriorityFeePerGas: maxFeePerGas };
 }
 
