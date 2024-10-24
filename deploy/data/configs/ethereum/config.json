@@ -51,10 +51,15 @@
             "tokenId": "wbtc",
             "lpName": "Levva LP WBTC 1",
             "lpSymbol": "lvvaWBTC-1",
-            "marginlyPools": [],
+            "marginlyPools": [
+                "0x3D6f0097FA10f2e3855377daF2139dBeD66Fb343",
+                "0x056888DD4B31cA090E2FC7ca87AF62B588dD8207",
+                "0xEe368c5014D218795F76DcDA58e8FD24D04E19Ff",
+                "0xB95b9f7763de009a4E6c739855faCDfA960eB893"
+            ],
             "minDeposit": "0",
-            "technicalPositionDeposit": "0",
-            "description": ""
+            "technicalPositionDeposit": "0.0001",
+            "description": "pt-cornlbtc-26dec2024/wbtc, pt-corn-unibtc-26dec2024/wbtc, pt-corn-pumpbtc-26dec2024/wbtc, pt-lbtc-27mar2025/wbtc"
         },
         {
             "id": "weth-1",
@@ -63,17 +68,7 @@
             "lpSymbol": "lvvaWETH-1",
             "marginlyPools": [],
             "minDeposit": "0",
-            "technicalPositionDeposit": "0",
-            "description": ""
-        },
-        {
-            "id": "usdc-1",
-            "tokenId": "usdc",
-            "lpName": "Levva LP USDC 1",
-            "lpSymbol": "levvaUSDC-1",
-            "marginlyPools": [],
-            "minDeposit": "0",
-            "technicalPositionDeposit": "0",
+            "technicalPositionDeposit": "0.003",
             "description": ""
         }
     ]
