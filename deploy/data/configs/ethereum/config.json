@@ -55,7 +55,8 @@
                 "0x3D6f0097FA10f2e3855377daF2139dBeD66Fb343",
                 "0x056888DD4B31cA090E2FC7ca87AF62B588dD8207",
                 "0xEe368c5014D218795F76DcDA58e8FD24D04E19Ff",
-                "0xB95b9f7763de009a4E6c739855faCDfA960eB893"
+                "0xB95b9f7763de009a4E6c739855faCDfA960eB893",
+                "0x8A171afA8Db2a01E8b280c12db0F5bc2EEEcdc10"
             ],
             "minDeposit": "0",
             "technicalPositionDeposit": "0.0001",
@@ -66,10 +67,31 @@
             "tokenId": "weth",
             "lpName": "Levva LP WETH 1",
             "lpSymbol": "lvvaWETH-1",
-            "marginlyPools": [],
+            "marginlyPools": [
+                "0x49D7712f65B291E4574726d6e263a4E6Af2830F0",
+                "0xaE2e6412d5c47e23c55c87e65cb2721Fa799Cb96",
+                "0xa692B4fb38f8e9aEA229DA05CC2FC9d748218CD3",
+                "0xa77C2275C1F403056c7F73B44df69E374C299dd7"
+            ],
             "minDeposit": "0",
             "technicalPositionDeposit": "0.003",
-            "description": ""
+            "description": "pt-rseth-26dec2024/weth, pt-weeths-26dec2024/weth, pt-pufeth-26dec2024/weth, pt-weeth-26dec2024/weth,"
+        },
+        {
+            "id": "weth-2",
+            "tokenId": "weth",
+            "lpName": "Levva LP WETH 2",
+            "lpSymbol": "lvvaWETH-2",
+            "marginlyPools": [
+                "0xd136839D9978CAa3780a5D7a19a0322f3618A49D",
+                "0x4819C556E87aDf28dB19e850480886F62D37f46A",
+                "0xef2424e938E48F92b77AB193a5AA669D90B1ebc1",
+                "0x4727835Ee3AdBb9b69eebc13b5d4e36943e2eEC5",
+                "0x51b5D4a7c58bE1d131D7BD027B5713e55efa0606"
+            ],
+            "minDeposit": "0",
+            "technicalPositionDeposit": "0.003",
+            "description": "ezeth-weth, weeth-weth, rseth-weth, unieth-weth, pufeth-weth"
         }
     ]
   }

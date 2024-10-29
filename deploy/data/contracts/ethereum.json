@@ -22,5 +22,9 @@
   "vault-weth-1": {
     "address": "0x7b8Ef421D69341cC04A926EF00d27f9d7dBe0b3F",
     "implementation": "0x89E0e6535F1582bff372305521FD43510634Fe95"
+  },
+  "vault-weth-2": {
+    "address": "0x2e894952809C3D48937fA1FFc689953358E1e1b0",
+    "implementation": "0x89E0e6535F1582bff372305521FD43510634Fe95"
   }
 }

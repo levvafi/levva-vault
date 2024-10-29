@@ -36,6 +36,13 @@
     },
     "vault-weth-1-impl": {
       "address": "0x89E0e6535F1582bff372305521FD43510634Fe95"
+    },
+    "vault-weth-2-proxy": {
+      "address": "0x2e894952809C3D48937fA1FFc689953358E1e1b0",
+      "txHash": "0x14a0995f270b7628cc150b6d7ff84cb668fee9160e9da9abdbe7603f84427ad0"
+    },
+    "vault-weth-2-impl": {
+      "address": "0x89E0e6535F1582bff372305521FD43510634Fe95"
     }
   }
 }
