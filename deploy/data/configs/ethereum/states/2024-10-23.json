@@ -1,0 +1,48 @@
+{
+  "contracts": {
+    "contractRegistry": {
+      "address": "0x8Dbc09C0BD6D99AF01B8254432A13E6FF1b214Bd",
+      "txHash": "0xcaaebd508094ab6de35f29e8f5d4cb2f8a9bf5277bb13b8e98fbdeae50360822"
+    },
+    "configManager-proxy": {
+      "address": "0x9b3FaC455C34B45b8fEbfE844391bFB06849F03F",
+      "txHash": "0x7a942efb3a878c70784272feb497b1d51791ab9b119024f2f378f0bd78fd3cbf"
+    },
+    "configManager-impl": {
+      "address": "0xb88600ae5AC91486B13b2EF20bBf2378c3D35D64"
+    },
+    "marginlyAdapter": {
+      "address": "0x3431Bf32a9B2be58D6ba80b23E2229426d29eF3C",
+      "txHash": "0xaed7f318eb0911aa1688ac1fde93107efd875f6bf0dac3c89671ad2e693f2327"
+    },
+    "aaveAdapter": {
+      "address": "0xd2Ae798a23825CF450018F93B5E03fa73900CdC2",
+      "txHash": "0x3c8a3e82b2e6d4fd9518d17e85678948662f39101affc142cb067aa2b9db960b"
+    },
+    "etherFiAdapter": {
+      "address": "0x0901a0E1592d9CaEcDc1d10A687520d7e0D054BC",
+      "txHash": "0x85a106c358b9dbb57cc8c5108d2a9baa9797bdf49a02597680dac3b7b777b72b"
+    },
+    "vault-wbtc-1-proxy": {
+      "address": "0xe8632C0BA276B245988885A37E3B1A3CeeD0D469",
+      "txHash": "0xd029e8a85cb8c73aa404566d86aade7542b74d9de23f75e4d1ee59dab1fba0a6"
+    },
+    "vault-wbtc-1-impl": {
+      "address": "0x89E0e6535F1582bff372305521FD43510634Fe95"
+    },
+    "vault-weth-1-proxy": {
+      "address": "0x7b8Ef421D69341cC04A926EF00d27f9d7dBe0b3F",
+      "txHash": "0xc51facfbbf858c535f41c47b6659433b7c3e20805a7f4c4de574dfadc9557063"
+    },
+    "vault-weth-1-impl": {
+      "address": "0x89E0e6535F1582bff372305521FD43510634Fe95"
+    },
+    "vault-weth-2-proxy": {
+      "address": "0x2e894952809C3D48937fA1FFc689953358E1e1b0",
+      "txHash": "0x14a0995f270b7628cc150b6d7ff84cb668fee9160e9da9abdbe7603f84427ad0"
+    },
+    "vault-weth-2-impl": {
+      "address": "0x89E0e6535F1582bff372305521FD43510634Fe95"
+    }
+  }
+}

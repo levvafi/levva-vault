@@ -1,4 +1,15 @@
-import { BytesLike, formatUnits, parseUnits, Signer, TransactionResponse, ZeroAddress } from 'ethers';
+import {
+  BytesLike,
+  Contract,
+  ContractTransactionReceipt,
+  formatEther,
+  formatUnits,
+  parseUnits,
+  Signer,
+  TransactionReceipt,
+  TransactionResponse,
+  ZeroAddress,
+} from 'ethers';
 import { DeployConfig, UpgradeConfig, VaultConfig, TokenConfig } from './config';
 import {
   Vault__factory,
@@ -52,6 +63,23 @@ function initDeploymentStore(network: string, dryRun: boolean, logger: SimpleLog
     !dryRun,
     logger
   ).createDeploymentStore();
+}
+
+export async function makeDeployContractRegistry(
+  signer: Signer,
+  config: DeployConfig,
+  network: string,
+  dryRun: boolean,
+  hre: HardhatRuntimeEnvironment
+) {
+  const logger = new SimpleLogger((x) => console.error(x));
+  const stateStore = initStateStore(network, dryRun, logger);
+  const deploymentStore = initDeploymentStore(network, dryRun, logger);
+
+  const contractRegistry = await deployContractRegistry(signer, hre, stateStore, deploymentStore);
+
+  console.log(`State file: \n${stateStore.stringify()}`);
+  console.log(`Deployment file: \n${deploymentStore.stringify()}`);
 }
 
 export async function makeDeploy(
@@ -229,7 +257,7 @@ async function getContractAddress(contractCreationTxOrAddress: string | Transact
 
 async function getTxOverrides(hre: HardhatRuntimeEnvironment) {
   const blockNumber = await hre.ethers.provider.provider.getBlockNumber();
-  const maxFeePerGas = (await hre.ethers.provider.getBlock(blockNumber))!.baseFeePerGas! * 10n;
+  const maxFeePerGas = ((await hre.ethers.provider.getBlock(blockNumber))!.baseFeePerGas! * 130n) / 100n;
   return { maxFeePerGas, maxPriorityFeePerGas: maxFeePerGas };
 }
 
@@ -655,10 +683,10 @@ async function registerInContractRegistry(
   contractRegistry: ContractRegistry,
   registerArgs: RegisterContractArgs
 ) {
-  await contractRegistry
+  const tx = await contractRegistry
     .connect(signer)
     .registerContract(registerArgs.contractType, registerArgs.contractAddress, registerArgs.data);
-
+  await tx.wait();
   console.log(`Contract ${registerArgs.contractAddress} registered in registry`);
 }
 
