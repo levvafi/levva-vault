@@ -10,7 +10,7 @@ import {
   TransactionResponse,
   ZeroAddress,
 } from 'ethers';
-import { DeployConfig, UpgradeConfig, VaultConfig, TokenConfig } from './config';
+import { DeployConfig, UpgradeConfig, VaultConfig, TokenConfig, AdapterType } from './config';
 import {
   Vault__factory,
   Vault,
@@ -41,6 +41,7 @@ enum ProtocolType {
 }
 
 type AdapterAddress = {
+  type: AdapterType;
   protocolType: ProtocolType;
   adapterImpl: string;
 };
@@ -334,7 +335,7 @@ async function deployAdapters(
     switch (adapter.type) {
       case 'aave':
         const aaveAdapter = await deployAaveAdapter(signer, config, hre, stateStore, deploymentStore, configManager);
-        adapters.push({ protocolType: ProtocolType.Aave, adapterImpl: await aaveAdapter.getAddress() });
+        adapters.push({ type: 'aave', protocolType: ProtocolType.Aave, adapterImpl: await aaveAdapter.getAddress() });
         break;
       case 'marginly':
         const marginlyAdapter = await deployMarginlyAdapter(
@@ -345,7 +346,11 @@ async function deployAdapters(
           deploymentStore,
           configManager
         );
-        adapters.push({ protocolType: ProtocolType.Marginly, adapterImpl: await marginlyAdapter.getAddress() });
+        adapters.push({
+          type: 'marginly',
+          protocolType: ProtocolType.Marginly,
+          adapterImpl: await marginlyAdapter.getAddress(),
+        });
         break;
       case 'etherfi':
         const etherfiAdapter = await deployEtherfiAdapter(
@@ -356,7 +361,11 @@ async function deployAdapters(
           deploymentStore,
           configManager
         );
-        adapters.push({ protocolType: ProtocolType.Etherfi, adapterImpl: await etherfiAdapter.getAddress() });
+        adapters.push({
+          type: 'etherfi',
+          protocolType: ProtocolType.Etherfi,
+          adapterImpl: await etherfiAdapter.getAddress(),
+        });
         break;
       default:
         throw new Error(`Unknown adapter type: ${adapter.type}`);
@@ -592,7 +601,12 @@ async function deployVaults(
       }
     }
 
-    for (const adapterInfo of adapters) {
+    for (const adapterType of vaultConfig.adapters) {
+      const adapterInfo = adapters.find((x) => x.type === adapterType);
+      if (!adapterInfo) {
+        throw new Error(`Adapter not found by type: ${adapterType}`);
+      }
+
       const lendingAdapter = await vault.getLendingAdapter(adapterInfo.protocolType);
       if (lendingAdapter !== adapterInfo.adapterImpl) {
         const tx = await vault.connect(signer).addLendingAdapter(adapterInfo.protocolType, adapterInfo.adapterImpl);
@@ -701,6 +715,12 @@ async function technicalPositionDeposit(
     const symbol = underlyingTokenConfig.assertSymbol;
     const amountToDeposit = parseUnits(vaultConfig.technicalPositionDeposit, decimals);
 
+    const totalSupply = await vault.totalSupply();
+    if (totalSupply > 0n || amountToDeposit <= 0n) {
+      console.log(`Technical position deposit into vault ${vaultConfig.id} skipped. Total supply ${totalSupply}`);
+      return;
+    }
+
     const underlyingToken = ERC20__factory.connect(underlyingTokenConfig.address, signer);
     const signerBalance = await underlyingToken.balanceOf(signer);
     if (signerBalance < amountToDeposit) {
@@ -709,20 +729,16 @@ async function technicalPositionDeposit(
       );
     }
 
-    const totalSupply = await vault.totalSupply();
-    if (totalSupply == 0n && amountToDeposit > 0n) {
-      console.log(`\nTechnical position deposit into vault ${vaultConfig.id}`);
+    console.log(`\nTechnical position deposit into vault ${vaultConfig.id}`);
 
-      let tx = await underlyingToken.approve(vault.getAddress(), amountToDeposit);
-      await tx.wait();
+    let tx = await underlyingToken.approve(vault.getAddress(), amountToDeposit);
+    await tx.wait();
+    console.log('Approved spending');
 
-      tx = await vault.connect(signer).deposit(amountToDeposit, signer);
-      await tx.wait();
+    tx = await vault.connect(signer).deposit(amountToDeposit, signer);
+    await tx.wait();
 
-      console.log(`Technical position deposit ${formatUnits(amountToDeposit, decimals)} ${symbol} done`);
-    } else {
-      console.log(`Technical position deposit into vault ${vaultConfig.id} skipped`);
-    }
+    console.log(`Technical position deposit ${formatUnits(amountToDeposit, decimals)} ${symbol} done`);
   } catch (e) {
     console.log(`Technical position deposit into vault ${vaultConfig.id} failed:\n ${e}`);
   }

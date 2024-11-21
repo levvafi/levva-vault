@@ -38,10 +38,13 @@ export interface VaultConfig {
   marginlyPools: string[];
   minDeposit: string; // min deposit, human like, e.g. "0.001"
   technicalPositionDeposit: string; // technical position deposit, human like, e.g. "0.001"
+  adapters: AdapterType[]; // vault connected adapters
 }
 
+export type AdapterType = 'marginly' | 'aave' | 'etherfi';
+
 export interface AdapterConfig {
-  type: 'marginly' | 'aave' | 'etherfi';
+  type: AdapterType;
 }
 
 export function isMarginlyAdapter(adapter: AdapterConfig): adapter is AdapterConfig {

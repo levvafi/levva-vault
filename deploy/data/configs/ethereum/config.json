@@ -23,6 +23,18 @@
             "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
             "assertSymbol": "USDC",
             "assertDecimals": "6"
+        },
+        {
+            "id": "ebtc",
+            "address": "0x657e8C867D8B37dCC18fA4Caead9C45EB088C642",
+            "assertSymbol": "eBTC",
+            "assertDecimals": "8"
+        },
+        {
+            "id": "lbtc",
+            "address": "0x8236a87084f8B84306f72007F36F2618A5634494",
+            "assertSymbol": "LBTC",
+            "assertDecimals": "8"
         }
     ],
 
@@ -51,6 +63,10 @@
             "tokenId": "wbtc",
             "lpName": "Levva LP WBTC 1",
             "lpSymbol": "lvvaWBTC-1",
+            "adapters":[
+                "marginly",
+                "aave"
+            ],
             "marginlyPools": [
                 "0x3D6f0097FA10f2e3855377daF2139dBeD66Fb343",
                 "0x056888DD4B31cA090E2FC7ca87AF62B588dD8207",
@@ -67,6 +83,11 @@
             "tokenId": "weth",
             "lpName": "Levva LP WETH 1",
             "lpSymbol": "lvvaWETH-1",
+            "adapters":[
+                "marginly",
+                "aave",
+                "etherfi"
+            ],
             "marginlyPools": [
                 "0x49D7712f65B291E4574726d6e263a4E6Af2830F0",
                 "0xaE2e6412d5c47e23c55c87e65cb2721Fa799Cb96",
@@ -82,6 +103,11 @@
             "tokenId": "weth",
             "lpName": "Levva LP WETH 2",
             "lpSymbol": "lvvaWETH-2",
+            "adapters":[
+                "marginly",
+                "aave",
+                "etherfi"
+            ],
             "marginlyPools": [
                 "0xd136839D9978CAa3780a5D7a19a0322f3618A49D",
                 "0x4819C556E87aDf28dB19e850480886F62D37f46A",
@@ -92,6 +118,36 @@
             "minDeposit": "0",
             "technicalPositionDeposit": "0.003",
             "description": "ezeth-weth, weeth-weth, rseth-weth, unieth-weth, pufeth-weth"
+        },
+        {
+            "id": "ebtc-1",
+            "tokenId": "ebtc",
+            "lpName": "Levva LP eBTC 1",
+            "lpSymbol": "lvvaEBTC-1",
+            "adapters":[
+                "marginly"
+            ],
+            "marginlyPools": [
+                "0x2F06faF2A2EEFfBd44a796b8c6d2D04841c6488C"
+            ],
+            "minDeposit": "0",
+            "technicalPositionDeposit": "0.00014",
+            "description": "pt-ebtc-26dec2024/ebtc"
+        },
+        {
+            "id": "lbtc-1",
+            "tokenId": "lbtc",
+            "lpName": "Levva LP LBTC 1",
+            "lpSymbol": "lvvaLBTC-1",
+            "adapters":[
+                "marginly"
+            ],
+            "marginlyPools": [
+                "0x32d850609FDc950bF6E23640d1EB0bbd60a5149c"
+            ],
+            "minDeposit": "0",
+            "technicalPositionDeposit": "0.00009",
+            "description": "pt-lbtc-26dec2024/lbtc"
         }
     ]
   }

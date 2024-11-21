@@ -43,6 +43,20 @@
     },
     "vault-weth-2-impl": {
       "address": "0x89E0e6535F1582bff372305521FD43510634Fe95"
+    },
+    "vault-ebtc-1-proxy": {
+      "address": "0xe1942DCf28E11D2335F471D1Df88A4CFc8b43A0e",
+      "txHash": "0x055d4f647dff4f4177c3076491082cb0622bd7f6af1794fc8b430ba1ccc8741d"
+    },
+    "vault-ebtc-1-impl": {
+      "address": "0x89E0e6535F1582bff372305521FD43510634Fe95"
+    },
+    "vault-lbtc-1-proxy": {
+      "address": "0xd8F7bD3b76B07a1141B933286f1F2EaeC84bdAea",
+      "txHash": "0xbf934a1356bb6492316dd35e5910cc6703d85df5fe80bce764769120043f36d6"
+    },
+    "vault-lbtc-1-impl": {
+      "address": "0x89E0e6535F1582bff372305521FD43510634Fe95"
     }
   }
 }
