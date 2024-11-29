@@ -15,5 +15,8 @@
   "vault-usdc": {
     "address": "0xebE17dd44AFf684FFBEe600734C144169843544c",
     "implementation": "0xb0d984924868C3D3C24C87BaeBb476486ff6F748"
+  },
+  "timelock": {
+    "address": "0x8Dbc09C0BD6D99AF01B8254432A13E6FF1b214Bd"
   }
 }

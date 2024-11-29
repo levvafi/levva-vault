@@ -34,5 +34,8 @@
   "vault-lbtc-1": {
     "address": "0xd8F7bD3b76B07a1141B933286f1F2EaeC84bdAea",
     "implementation": "0x89E0e6535F1582bff372305521FD43510634Fe95"
+  },
+  "timelock": {
+    "address": "0xCF515e7cB2a636CDe81D63A37F2433100cbf982C"
   }
 }

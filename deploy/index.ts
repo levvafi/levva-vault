@@ -10,7 +10,7 @@ import {
   TransactionResponse,
   ZeroAddress,
 } from 'ethers';
-import { DeployConfig, UpgradeConfig, VaultConfig, TokenConfig, AdapterType } from './config';
+import { DeployConfig, UpgradeConfig, VaultConfig, TokenConfig, AdapterType, TimelockConfig } from './config';
 import {
   Vault__factory,
   Vault,
@@ -25,6 +25,8 @@ import {
   ContractRegistry,
   ContractRegistry__factory,
   ERC20__factory,
+  TimelockWhitelist,
+  TimelockWhitelist__factory,
 } from '../typechain-types';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { createDefaultBaseState, DeployState, StateFile, StateStore } from './state-store';
@@ -33,6 +35,7 @@ import fs from 'fs';
 import path from 'path';
 import { createDefaultBaseDeployment, DeploymentFile, DeploymentState, DeploymentStore } from './deployment-store';
 import '@openzeppelin/hardhat-upgrades';
+import { delay } from './utils';
 
 enum ProtocolType {
   Marginly = 0, //0
@@ -78,6 +81,23 @@ export async function makeDeployContractRegistry(
   const deploymentStore = initDeploymentStore(network, dryRun, logger);
 
   const contractRegistry = await deployContractRegistry(signer, hre, stateStore, deploymentStore);
+
+  console.log(`State file: \n${stateStore.stringify()}`);
+  console.log(`Deployment file: \n${deploymentStore.stringify()}`);
+}
+
+export async function makeDeployTimelock(
+  signer: Signer,
+  config: TimelockConfig,
+  network: string,
+  dryRun: boolean,
+  hre: HardhatRuntimeEnvironment
+) {
+  const logger = new SimpleLogger((x) => console.error(x));
+  const stateStore = initStateStore(network, dryRun, logger);
+  const deploymentStore = initDeploymentStore(network, dryRun, logger);
+
+  await deployTimelock(signer, hre, stateStore, deploymentStore, config);
 
   console.log(`State file: \n${stateStore.stringify()}`);
   console.log(`Deployment file: \n${deploymentStore.stringify()}`);
@@ -669,10 +689,68 @@ async function deployContractRegistry(
   return contract;
 }
 
-async function verifyContract(hre: HardhatRuntimeEnvironment, address: string, constructorArguments: any[]) {
+async function deployTimelock(
+  signer: Signer,
+  hre: HardhatRuntimeEnvironment,
+  stateStore: StateStore,
+  deploymentStore: DeploymentStore,
+  config: TimelockConfig
+) {
+  console.log(`Deploy Timelock.`);
+
+  const contractId = 'timelock';
+  const txOverrides = await getTxOverrides(hre);
+
+  const state = stateStore.getById(contractId);
+  let contractAddress: string;
+  let contract: TimelockWhitelist;
+  if (state !== undefined) {
+    console.log(`ContractRegistry already deployed. Skip.`);
+    contractAddress = state.address;
+    contract = TimelockWhitelist__factory.connect(contractAddress, signer);
+  } else {
+    contract = (await new TimelockWhitelist__factory()
+      .connect(signer)
+      .deploy(
+        0,
+        config.proposers,
+        config.executors,
+        hre.ethers.ZeroAddress,
+        config.whitelistedTargets,
+        config.whitelistedMethods,
+        txOverrides
+      )) as unknown as TimelockWhitelist;
+
+    await contract.waitForDeployment();
+    contractAddress = await contract.getAddress();
+
+    const txHash = contract.deploymentTransaction()?.hash;
+
+    stateStore.setById(contractId, <DeployState>{ address: contractAddress, txHash });
+    deploymentStore.setById(contractId, <DeploymentState>{ address: contractAddress });
+
+    await verifyContract(hre, contractAddress, [
+      0,
+      config.proposers,
+      config.executors,
+      hre.ethers.ZeroAddress,
+      config.whitelistedTargets,
+      config.whitelistedMethods,
+    ]);
+
+    console.log(`Timelock deployed: ${contractAddress}, txHash: ${txHash}`);
+  }
+
+  console.log(`\n`);
+
+  return contract;
+}
+
+export async function verifyContract(hre: HardhatRuntimeEnvironment, address: string, constructorArguments: any[]) {
   const isDryRun = hre.config.networks.hardhat.forking !== undefined;
   if (!isDryRun) {
     console.log(`Verify contract ${address} with constructor arguments: ${constructorArguments}`);
+    await delay(12_000); //wait 12 seconds
 
     try {
       await hre.run('verify:verify', {
