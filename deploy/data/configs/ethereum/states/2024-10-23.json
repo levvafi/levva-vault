@@ -57,6 +57,13 @@
     },
     "vault-lbtc-1-impl": {
       "address": "0x89E0e6535F1582bff372305521FD43510634Fe95"
+    },
+    "vault-weeth-1-proxy": {
+      "address": "0x60837bCAf0d157EdE629AC4b5f6639F45Db0aa2e",
+      "txHash": "0x0e2fe3300fba2958c932cd9dff57154baaaed872ec7b0be4ee3c25a5734d84ce"
+    },
+    "vault-weeth-1-impl": {
+      "address": "0x89E0e6535F1582bff372305521FD43510634Fe95"
     }
   }
 }

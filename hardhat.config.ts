@@ -8,7 +8,7 @@ const config = {
   ...defaultConfig.default,
   networks: {
     ethereum: {
-      url: 'https://rpc.ankr.com/eth',
+      url: 'https://ethereum-rpc.publicnode.com',
     },
     arbitrum: {
       url: 'https://arb1.arbitrum.io/rpc',
