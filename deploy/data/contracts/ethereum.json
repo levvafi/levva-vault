@@ -37,5 +37,9 @@
   },
   "timelock": {
     "address": "0xCF515e7cB2a636CDe81D63A37F2433100cbf982C"
+  },
+  "vault-weeth-1": {
+    "address": "0x60837bCAf0d157EdE629AC4b5f6639F45Db0aa2e",
+    "implementation": "0x89E0e6535F1582bff372305521FD43510634Fe95"
   }
 }

@@ -35,6 +35,12 @@
             "address": "0x8236a87084f8B84306f72007F36F2618A5634494",
             "assertSymbol": "LBTC",
             "assertDecimals": "8"
+        },
+        {
+            "id": "weeth",
+            "address": "0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee",
+            "assertSymbol": "weETH",
+            "assertDecimals": 18
         }
     ],
 
@@ -148,6 +154,21 @@
             "minDeposit": "0",
             "technicalPositionDeposit": "0.00009",
             "description": "pt-lbtc-26dec2024/lbtc"
+        },
+        {
+            "id": "weeth-1",
+            "tokenId": "weeth",
+            "lpName": "Levva LP weETH 1",
+            "lpSymbol": "lvvaWEETH-1",
+            "adapters":[
+                "marginly"
+            ],
+            "marginlyPools": [
+                "0xE1B77a8B19b23229e9d1774027a5EC06f84D460B"
+            ],
+            "minDeposit": "0",
+            "technicalPositionDeposit": "0.001",
+            "description": "pt-weeth-26dec2024/weeth"
         }
     ]
   }
