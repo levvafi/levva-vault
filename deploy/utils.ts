@@ -17,3 +17,7 @@ export async function showGasUsed(hre: HardhatRuntimeEnvironment, fromBlock: num
     console.log(`   ${gasPriceInGwei} Gwei => ${formatEther(totalGasUsed * gasPrice)} Eth`);
   }
 }
+
+export function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}

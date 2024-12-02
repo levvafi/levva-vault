@@ -25,6 +25,10 @@
     },
     "vault-usdc-impl": {
       "address": "0xb0d984924868C3D3C24C87BaeBb476486ff6F748"
+    },
+    "timelock": {
+      "address": "0x8Dbc09C0BD6D99AF01B8254432A13E6FF1b214Bd",
+      "txHash": "0xc4ccba0f82ac63c7af50d8988f3f9438e9331b6a4fba32bbccef02bc3d2daefc"
     }
   }
 }

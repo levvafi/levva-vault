@@ -41,6 +41,13 @@ export interface VaultConfig {
   adapters: AdapterType[]; // vault connected adapters
 }
 
+export interface TimelockConfig {
+  proposers: string[];
+  executors: string[];
+  whitelistedTargets: string[];
+  whitelistedMethods: string[];
+}
+
 export type AdapterType = 'marginly' | 'aave' | 'etherfi';
 
 export interface AdapterConfig {
