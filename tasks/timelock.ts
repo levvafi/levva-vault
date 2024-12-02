@@ -1,7 +1,7 @@
 import { task } from 'hardhat/config';
 import { ethers } from 'ethers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import { Ownable2Step__factory, TimelockWhitelist__factory } from '../typechain-types';
+import { Ownable2Step__factory, TimelockWhitelist__factory, Vault__factory } from '../typechain-types';
 
 interface DeployArgs {
   signer: string;
@@ -61,7 +61,7 @@ task('timelock-execute', 'Timelock schedule and execute operation')
     const provider = hre.ethers.provider;
     const signer = new hre.ethers.Wallet(taskArgs.signer, provider);
 
-    const timelockAddress = '0xc71968f413bF7EDa0d11629e0Cedca0831967cD3';
+    const timelockAddress = '0xCF515e7cB2a636CDe81D63A37F2433100cbf982C';
     const timelock = TimelockWhitelist__factory.connect(timelockAddress, signer);
 
     const predecessor = ethers.ZeroHash;
@@ -70,6 +70,69 @@ task('timelock-execute', 'Timelock schedule and execute operation')
     // Timelock execute
     const target = ''; // target address pool
     const callData = ''; // calldata address
+    const method = callData.slice(0, 10);
+    const delay = await timelock.getMinDelay();
+
+    const operationId = await timelock.hashOperation(target, 0n, callData, predecessor, salt);
+
+    if (await timelock.isWhitelisted(target, method)) {
+      console.log('Whitelisted method. Execute operation immediately');
+
+      await (await timelock.execute(target, 0n, callData, predecessor, salt)).wait();
+    } else if (!(await timelock.isOperation(operationId))) {
+      console.log('Operation not existed. Schedule operation');
+
+      await (await timelock.schedule(target, 0n, callData, predecessor, salt, delay)).wait();
+    } else if (await timelock.isOperationDone(operationId)) {
+      console.log('Operation done.');
+    } else if (await timelock.isOperationReady(operationId)) {
+      console.log('Operation ready for execution. Execute operation');
+
+      await (await timelock.execute(target, 0n, callData, predecessor, salt)).wait();
+    } else if (await timelock.isOperationPending(operationId)) {
+      const readyTimestamp = await timelock.getTimestamp(operationId);
+      console.log('Operation pending. Ready at ', new Date(Number(readyTimestamp) * 1000));
+    }
+  });
+
+//npx hardhat --network holesky --config hardhat.config.ts timelock-whitelist-vault --signer <private-key>
+task('timelock-whitelist-vault', 'Timelock schedule and execute operation')
+  .addParam<string>('signer', 'Private key of contracts creator')
+  .setAction(async (taskArgs: DeployArgs, hre: HardhatRuntimeEnvironment) => {
+    const provider = hre.ethers.provider;
+    const signer = new hre.ethers.Wallet(taskArgs.signer, provider);
+
+    const timelockAddress = '0xCF515e7cB2a636CDe81D63A37F2433100cbf982C';
+    const timelock = TimelockWhitelist__factory.connect(timelockAddress, signer);
+
+    const predecessor = ethers.ZeroHash;
+    const salt = ethers.ZeroHash;
+
+    const vaultInterface = Vault__factory.createInterface();
+    const acceptOwnership = vaultInterface.getFunction('acceptOwnership').selector;
+    const setMinDeposit = vaultInterface.getFunction('setMinDeposit').selector;
+    const addVaultManager = vaultInterface.getFunction('addVaultManager').selector;
+
+    const ownerMethods = [acceptOwnership, setMinDeposit, addVaultManager];
+
+    const vaultAddress = '0x60837bCAf0d157EdE629AC4b5f6639F45Db0aa2e';
+    const whitelisted: [string, string[]][] = [
+      [vaultAddress, ownerMethods], //weETH-1 vault
+    ];
+
+    const whitelistedTargets = whitelisted.flatMap((x) => (<string[]>x[1]).map((_) => x[0]));
+    const whitelistedMethods = whitelisted.flatMap((x) => x[1]);
+    const adds = whitelistedMethods.map((_) => true);
+
+    const whitelistMethodsCallData = timelock.interface.encodeFunctionData('whitelistMethods', [
+      whitelistedTargets,
+      whitelistedMethods,
+      adds,
+    ]);
+
+    // Timelock execute
+    const target = timelockAddress; // target
+    const callData = whitelistMethodsCallData; // calldata address
     const method = callData.slice(0, 10);
     const delay = await timelock.getMinDelay();
 
