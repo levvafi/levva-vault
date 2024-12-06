@@ -11,8 +11,8 @@ import {
   IWeth9__factory,
   Vault,
   Vault__factory,
-  Timelock__factory,
-  Timelock,
+  TimelockWhitelist__factory,
+  TimelockWhitelist,
 } from '../../../typechain-types';
 import { parseEther, parseUnits } from 'ethers';
 import { expect } from 'chai';
@@ -30,7 +30,7 @@ let user: SignerWithAddress;
 let user2: SignerWithAddress;
 let user3: SignerWithAddress;
 let techPositionUser: SignerWithAddress;
-let timelock: Timelock;
+let timelock: TimelockWhitelist;
 
 async function deployVaultWithEtherfiAdapter() {
   [owner, vaultManager, user, user2, user3, techPositionUser] = await ethers.getSigners();
@@ -74,12 +74,14 @@ async function deployVaultWithEtherfiAdapter() {
   const minDelay = 0; // 1000 seconds
   const proposers = [owner.address, user.address, user2.address];
   const executors = [owner.address, user3.address];
-  timelock = (await new Timelock__factory(owner).deploy(
+  timelock = (await new TimelockWhitelist__factory(owner).deploy(
     minDelay,
     proposers,
     executors,
-    owner.address
-  )) as any as Timelock;
+    owner.address,
+    [],
+    []
+  )) as any as TimelockWhitelist;
 }
 
 beforeEach(async () => {
