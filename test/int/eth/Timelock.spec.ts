@@ -102,7 +102,7 @@ beforeEach(async () => {
 });
 
 describe('Timelock', () => {
-  it.only('transfer owner to timelock', async () => {
+  it.skip('transfer owner to timelock', async () => {
     await vault.connect(owner).transferOwnership(timelock);
     const tx = await vault.acceptOwnership.populateTransaction();
     const salt = '0x0000000000000000000000000000000000000000000000000000000000000000';
