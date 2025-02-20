@@ -1,6 +1,9 @@
 import '@nomicfoundation/hardhat-toolbox';
 import './tasks';
 import * as defaultConfig from './hardhat.common';
+import { configDotenv } from 'dotenv';
+
+configDotenv();
 
 const config = {
   ...defaultConfig.default,
@@ -8,7 +11,7 @@ const config = {
     hardhat: {
       forking: {
         enabled: true,
-        url: 'https://rpc.ankr.com/arbitrum',
+        url: process.env.ARBITRUM_RPC_URL,
         blockNumber: 262018580,
       },
       initialBaseFeePerGas: 0,

@@ -3,9 +3,9 @@ import '@openzeppelin/hardhat-upgrades';
 import 'hardhat-contract-sizer';
 import '@nomicfoundation/hardhat-verify';
 
-import { config as dotEnvConfig } from 'dotenv';
+import { configDotenv } from 'dotenv';
 
-dotEnvConfig();
+configDotenv();
 
 export const config = {
   solidity: {

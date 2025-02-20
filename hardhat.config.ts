@@ -3,21 +3,21 @@ import '@openzeppelin/hardhat-upgrades';
 import 'hardhat-contract-sizer';
 import './tasks';
 import * as defaultConfig from './hardhat.common';
+import { configDotenv } from 'dotenv';
+
+configDotenv();
 
 const config = {
   ...defaultConfig.default,
   networks: {
     ethereum: {
-      url: 'https://ethereum-rpc.publicnode.com',
+      url: process.env.ETHEREUM_RPC_URL,
     },
     arbitrum: {
-      url: 'https://arb1.arbitrum.io/rpc',
-    },
-    blast: {
-      url: 'https://rpc.ankr.com/blast',
+      url: process.env.ARBITRUM_RPC_URL,
     },
     holesky: {
-      url: 'https://1rpc.io/holesky',
+      url: process.env.ETH_HOLESKY_RPC_URL,
     },
   },
 };
