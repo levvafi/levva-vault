@@ -11,7 +11,7 @@ export async function showGasUsed(hre: HardhatRuntimeEnvironment, fromBlock: num
   }
   console.log(`Total gas used for deploy ${totalGasUsed}`);
   console.log(` Deployment prices for different gas price:`);
-  const gasPricesInGwei = [4, 8, 15, 25, 40];
+  const gasPricesInGwei = [0.1, 4, 8, 15, 25, 40];
   for (const gasPriceInGwei of gasPricesInGwei) {
     const gasPrice = parseUnits(gasPriceInGwei.toString(), 'gwei');
     console.log(`   ${gasPriceInGwei} Gwei => ${formatEther(totalGasUsed * gasPrice)} Eth`);

@@ -563,6 +563,7 @@ async function deployVaults(
     const state = stateStore.getById(proxyId);
     let vaultAddress: string;
     let vault: Vault;
+    let freshDeployment = false;
     if (state !== undefined) {
       console.log(`Vault ${vaultConfig.id} already deployed. Skip.`);
       vaultAddress = state.address;
@@ -599,6 +600,7 @@ async function deployVaults(
         address: vaultAddress,
         implementation: implementationAddress,
       });
+      freshDeployment = true;
 
       await verifyContract(hre, implementationAddress, []);
       await registerInContractRegistry(signer, contractRegistry, {
@@ -611,13 +613,17 @@ async function deployVaults(
     }
 
     console.log(`Check connected adapters`);
-    for (const marginlyPool of vaultConfig.marginlyPools) {
-      const poolConfig = await configManager.getPoolConfigByAddress(vaultAddress, marginlyPool);
-      if (poolConfig.pool === ZeroAddress) {
-        const tx = await configManager.connect(signer).addMarginlyPool(vaultAddress, marginlyPool);
-        await tx.wait();
+    if (freshDeployment) {
+      // Connect pools for fresh deployment only
 
-        console.log(`MarginlyPool ${marginlyPool} connected to vault ${vaultConfig.id}`);
+      for (const marginlyPool of vaultConfig.marginlyPools) {
+        const poolConfig = await configManager.getPoolConfigByAddress(vaultAddress, marginlyPool);
+        if (poolConfig.pool === ZeroAddress) {
+          const tx = await configManager.connect(signer).addMarginlyPool(vaultAddress, marginlyPool);
+          await tx.wait();
+
+          console.log(`MarginlyPool ${marginlyPool} connected to vault ${vaultConfig.id}`);
+        }
       }
     }
 

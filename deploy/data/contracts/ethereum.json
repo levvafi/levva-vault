@@ -41,5 +41,13 @@
   "vault-weeth-1": {
     "address": "0x60837bCAf0d157EdE629AC4b5f6639F45Db0aa2e",
     "implementation": "0x89E0e6535F1582bff372305521FD43510634Fe95"
+  },
+  "vault-usr-1": {
+    "address": "0x53281e05Cf35162c031E0A351B64Ae936563111b",
+    "implementation": "0x89E0e6535F1582bff372305521FD43510634Fe95"
+  },
+  "vault-inwsteths-1": {
+    "address": "0xDf9800437b4ed0d75885B59FD41A26Bf92Ae4E80",
+    "implementation": "0x89E0e6535F1582bff372305521FD43510634Fe95"
   }
 }

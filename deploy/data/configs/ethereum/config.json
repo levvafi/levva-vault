@@ -41,6 +41,18 @@
             "address": "0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee",
             "assertSymbol": "weETH",
             "assertDecimals": 18
+        },
+        {
+            "id": "usr",
+            "address": "0x66a1E37c9b0eAddca17d3662D6c05F4DECf3e110",
+            "assertSymbol": "USR",
+            "assertDecimals": 18
+        },
+        {
+            "id": "inwsteths",
+            "address": "0x8E0789d39db454DBE9f4a77aCEF6dc7c69f6D552",
+            "assertSymbol": "inwstETHs",
+            "assertDecimals": 18
         }
     ],
 
@@ -63,7 +75,7 @@
     ],
 
     "vaultsDescription":"Here we should describe all vaults that will be created",
-    "vaults": [
+    "vaultsBackup":[
         {
             "id": "wbtc-1",
             "tokenId": "wbtc",
@@ -169,6 +181,32 @@
             "minDeposit": "0",
             "technicalPositionDeposit": "0.001",
             "description": "pt-weeth-26dec2024/weeth"
+        }
+    ],
+    "vaults": [
+        {
+            "id": "usr-1",
+            "tokenId": "usr",
+            "lpName": "Levva LP USR 1",
+            "lpSymbol": "lvvaUSR-1",
+            "adapters":[
+                "marginly"
+            ],
+            "marginlyPools": [],
+            "minDeposit": "5",
+            "technicalPositionDeposit": "10"
+        },
+        {
+            "id": "inwsteths-1",
+            "tokenId": "inwsteths",
+            "lpName": "Levva LP inwstETHs 1",
+            "lpSymbol": "lvvaINWSTETH-1",
+            "adapters":[
+                "marginly"
+            ],
+            "marginlyPools": [],
+            "minDeposit": "0.0015",
+            "technicalPositionDeposit": "0.0015"
         }
     ]
   }
