@@ -49,5 +49,9 @@
   "vault-inwsteths-1": {
     "address": "0xDf9800437b4ed0d75885B59FD41A26Bf92Ae4E80",
     "implementation": "0x89E0e6535F1582bff372305521FD43510634Fe95"
+  },
+  "vault-wstusr-1": {
+    "address": "0xBf872666E9B543478edEE93968D267B850ED1d2b",
+    "implementation": "0x89E0e6535F1582bff372305521FD43510634Fe95"
   }
 }

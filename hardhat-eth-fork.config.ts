@@ -12,7 +12,7 @@ const config = {
       forking: {
         enabled: true,
         url: process.env.ETHEREUM_RPC_URL,
-        blockNumber: 21888100,
+        blockNumber: 21944989,
       },
       initialBaseFeePerGas: 0,
     },

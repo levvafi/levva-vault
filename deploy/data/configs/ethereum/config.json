@@ -53,6 +53,12 @@
             "address": "0x8E0789d39db454DBE9f4a77aCEF6dc7c69f6D552",
             "assertSymbol": "inwstETHs",
             "assertDecimals": 18
+        },
+        {
+            "id": "wstusr",
+            "address": "0x1202F5C7b4B9E47a1A484E8B270be34dbbC75055",
+            "assertSymbol": "wstUSR",
+            "assertDecimals": 18
         }
     ],
 
@@ -185,28 +191,20 @@
     ],
     "vaults": [
         {
-            "id": "usr-1",
-            "tokenId": "usr",
-            "lpName": "Levva LP USR 1",
-            "lpSymbol": "lvvaUSR-1",
+            "id": "wstusr-1",
+            "tokenId": "wstusr",
+            "lpName": "Levva LP wstUSR 1",
+            "lpSymbol": "lvvaWSTUSR-1",
             "adapters":[
                 "marginly"
             ],
-            "marginlyPools": [],
+            "marginlyPools": [
+                "0xfb90799F0966728Ac79bec97F46B317d80605bA0",
+                "0xd1e6E2bfB33De80Aa47458EDd75eeFFdA93510ec"
+            ],
             "minDeposit": "5",
-            "technicalPositionDeposit": "10"
-        },
-        {
-            "id": "inwsteths-1",
-            "tokenId": "inwsteths",
-            "lpName": "Levva LP inwstETHs 1",
-            "lpSymbol": "lvvaINWSTETH-1",
-            "adapters":[
-                "marginly"
-            ],
-            "marginlyPools": [],
-            "minDeposit": "0.0015",
-            "technicalPositionDeposit": "0.0015"
+            "technicalPositionDeposit": "5",
+            "description": "pt-wstUSR-27Mar2025/wstUSR Pendle, PT-wstUSR-1750896030/wstUSR Spectra"
         }
     ]
   }

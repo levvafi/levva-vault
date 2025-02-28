@@ -82,6 +82,13 @@
     },
     "vault-inwsteths-1-impl": {
       "address": "0x89E0e6535F1582bff372305521FD43510634Fe95"
+    },
+    "vault-wstusr-1-proxy": {
+      "address": "0xBf872666E9B543478edEE93968D267B850ED1d2b",
+      "txHash": "0xc8db658eb8a4fa9933d8e20510e51d040384522a89f1a8237d1e638daf6a4977"
+    },
+    "vault-wstusr-1-impl": {
+      "address": "0x89E0e6535F1582bff372305521FD43510634Fe95"
     }
   }
 }
