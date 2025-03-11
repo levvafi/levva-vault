@@ -11,7 +11,7 @@ const config = {
     hardhat: {
       forking: {
         enabled: true,
-        url: process.env.ARBITRUM_RPC_URL!,
+        url: 'https://arb1.arbitrum.io/rpc',
         blockNumber: 262018580,
       },
       initialBaseFeePerGas: 0,
