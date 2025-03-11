@@ -68,6 +68,27 @@
     "timelock": {
       "address": "0xCF515e7cB2a636CDe81D63A37F2433100cbf982C",
       "txHash": "0x8d8636dd8ddafdffe800de3783dce919a4e1a991ca3410f19e469e6a2017336b"
+    },
+    "vault-usr-1-proxy": {
+      "address": "0x53281e05Cf35162c031E0A351B64Ae936563111b",
+      "txHash": "0x44c22ce05f2a49371455df40064bc20a4b7c9155d5815ab81bcbec4a89ed95ac"
+    },
+    "vault-usr-1-impl": {
+      "address": "0x89E0e6535F1582bff372305521FD43510634Fe95"
+    },
+    "vault-inwsteths-1-proxy": {
+      "address": "0xDf9800437b4ed0d75885B59FD41A26Bf92Ae4E80",
+      "txHash": "0x9079cc9b4179f8bdcdc812553925c39d49c01cc383d91f0c2d51d59718ff1e49"
+    },
+    "vault-inwsteths-1-impl": {
+      "address": "0x89E0e6535F1582bff372305521FD43510634Fe95"
+    },
+    "vault-wstusr-1-proxy": {
+      "address": "0xBf872666E9B543478edEE93968D267B850ED1d2b",
+      "txHash": "0xc8db658eb8a4fa9933d8e20510e51d040384522a89f1a8237d1e638daf6a4977"
+    },
+    "vault-wstusr-1-impl": {
+      "address": "0x89E0e6535F1582bff372305521FD43510634Fe95"
     }
   }
 }

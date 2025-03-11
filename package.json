@@ -37,7 +37,9 @@
     "@openzeppelin/hardhat-upgrades": "^3.1.1",
     "@typechain/ethers-v6": "0.5.1",
     "@typechain/hardhat": "9.1.0",
+    "@types/chai": "^4.2.0",
     "@types/jest": "^29.2.5",
+    "@types/mime-types": "^2.1.4",
     "@types/mocha": "^10.0.1",
     "@typescript-eslint/eslint-plugin": "^7.12.0",
     "@typescript-eslint/parser": "^7.12.0",
@@ -45,6 +47,7 @@
     "@uniswap/v3-periphery": "^1.4.3",
     "bignumber.js": "^9.1.1",
     "chai": "^4.3.7",
+    "dotenv": "^16.3.1",
     "eslint": "^9.4.0",
     "eslint-config-prettier": "^9.1.0",
     "ethers": "^6.13.0",
@@ -55,12 +58,13 @@
     "mocha-chai-jest-snapshot": "^1.1.6",
     "prettier": "^3.3.1",
     "prettier-plugin-solidity": "1.3.1",
+    "prompts": "^2.4.2",
     "solhint": "^5.0.3",
     "solhint-plugin-prettier": "^0.1.0",
     "solidity-coverage": "^0.8.13",
     "ts-node": "^10.9.1",
     "typechain": "^8.3.2",
     "typescript": "5.4.5",
-    "dotenv": "^16.3.1"
+    "@types/prompts": "^2.4.9"
   }
 }

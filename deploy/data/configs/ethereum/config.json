@@ -41,6 +41,24 @@
             "address": "0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee",
             "assertSymbol": "weETH",
             "assertDecimals": 18
+        },
+        {
+            "id": "usr",
+            "address": "0x66a1E37c9b0eAddca17d3662D6c05F4DECf3e110",
+            "assertSymbol": "USR",
+            "assertDecimals": 18
+        },
+        {
+            "id": "inwsteths",
+            "address": "0x8E0789d39db454DBE9f4a77aCEF6dc7c69f6D552",
+            "assertSymbol": "inwstETHs",
+            "assertDecimals": 18
+        },
+        {
+            "id": "wstusr",
+            "address": "0x1202F5C7b4B9E47a1A484E8B270be34dbbC75055",
+            "assertSymbol": "wstUSR",
+            "assertDecimals": 18
         }
     ],
 
@@ -63,7 +81,7 @@
     ],
 
     "vaultsDescription":"Here we should describe all vaults that will be created",
-    "vaults": [
+    "vaultsBackup":[
         {
             "id": "wbtc-1",
             "tokenId": "wbtc",
@@ -169,6 +187,24 @@
             "minDeposit": "0",
             "technicalPositionDeposit": "0.001",
             "description": "pt-weeth-26dec2024/weeth"
+        }
+    ],
+    "vaults": [
+        {
+            "id": "wstusr-1",
+            "tokenId": "wstusr",
+            "lpName": "Levva LP wstUSR 1",
+            "lpSymbol": "lvvaWSTUSR-1",
+            "adapters":[
+                "marginly"
+            ],
+            "marginlyPools": [
+                "0xfb90799F0966728Ac79bec97F46B317d80605bA0",
+                "0xd1e6E2bfB33De80Aa47458EDd75eeFFdA93510ec"
+            ],
+            "minDeposit": "5",
+            "technicalPositionDeposit": "5",
+            "description": "pt-wstUSR-27Mar2025/wstUSR Pendle, PT-wstUSR-1750896030/wstUSR Spectra"
         }
     ]
   }
