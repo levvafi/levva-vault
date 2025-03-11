@@ -2,6 +2,7 @@ import '@nomicfoundation/hardhat-toolbox';
 import './tasks';
 import * as defaultConfig from './hardhat.common';
 import { configDotenv } from 'dotenv';
+import { HardhatConfig } from 'hardhat/types';
 
 configDotenv();
 
@@ -11,7 +12,7 @@ const config = {
     hardhat: {
       forking: {
         enabled: true,
-        url: process.env.ETHEREUM_RPC_URL,
+        url: process.env.ETHEREUM_RPC_URL!,
         blockNumber: 21944989,
       },
       initialBaseFeePerGas: 0,
