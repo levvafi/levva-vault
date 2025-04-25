@@ -13,7 +13,7 @@ import { afterDeploy, beforeDeploy, DeployArgs, deployTask } from './utils';
  *  npx hardhat --network hardhat --config hardhat-arb-fork.config.ts task:deploy --network-name <network-name> --impersonate-signer <address>
  *
  *  Deploy on real network:
- *  npx hardhat --network <network-name> --config hardhat.config.ts task:deploy --network-name <network-name> --creator-key <private-key> --is-private-key
+ *  npx hardhat --network <network-name> --config hardhat.config.ts task:deploy --network-name <network-name> --keystore <keystore-file>
  */
 
 deployTask('task:deploy', 'Deploy vaults').setAction(async (taskArgs: DeployArgs, hre: HardhatRuntimeEnvironment) => {
@@ -30,7 +30,7 @@ deployTask('task:deploy', 'Deploy vaults').setAction(async (taskArgs: DeployArgs
  *  npx hardhat --network hardhat --config hardhat-arb-fork.config.ts task:deploy-contract-registry --network-name <network-name> --creator-key <public-or-private-key>
  *
  *  Deploy on real network:
- *  npx hardhat --network <network-name> --config hardhat.config.ts task:deploy-contract-registry --network-name <network-name> --creator-key <private-key> --is-private-key
+ *  npx hardhat --network <network-name> --config hardhat.config.ts task:deploy-contract-registry --network-name <network-name> --keystore <keystore-file>
  */
 
 deployTask('task:deploy-contract-registry', 'Deploy contract registry').setAction(

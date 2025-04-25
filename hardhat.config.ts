@@ -19,6 +19,27 @@ const config = {
     holesky: {
       url: process.env.ETH_HOLESKY_RPC_URL,
     },
+    sonic: {
+      url: process.env.SONIC_RPC_URL,
+    },
+  },
+  etherscan: {
+    apiKey: {
+      ethereum: process.env.API_KEY,
+      arbitrum: process.env.ARBITRUM_API_KEY,
+      holesky: process.env.HOLESKY_API_KEY,
+      sonic: process.env.SONIC_API_KEY,
+    },
+    customChains: [
+      {
+        network: 'sonic',
+        chainId: 146,
+        urls: {
+          apiURL: 'https://api.sonicscan.org/api',
+          browserURL: 'https://sonicscan.org',
+        },
+      },
+    ],
   },
 };
 

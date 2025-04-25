@@ -16,14 +16,11 @@ export const config = {
           viaIR: true,
           optimizer: {
             enabled: true,
-            runs: 4000000000,
+            runs: 100000000,
           },
         },
       },
     ],
-  },
-  etherscan: {
-    apiKey: process.env.API_KEY,
   },
   mocha: {
     timeout: 2_000_000,

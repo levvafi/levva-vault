@@ -1,0 +1,19 @@
+{
+  "contractRegistry": {
+    "address": "0x8Dbc09C0BD6D99AF01B8254432A13E6FF1b214Bd"
+  },
+  "configManager": {
+    "address": "0x9b3FaC455C34B45b8fEbfE844391bFB06849F03F",
+    "implementation": "0xb88600ae5AC91486B13b2EF20bBf2378c3D35D64"
+  },
+  "marginlyAdapter": {
+    "address": "0xD9bE83e85f81a4EB4e60d6CC4A736dC8166C75d8"
+  },
+  "aaveAdapter": {
+    "address": "0x3431Bf32a9B2be58D6ba80b23E2229426d29eF3C"
+  },
+  "vault-usdc.e-1": {
+    "address": "0x0901a0E1592d9CaEcDc1d10A687520d7e0D054BC",
+    "implementation": "0xd2Ae798a23825CF450018F93B5E03fa73900CdC2"
+  }
+}
