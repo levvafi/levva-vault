@@ -53,5 +53,9 @@
   "vault-wstusr-1": {
     "address": "0xBf872666E9B543478edEE93968D267B850ED1d2b",
     "implementation": "0x89E0e6535F1582bff372305521FD43510634Fe95"
+  },
+  "vault-usdc-1": {
+    "address": "0x78f7C79d8aE156A6C68c67d0393d1cCc97df3Bdf",
+    "implementation": "0x89E0e6535F1582bff372305521FD43510634Fe95"
   }
 }

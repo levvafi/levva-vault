@@ -187,9 +187,7 @@
             "minDeposit": "0",
             "technicalPositionDeposit": "0.001",
             "description": "pt-weeth-26dec2024/weeth"
-        }
-    ],
-    "vaults": [
+        },
         {
             "id": "wstusr-1",
             "tokenId": "wstusr",
@@ -205,6 +203,22 @@
             "minDeposit": "5",
             "technicalPositionDeposit": "5",
             "description": "pt-wstUSR-27Mar2025/wstUSR Pendle, PT-wstUSR-1750896030/wstUSR Spectra"
+        }
+    ],
+    "vaults": [
+        {
+            "id": "usdc-1",
+            "tokenId": "usdc",
+            "lpName": "Levva LP USDC 1",
+            "lpSymbol": "lvvaUSDC-1",
+            "adapters":[
+                "aave",
+                "marginly"
+            ],
+            "marginlyPools": [],
+            "minDeposit": "5",
+            "technicalPositionDeposit": "5",
+            "description": ""
         }
     ]
   }

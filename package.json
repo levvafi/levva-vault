@@ -52,7 +52,7 @@
     "eslint-config-prettier": "^9.1.0",
     "ethers": "^6.13.0",
     "ganache": "^7.8.0",
-    "hardhat": "2.22.13",
+    "hardhat": "^2.23.0",
     "hardhat-contract-sizer": "^2.10.0",
     "hardhat-gas-reporter": "^2.2.1",
     "mocha-chai-jest-snapshot": "^1.1.6",
