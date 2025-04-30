@@ -96,6 +96,13 @@
     },
     "vault-usdc-1-impl": {
       "address": "0x89E0e6535F1582bff372305521FD43510634Fe95"
+    },
+    "vault-susde-1-proxy": {
+      "address": "0x649fcA0379B6D70ff6c1BC5B900ed41055E84e5D",
+      "txHash": "0xfc2694ec2c21f1b0942b5b8b9779228634b8bcbca3392aebb19ac609ab1f3846"
+    },
+    "vault-susde-1-impl": {
+      "address": "0x89E0e6535F1582bff372305521FD43510634Fe95"
     }
   }
 }

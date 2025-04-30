@@ -59,6 +59,12 @@
             "address": "0x1202F5C7b4B9E47a1A484E8B270be34dbbC75055",
             "assertSymbol": "wstUSR",
             "assertDecimals": 18
+        },
+        {
+            "id": "susde",
+            "address": "0x9d39a5de30e57443bff2a8307a4256c8797a3497",
+            "assertSymbol": "sUSDe",
+            "assertDecimals": 18
         }
     ],
 
@@ -207,18 +213,20 @@
     ],
     "vaults": [
         {
-            "id": "usdc-1",
-            "tokenId": "usdc",
-            "lpName": "Levva LP USDC 1",
-            "lpSymbol": "lvvaUSDC-1",
+            "id": "susde-1",
+            "tokenId": "susde",
+            "lpName": "Levva LP sUSDe 1",
+            "lpSymbol": "lvvasUSDE-1",
             "adapters":[
-                "aave",
                 "marginly"
             ],
-            "marginlyPools": [],
+            "marginlyPools": [
+                "0x9212F6Bbe36164BfA9E86031e9C9916D4e8edf61",
+                "0x6C651b633470Fe9CDe7C7b71865Cc7790c164c27"
+            ],
             "minDeposit": "5",
             "technicalPositionDeposit": "5",
-            "description": ""
+            "description": "pt-sUSDe-29May2025/sUSDe, pt-sUSDe-31Jul2025/sUSDe"
         }
     ]
   }

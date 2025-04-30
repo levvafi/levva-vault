@@ -16,7 +16,7 @@ export const config = {
           viaIR: true,
           optimizer: {
             enabled: true,
-            runs: 100000000,
+            runs: 4000000,
           },
         },
       },

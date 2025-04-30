@@ -12,8 +12,8 @@ const config = {
     hardhat: {
       forking: {
         enabled: true,
-        url: 'https://rpc.ankr.com/eth',
-        blockNumber: 21944989,
+        url: process.env.ETHEREUM_RPC_URL,
+        blockNumber: 22382220,
       },
       initialBaseFeePerGas: 0,
     },
