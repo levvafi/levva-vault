@@ -22,6 +22,9 @@ const config = {
     sonic: {
       url: process.env.SONIC_RPC_URL,
     },
+    base: {
+      url: process.env.BASE_RPC_URL,
+    },
   },
   etherscan: {
     apiKey: {
@@ -29,6 +32,7 @@ const config = {
       arbitrum: process.env.ARBITRUM_API_KEY,
       holesky: process.env.HOLESKY_API_KEY,
       sonic: process.env.SONIC_API_KEY,
+      base: process.env.BASE_API_KEY,
     },
     customChains: [
       {
@@ -37,6 +41,14 @@ const config = {
         urls: {
           apiURL: 'https://api.sonicscan.org/api',
           browserURL: 'https://sonicscan.org',
+        },
+      },
+      {
+        network: 'base',
+        chainId: 8453,
+        urls: {
+          apiURL: 'https://api.basescan.org/api',
+          browserURL: 'https://basescan.org',
         },
       },
     ],
