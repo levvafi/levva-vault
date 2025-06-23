@@ -1,0 +1,30 @@
+{
+  "contracts": {
+    "contractRegistry": {
+      "address": "0x8dbc09c0bd6d99af01b8254432a13e6ff1b214bd",
+      "txHash": "0x5744613944181ead5e7a53a5da834481a01a67419501dd547f2e5a98881927d2"
+    },
+    "configManager-proxy": {
+      "address": "0x9b3FaC455C34B45b8fEbfE844391bFB06849F03F",
+      "txHash": "0x0bcd70fc709ab12cbc958339c4f41c0cb56488c1ef7630919def4f4a6a7af43d"
+    },
+    "configManager-impl": {
+      "address": "0xb88600ae5AC91486B13b2EF20bBf2378c3D35D64"
+    },
+    "marginlyAdapter": {
+      "address": "0xD9bE83e85f81a4EB4e60d6CC4A736dC8166C75d8",
+      "txHash": "0xf39f6a05d5a78ecc3c645fafe3e6ce12e60de12d99448a04a7ae05705dacb4a1"
+    },
+    "vault-usr-1-proxy": {
+      "address": "0xd2Ae798a23825CF450018F93B5E03fa73900CdC2",
+      "txHash": "0xf7b5a27564256f04826674ba0fac10d4f1173bbbea16e7795e402c1587a7a1b2"
+    },
+    "vault-usr-1-impl": {
+      "address": "0x3431Bf32a9B2be58D6ba80b23E2229426d29eF3C"
+    },
+    "timelock": {
+      "address": "0xD5567f616a6cC66ec6bc63132A584C0eA83Bc7a1",
+      "txHash": "0x39a303333002b65fdf2ba6ca72d745f5f5f6ce0e4c36dbe285cb1457a7a23364"
+    }
+  }
+}

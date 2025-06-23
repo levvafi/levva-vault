@@ -1,0 +1,47 @@
+{
+    "ethConnection": {
+      "chainId": 146,
+      "ethOptions": {}
+    },
+
+    "tokensDescription":"Here we should describe all tokens that will be used as underlying assets for vaults",
+    "tokens": [
+        {
+            "id": "usr",
+            "address": "0x35E5dB674D8e93a03d814FA0ADa70731efe8a4b9",
+            "assertSymbol": "USR",
+            "assertDecimals": "18"
+        }
+    ],
+
+    "configurationManagerDescription":"Here we should describe arguments of configuration manager. One configuration manager for all vaults",
+    "configurationManager":{
+        "weth9": "0x4200000000000000000000000000000000000006",
+        "weeth": "0x0000000000000000000000000000000000000000",
+        "aavePoolAddressProvider": "0xe20fCBdBfFC4Dd138cE8b2E6FBb6CB49777ad64D"
+    },
+    "adapters":[
+        {
+            "type":"marginly"
+        }
+    ],
+
+    "vaultsDescription":"Here we should describe all vaults that will be created",
+    "vaults": [
+        {
+            "id": "usr-1",
+            "tokenId": "usr",
+            "lpName": "Levva LP USR 1",
+            "lpSymbol": "lvvaUSR-1",
+            "adapters":[
+                "marginly"
+            ],
+            "marginlyPools": [
+                "0x08555D2d418019a875d710087BabB952ef4dFDd7"
+            ],
+            "minDeposit": "5",
+            "technicalPositionDeposit": "5",
+            "description": "pt-usr-25sep2025 / USR"
+        }
+    ]
+  }
