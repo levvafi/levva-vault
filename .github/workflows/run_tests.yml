@@ -22,6 +22,10 @@ jobs:
       - name: Run unit tests
         run: yarn test
       - name: Run integration tests on Ethereum fork
+        env:
+          ETHEREUM_RPC_URL: ${{ secrets.ETHEREUM_RPC_URL }}
         run: yarn test:int-eth
       - name: Run integration tests on Arbitrum fork
         run: yarn test:int-arb
+        env:
+          ARBITRUM_RPC_URL: ${{ secrets.ARBITRUM_RPC_URL }}
