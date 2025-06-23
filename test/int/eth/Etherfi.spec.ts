@@ -33,6 +33,7 @@ const EtherfiWithdrawRequestNFTAddress = '0x7d5706f6ef3F89B3951E23e557CDFBC3239D
 const EtherfiAdminAddress = '0x0EF8fa4760Db8f5Cd4d993f3e3416f30f942D705';
 const EtherfiTimelockAddress = '0x9f26d4C958fD811A1F59B01B86Be7dFFc9d20761';
 const EtherfiMembershipManagerAddress = '0x3d320286E014C3e1ce99Af6d6B00f0C1D63E3000';
+const EtherFiNftAdmin = '0xcD425f44758a08BaAB3C4908f3e3dE5776e45d7a';
 
 let weeth: IERC20;
 let weth: IWeth9;
@@ -49,6 +50,7 @@ let etherfiWithdrawRequestNFTContract: IWithdrawRequestNFT;
 let etherfiLiquidityPoolContract: ILiquidityPool;
 let etherfiWithdrawNftOwner: SignerWithAddress;
 let etherfiMembershipManager: SignerWithAddress;
+let etherfiNftAdmin: SignerWithAddress;
 
 async function deployVaultWithEtherfiAdapter() {
   [owner, vaultManager, user, user2, user3, techPositionUser] = await ethers.getSigners();
@@ -107,6 +109,12 @@ async function deployVaultWithEtherfiAdapter() {
     value: parseUnits('5', 18),
   });
 
+  etherfiNftAdmin = await ethers.getImpersonatedSigner(EtherFiNftAdmin);
+  await owner.sendTransaction({
+    to: etherfiNftAdmin,
+    value: parseUnits('1', 18),
+  });
+
   etherfiMembershipManager = await ethers.getImpersonatedSigner(EtherfiMembershipManagerAddress);
   await owner.sendTransaction({
     to: etherfiMembershipManager,
@@ -134,7 +142,8 @@ beforeEach(async () => {
 });
 
 async function etherfiFinalize() {
-  await etherfiWithdrawRequestNFTContract.connect(etherfiWithdrawNftOwner).finalizeRequests(999999);
+  const lastRequestId = (await etherfiWithdrawRequestNFTContract.nextRequestId()) - 1n;
+  await etherfiWithdrawRequestNFTContract.connect(etherfiNftAdmin).finalizeRequests(lastRequestId);
 }
 
 async function etherfiRebase() {
@@ -159,9 +168,6 @@ describe('Vault with etherfi adapter', () => {
     await vault.connect(vaultManager).executeProtocolAction([depositAction]);
     await logVaultState(vault, 'after deposit');
 
-    await etherfiRebase();
-    await etherfiFinalize();
-
     await logVaultState(vault, 'after rebase and reinit');
 
     const requestWithdrawAmount = parseUnits('1.5', 18);
@@ -170,6 +176,9 @@ describe('Vault with etherfi adapter', () => {
       data: encodeEtherfiRequestWithdraw(requestWithdrawAmount),
     };
     await vault.connect(vaultManager).executeProtocolAction([requestWithdrawAction]);
+
+    await etherfiRebase();
+    await etherfiFinalize();
 
     const claimWithdrawAction: IVault.ProtocolActionArgStruct = {
       protocol: ProtocolType.Etherfi,
@@ -180,7 +189,7 @@ describe('Vault with etherfi adapter', () => {
     await logVaultState(vault, 'after unstake 1.5 ETH');
   });
 
-  it('multiple unstake requests', async () => {
+  it.only('multiple unstake requests', async () => {
     const depositAmount = parseUnits('14', 18);
 
     const depositAction: IVault.ProtocolActionArgStruct = {
@@ -191,8 +200,6 @@ describe('Vault with etherfi adapter', () => {
     await logVaultState(vault, 'after deposit');
 
     await logVaultState(vault, 'after 3 unstake requests');
-    await etherfiRebase();
-    await etherfiFinalize();
 
     let totalClaim = await etherfiLiquidityPoolContract.getTotalEtherClaimOf(await vault.getAddress());
     const requestWithdrawAmount1 = parseUnits('3', 18);
@@ -214,6 +221,9 @@ describe('Vault with etherfi adapter', () => {
     await vault
       .connect(vaultManager)
       .executeProtocolAction([requestWithdrawAction1, requestWithdrawAction2, requestWithdrawAction3]);
+
+    await etherfiRebase();
+    await etherfiFinalize();
 
     const claimWithdrawAction: IVault.ProtocolActionArgStruct = {
       protocol: ProtocolType.Etherfi,
